@@ -65,5 +65,5 @@ app.use (err, req, res, next) ->
   console.error err.stack
   res.jsonp 500, {'err':err}
 
-app.listen 3000
-console.log 'Nasjonal turbase running on port 3000'
+app.listen 4000
+console.log 'Nasjonal turbase running on port 4000'
