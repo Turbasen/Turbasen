@@ -5,13 +5,13 @@
 mongodb = require 'mongodb'
 #MongoDB kobling
 server  = new mongodb.Server "127.0.0.1", 27017, {safe:true, auto_reconnect: true}, {}
-db      = new mongodb.Db 'dnt', server, {}
+db      = new mongodb.Db 'dnt', server, {safe:true}
 db.open(()->)
 
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
-    collection.find({_id: mongodb.ObjectID(req.params.id)}).toArray (err, result) ->
+    collection.find({_id: mongodb.ObjectID(req.params.id), 'eier':req.eier}).toArray (err, result) ->
       res.jsonp result if result
       res.jsonp err if err
 
@@ -30,6 +30,7 @@ exports.insert = (req, res) ->
   #dynamisk collection via req.params.object
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
+    console.log req.data
     collection.insert req.data, {safe: true}, (err, records) ->
       res.jsonp err if err
       res.jsonp records
@@ -56,5 +57,5 @@ exports.delete = (req, res) ->
   db.collection req.params.object, (err, collection) ->
     console.log req.eier
     collection.remove {'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}, {safe: true}, (err, status) ->
-      res.json '1' if not err
-      res.json err if err
+      res.jsonp "{'_id':#{req.params.id}, 'action':'delete', 'status':#{status}}" if not err
+      res.jsonp JSON.stringify err if err

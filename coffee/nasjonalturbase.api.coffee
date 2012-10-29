@@ -13,9 +13,9 @@ app.use express.bodyParser()
 # Error handling
 app.use express.errorHandler()
 
-# Hent eier ut fra api-key.
-# Todo
 # Hvis data sendes med, så sanitize data og legg til eier (fra api-key etter hvert)
+
+# Hent eier ut fra api-key.
 app.use (req, res, next) ->
   eiere =
     "dnt":
