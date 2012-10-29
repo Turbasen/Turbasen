@@ -35,12 +35,16 @@ exports.insert = (req, res) ->
       res.jsonp records
 
 exports.update = (req, res) ->
+  console.log 'Update'
+  console.log req.data
   db.collection req.params.object, (err, collection) ->
     collection.update {'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}, {$set: req.data}, {safe: true}, (err, records) ->
       if not err
         collection.find({'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}).toArray (err, result) ->
           res.jsonp result if result
           res.jsonp err if err
+      else
+        res.jsonp err
 
 exports.updates = (req, res) ->
   res.jsonp "Updates #{req.params.object} with data: #{req.query.data}"

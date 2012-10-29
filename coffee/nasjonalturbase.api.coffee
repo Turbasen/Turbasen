@@ -17,12 +17,18 @@ app.use express.errorHandler()
 # Todo
 # Hvis data sendes med, så sanitize data og legg til eier (fra api-key etter hvert)
 app.use (req, res, next) ->
+  eiere =
+    "dnt":
+      "navn": "DNT"
+    "nrk":
+      "navn": "NRK"
+
+  req.eier = eiere[req.query.api_key]?.navn or res.end 'api_key parameter mangler eller er feil'
+
   data = req.params?.data or req.query?.data
   if data
     req.data = JSON.parse data if data
-    req.data.eier = 'DNT'
-  # Her må det fikses
-  req.eier = 'DNT'
+    req.data.eier = req.eier
   next()
 
 # Routing
@@ -35,7 +41,8 @@ app.all '/',(req, res) ->
   API for Nasjonal Turbase. Versjon 0.
   <br /><a href='http://api.nasjonalturbase.no/v0/turer/'>http://api.nasjonalturbase.no/v0/turer/</a>
   <br /><a href='http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75'>http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?method=put&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}'>http://api.nasjonalturbase.no/v0/turer/?method=put&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}'>http://api.nasjonalturbase.no/v0/turer/?method=put&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}</a>
   "
   res.send intro
 
