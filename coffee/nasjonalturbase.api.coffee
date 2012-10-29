@@ -40,9 +40,10 @@ app.all '/',(req, res) ->
   intro = "
   API for Nasjonal Turbase. Versjon 0.
   <br /><a href='http://api.nasjonalturbase.no/v0/turer/'>http://api.nasjonalturbase.no/v0/turer/</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75'>http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}'>http://api.nasjonalturbase.no/v0/turer/?method=put&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75?api_key=dnt'>http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75?api_key=dnt</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}'>http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}</a>
+  <br /><a href='http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del</a>
   "
   res.send intro
 
