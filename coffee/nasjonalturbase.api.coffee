@@ -48,13 +48,16 @@ app.all '/',(req, res) ->
   res.send intro
 
 app.all '/:object/', (req, res) ->
+  console.log "OBJECT"
   switch req.query.method
-    when 'post' then turbase.insert req, res 
-    when 'put' then turbase.updates req, res 
-    when 'del' then turbase.deletes req, res 
+    when 'post' then turbase.insert req, res
+    when 'put' then turbase.updates req, res
+    when 'del' then turbase.deletes req, res
     else turbase.list req, res
 
 app.all '/:object/:id', (req, res) ->
+  console.log "OBJECT/ID"
+  console.log req.query.method
   switch req.query.method
     when 'post' then res.send 'Error'
     when 'put' then turbase.update req, res

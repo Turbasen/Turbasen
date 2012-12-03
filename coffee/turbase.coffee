@@ -11,18 +11,19 @@ db.open(()->)
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
+    res.jsonp "{'error': 'Mangler id'}" if not req.params.id
     collection.find({_id: mongodb.ObjectID(req.params.id), 'eier':req.eier}).toArray (err, result) ->
+      console.log err
       res.jsonp result if result
       res.jsonp err if err
 
 exports.list = (req, res) ->
-  limit   = req.query.limit or 10
-  offset  = req.query.offset or 0
-  console.log req.eier
+  limit   = parseInt(req.query.limit) or 10
+  offset  = parseInt(req.query.offset) or 0
   # sett inn dynamisk collection her: req.params.object
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
-    collection.find({'eier':req.eier}).toArray (err, result) ->
+    collection.find({'eier':req.eier},{'tp_name':1}).limit(limit).skip(offset).toArray (err, result) ->
       res.jsonp result if result
       res.jsonp err if err
 
@@ -30,14 +31,11 @@ exports.insert = (req, res) ->
   #dynamisk collection via req.params.object
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
-    console.log req.data
     collection.insert req.data, {safe: true}, (err, records) ->
       res.jsonp err if err
       res.jsonp records
 
 exports.update = (req, res) ->
-  console.log 'Update'
-  console.log req.data
   db.collection req.params.object, (err, collection) ->
     collection.update {'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}, {$set: req.data}, {safe: true}, (err, records) ->
       if not err
@@ -51,11 +49,10 @@ exports.updates = (req, res) ->
   res.jsonp "Updates #{req.params.object} with data: #{req.query.data}"
 
 exports.delete = (req, res) ->
-  console.log "Delete"
   # Legg til eier-felt ved spesifisering av hva som skal slettes, slik at kun eier kan slette.
   # Eier-id bør ikke være api-key, da denne bør kunne byttes.
   db.collection req.params.object, (err, collection) ->
-    console.log req.eier
+    res.jsonp "{'error':#{err}}" if err
     collection.remove {'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}, {safe: true}, (err, status) ->
       res.jsonp "{'_id':#{req.params.id}, 'action':'delete', 'status':#{status}}" if not err
       res.jsonp JSON.stringify err if err
