@@ -32,6 +32,10 @@ Returnere de første 5 resultater
 offset=10  
 Hoppe over de 10 første objektene i resultatet
 
+###Objektstruktur
+Nøyaktig hvilke feltnavn og datastruktur objektene i Nasjonal Turbase skal ha blir en standardiseringsprosess. Det er kanskje naturlig å ta utgangspunkt i eksisterende felter i Sherpa/UT.no, men de bør fornorskes og forenkles.
+Databasen er skjemaløs (MongoDB), så vilkårlige json-objekter kan legges inn
+
 Eksempler
 ---------
 Nasjonal Turbase inneholder objekttypene: "turer" og "steder".
@@ -55,9 +59,6 @@ Kallet returnerer oppdatert json-objekt (i et array)
 
 **For å slette tur med id 508ec09cd71b8f0000000001**  
 http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del
-
-**Objektstruktur for turer**  
-Nøyaktig hvilke feltnavn og datastruktur tur-objekter skal ha blir en standardiseringsprosess. Det er kanskje naturlig å ta utgangspunkt i eksisterende felter i Sherpa/UT.no, men de bør fornorskes og forenkles.
 
 ###Steder:
 **For å liste ut steder**  
