@@ -4,8 +4,19 @@
 
 mongodb = require 'mongodb'
 #MongoDB kobling
-server  = new mongodb.Server "127.0.0.1", 27017, {safe:true, auto_reconnect: true}, {}
-db      = new mongodb.Db 'dnt', server, {safe:true}
+#server  = new mongodb.Server "127.0.0.1", 27017, {safe:true, auto_reconnect: true}, {}
+#db      = new mongodb.Db 'ntb', server, {safe:true}
+#db.open(()->)
+
+replSet = new mongodb.ReplSet( [
+  new mongodb.Server( '127.0.0.1', 27017, {}),
+  new mongodb.Server( '127.0.0.1', 27018, {}),
+  new mongodb.Server( '127.0.0.1', 27019, {})
+  ]
+)
+
+db = new mongodb.Db('ntb_03', replSet, {native_parser: true});
+console.log "Kobler seg til mongodb replica set ntb og database ntb_<versjon>"
 db.open(()->)
 
 exports.get = (req, res) ->
@@ -13,7 +24,6 @@ exports.get = (req, res) ->
     res.jsonp "{'error':#{err}}" if err
     res.jsonp "{'error': 'Mangler id'}" if not req.params.id
     collection.find({_id: mongodb.ObjectID(req.params.id), 'eier':req.eier}).toArray (err, result) ->
-      console.log err
       res.jsonp result if result
       res.jsonp err if err
 
