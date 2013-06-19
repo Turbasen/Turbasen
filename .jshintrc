@@ -1,6 +1,5 @@
 {
-  "camelcase" : true
-  ,"curly"    : true
+  "curly"    : true
   ,"eqeqeq"   : true
   ,"noempty"  : true
   ,"nonew"    : true
