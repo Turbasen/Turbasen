@@ -1,8 +1,13 @@
 {
-  "name": "nasjonal turbase api",
-  "version": "0.0.1",
-  "dependencies": {
-      "express": "3.x",
-      "mongodb": "*"
-    }
+  "name": "nasjonalturbase.api"
+  ,"version": "0.0.1"
+  ,"dependencies": {
+    "coffee-script": "~1.6"
+    ,"express": "~3"
+    ,"mongodb": "*"
+    ,"jshint": "~2"
+  }
+  ,"scripts": {
+    "start": "node src/nasjonalturbase.api.js"
+  }
 }
