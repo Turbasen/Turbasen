@@ -66,3 +66,4 @@ exports.delete = (req, res) ->
     collection.remove {'_id':mongodb.ObjectID(req.params.id), 'eier': req.eier}, {safe: true}, (err, status) ->
       res.jsonp "{'_id':#{req.params.id}, 'action':'delete', 'status':#{status}}" if not err
       res.jsonp JSON.stringify err if err
+
