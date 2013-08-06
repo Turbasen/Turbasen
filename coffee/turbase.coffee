@@ -15,7 +15,7 @@ replSet = new mongodb.ReplSet( [
   ]
 )
 
-db = new mongodb.Db('ntb_03', replSet, {native_parser: true});
+db = new mongodb.Db('ntb_03', replSet, {native_parser: true})
 console.log "Kobler seg til mongodb replica set ntb og database ntb_<versjon>"
 db.open(()->)
 
