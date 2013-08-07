@@ -3,12 +3,16 @@
 
 # Boostrap Script
 $script = <<SCRIPT
+sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 apt-get update
 apt-get install -y python-software-properties python g++ make
 add-apt-repository ppa:chris-lea/node.js
 apt-get update
-apt-get install -y nodejs mongodb
+apt-get install -y nodejs autossh # mongodb
 npm install -g coffee-script express node-dev jshint mongodb --mongodb:native
+sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
+sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
+sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
 SCRIPT
 
 Vagrant.configure("2") do |config|
