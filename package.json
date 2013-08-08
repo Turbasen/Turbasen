@@ -6,6 +6,7 @@
     ,"express": "~3"
     ,"mongodb": "*"
     ,"jshint": "~2"
+    ,"mocha": "~1"
   }
   ,"scripts": {
     "start": "node src/nasjonalturbase.api.js"
