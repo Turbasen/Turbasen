@@ -2,3 +2,5 @@
 .vagrant/
 src/
 .ssh
+*.swp
+*.swo
