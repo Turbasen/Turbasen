@@ -6,7 +6,7 @@ mongodb = require 'mongodb'
 # @param {@code String} collection - collection name
 # @param {@code Function} cb - callback function (err, db)
 #
-module.exports = (collection, cb) ->
+exports.connect = (collection, cb) ->
   collection = collection || 'ntb_07'
 
   replSet = new mongodb.ReplSet [
@@ -22,3 +22,22 @@ module.exports = (collection, cb) ->
   db.open (err, db) ->
     return cb err, db
 
+#
+# Process documents syncronously
+#
+# @param {@code Object} cursor - active mongodb cursor
+# @param {@code Function} each - document processing function (doc, cb)
+# @param {@code Functuon} done - done callback function (err)
+#
+# @todo add counter
+# @todo add success, fail calbacks?
+#
+exports.each = (cursor, each, done) ->
+  next = () ->
+    cursor.nextObject (err, doc) ->
+      return done err if err
+      return done null if doc is null
+      each doc, (err) ->
+        return done err if err
+        next()
+  next()
