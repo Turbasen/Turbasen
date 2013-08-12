@@ -14,10 +14,10 @@ exports.connect = (collection, cb) ->
     , new mongodb.Server '127.0.0.1', 27018, {}
     , new mongodb.Server '127.0.0.1', 27019, {}
   ]
-   
-  db = new mongodb.Db collection, replSet,
-    native_parser: true
-    journal      : true
+  
+  db = new mongodb.Db collection, replSet, {
+    w: 0
+  }
   
   db.open (err, db) ->
     return cb err, db
@@ -33,11 +33,12 @@ exports.connect = (collection, cb) ->
 # @todo add success, fail calbacks?
 #
 exports.each = (cursor, each, done) ->
-  next = () ->
+  next = (i) ->
     cursor.nextObject (err, doc) ->
-      return done err if err
-      return done null if doc is null
+      console.log i, doc._id
+      return done err, i if err
+      return done null, i if doc is null
       each doc, (err) ->
-        return done err if err
-        next()
-  next()
+        return done err, i if err
+        next(++i)
+  next(0)

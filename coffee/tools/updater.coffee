@@ -11,44 +11,47 @@ database = require './../database'
 
 database.connect 'ntb_07', (err, db) ->
   return console.log 'db err', err if err
+
+
+  db.on 'error', (error, db) ->
+    console.log 'db.error', error
+    db.close()
   
   console.log 'Database connection is open'
 
-  db.collection 'aktiviteter', (err, collection) ->
+  db.collection 'turer', (err, collection) ->
     if err
       console.log 'db connection failed'
       console.log err
       return db.close()
     
     console.log "Collection is open"
-  
+
     update = (doc, cb) ->
-      return cb null if doc.geojson.coordinates[0] < doc.geojson.coordinates[1]
+      #if doc.privat.lenker
+      #  for link in doc.privat.lenker
+      #    if not link.url.match(/^http(s?):\/\//m)
+      #      console.log link.url
+      #      #return cb new Error('end')
+      #
+      #if doc.privat.eier
+      #  for eier in doc.privat.eier
+      #    if eier.url and not eier.url.match(/^http(s?):\/\//m)
+      #      console.log eier.url
       
-      coords = doc.geojson.coordinates
+      cb()
 
-      lat = coords[0]
-      lng = coords[1]
+    collection.find {"privat" : {$exists: true}}, (err, cursor) ->
+      console.log 'collection.find run'
 
-      coords[0] = lng
-      coords[1] = lat
-
-      if typeof coords[2] is 'undefined' or coords[2] is 0
-        coords[2] = -999
-
-      doc.geojson.coordinates = coords
-      console.log doc.geojson.coordinates
-
-      collection.save doc, (err) ->
-        cb err
-
-    collection.find {"geojson" : {$exists: true}}, (err, cursor) ->
       if err
         console.log 'collection.find() failed'
         console.log err
         return db.close()
 
-      database.each cursor, update, (err) ->
+      database.each cursor, update, (err, count) ->
+        console.log 'count', count
+
         if err
           console.log 'database update failed'
           console.log err

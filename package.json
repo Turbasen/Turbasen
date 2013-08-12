@@ -2,9 +2,8 @@
   "name": "nasjonalturbase.api"
   ,"version": "0.0.1"
   ,"dependencies": {
-    "coffee-script": "~1.6"
+    "coffee-script": "~1"
     ,"express": "~3"
-    ,"mongodb": "*"
     ,"jshint": "~2"
     ,"mocha": "~1"
   }
