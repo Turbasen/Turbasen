@@ -3,13 +3,32 @@
 
 # Boostrap Script
 $script = <<SCRIPT
+
+# SSH keys
 sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
+
+# Update
 apt-get update
-apt-get install -y python-software-properties python g++ make
-add-apt-repository ppa:chris-lea/node.js
-apt-get update
-apt-get install -y nodejs autossh # mongodb
-npm install -g coffee-script express node-dev jshint mongodb --mongodb:native
+apt-get install -y build-essential git curl autossh
+
+# NodeJS
+export HOME=/home/vagrant
+curl https://raw.github.com/creationix/nvm/master/install.sh | sh
+echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
+source /home/vagrant/.nvm/nvm.sh
+#nvm install 0.8
+nvm install 0.10
+nvm install 0.11
+export HOME=/root
+
+# NPM
+cd /vagrant/
+npm install
+echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
+
+npm install -g mongodb --mongodb:native
+
+# Auto SSH
 sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
 sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
 sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
