@@ -7,55 +7,28 @@
 "use strict"
 
 mongodb = require 'mongodb'
-database = require './../database'
+database = require './../database.coffee'
 
 database.connect 'ntb_07', (err, db) ->
-  return console.log 'db err', err if err
-  
+  return console.log err if err
+
   console.log 'Database connection is open'
 
-  db.collection 'aktiviteter', (err, collection) ->
-    if err
-      console.log 'db connection failed'
-      console.log err
-      return db.close()
+  db.collection 'bilder', (err, collection) ->
+    return console.log err if err
     
     console.log "Collection is open"
-  
-    update = (doc, cb) ->
-      return cb null if doc.geojson.coordinates[0] < doc.geojson.coordinates[1]
-      
-      coords = doc.geojson.coordinates
 
-      lat = coords[0]
-      lng = coords[1]
-
-      coords[0] = lng
-      coords[1] = lat
-
-      if typeof coords[2] is 'undefined' or coords[2] is 0
-        coords[2] = -999
-
-      doc.geojson.coordinates = coords
-      console.log doc.geojson.coordinates
-
-      collection.save doc, (err) ->
+    cursor = collection.find
+      url: /^www/
+    
+    database.each cursor, (doc, i, count, cb) ->
+      console.log doc._id
+      doc.url = 'http://' + doc.url
+      collection.save doc, (err, doc) ->
+        console.log err if err
         cb err
+    , (err, i, count) ->
+      console.log err, i, count
+      db.close()
 
-    collection.find {"geojson" : {$exists: true}}, (err, cursor) ->
-      if err
-        console.log 'collection.find() failed'
-        console.log err
-        return db.close()
-
-      database.each cursor, update, (err) ->
-        if err
-          console.log 'database update failed'
-          console.log err
-        else
-          console.log 'databse update success'
-
-        db.close()
-
-
-        

@@ -1,4 +1,7 @@
-mongodb = require 'mongodb'
+"use strict"
+
+MongoClient = require('mongodb').MongoClient
+format = require('util').format
 
 #
 # Connect to database
@@ -6,20 +9,16 @@ mongodb = require 'mongodb'
 # @param {@code String} collection - collection name
 # @param {@code Function} cb - callback function (err, db)
 #
-exports.connect = (collection, cb) ->
-  collection = collection || 'ntb_07'
+# github.com/mongodb/node-mongodb-native/blob/master/docs/articles/MongoClient.md
+#
+exports.connect = (database, cb) ->
+  database = database || 'ntb_07'
+  host = process.env['MONGO_NODE_DRIVER_HOST'] || 'localhost'
+  port = process.env['MONGO_NODE_DRIVER_PORT'] || 27017
+  url  = format "mongodb://%s:%s,%s:%s,%s:%s/%s", host, port, host, port+1, host, port+2, database
 
-  replSet = new mongodb.ReplSet [
-    new mongodb.Server '127.0.0.1', 27017, {}
-    , new mongodb.Server '127.0.0.1', 27018, {}
-    , new mongodb.Server '127.0.0.1', 27019, {}
-  ]
-   
-  db = new mongodb.Db collection, replSet,
-    native_parser: true
-    journal      : true
-  
-  db.open (err, db) ->
+  MongoClient.connect url, (err, db) ->
+    db.close() if err
     return cb err, db
 
 #
@@ -32,12 +31,17 @@ exports.connect = (collection, cb) ->
 # @todo add counter
 # @todo add success, fail calbacks?
 #
-exports.each = (cursor, each, done) ->
-  next = () ->
+exports.each = (cursor, fn, done) ->
+  next = (i, count) ->
+    return done null, i, count if i is count
     cursor.nextObject (err, doc) ->
-      return done err if err
-      return done null if doc is null
-      each doc, (err) ->
-        return done err if err
-        next()
-  next()
+      return done err, i, count if err
+      return done null, i, count if doc is null
+      fn doc, i count, (err) ->
+        return done err, i, count if err
+        next(++i, count)
+
+  cursor.count (err, count) ->
+    return done err, 0, count if err
+    next 0, count
+  
