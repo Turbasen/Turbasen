@@ -19,13 +19,16 @@ database.connect 'ntb_07', (err, db) ->
     
     console.log "Collection is open"
 
-    cursor = collection.find().limit(2)
-    #$where : "this.geojson && this.geojson.coordinates[0] > 50"
+    cursor = collection.find
+      url: /^www/
     
-    database.each cursor, (doc, cb) ->
-      console.log doc
-      cb()
-    , (err, i) ->
-      console.log 'cursor end', i
+    database.each cursor, (doc, i, count, cb) ->
+      console.log doc._id
+      doc.url = 'http://' + doc.url
+      collection.save doc, (err, doc) ->
+        console.log err if err
+        cb err
+    , (err, i, count) ->
+      console.log err, i, count
       db.close()
 
