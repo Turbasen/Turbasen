@@ -1,8 +1,10 @@
 {
   "name": "nasjonalturbase.api"
+  ,"repository": "git@github.com:Turistforeningen/nasjonalturbase.git"
   ,"version": "0.0.1"
   ,"dependencies": {
     "coffee-script": "~1"
+    ,"mongodb": "~1"
     ,"express": "~3"
     ,"jshint": "~2"
     ,"mocha": "~1"
