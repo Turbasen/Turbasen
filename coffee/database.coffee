@@ -34,11 +34,12 @@ exports.connect = (collection, cb) ->
 #
 exports.each = (cursor, each, done) ->
   next = (i) ->
+    return done null, i if cursor.queryRun and cursor.totalNumberOfRecords is i
     cursor.nextObject (err, doc) ->
-      console.log i, doc._id
       return done err, i if err
       return done null, i if doc is null
       each doc, (err) ->
         return done err, i if err
         next(++i)
   next(0)
+
