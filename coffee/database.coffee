@@ -31,14 +31,17 @@ exports.connect = (database, cb) ->
 # @todo add counter
 # @todo add success, fail calbacks?
 #
-exports.each = (cursor, each, done) ->
-  next = (i) ->
-    return done null, i if cursor.queryRun and cursor.totalNumberOfRecords is i
+exports.each = (cursor, fn, done) ->
+  next = (i, count) ->
+    return done null, i, count if i is count
     cursor.nextObject (err, doc) ->
-      return done err, i if err
-      return done null, i if doc is null
-      each doc, (err) ->
-        return done err, i if err
-        next(++i)
-  next(0)
+      return done err, i, count if err
+      return done null, i, count if doc is null
+      fn doc, i count, (err) ->
+        return done err, i, count if err
+        next(++i, count)
 
+  cursor.count (err, count) ->
+    return done err, 0, count if err
+    next 0, count
+  
