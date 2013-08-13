@@ -15,6 +15,7 @@ echo "Changing user to vagrant..."
 su vagrant
 cd /home/vagrant/
 export HOME=/home/vagrant
+whoami
 
 # NodeJS via NVM
 echo "Installing NVM..."
@@ -33,10 +34,10 @@ echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 
 # Auto SSH
 echo "Setting up remote ports..."
-cp /vagrant/.ssh/* /home/vagrant/.ssh/.
-autossh -f -L 27017:localhost:27017 -CN sherpa2
-autossh -f -L 27018:localhost:27018 -CN sherpa2
-autossh -f -L 27019:localhost:27019 -CN sherpa2
+sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
+sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
+sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
+sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
 
 SCRIPT
 
