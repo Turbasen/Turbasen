@@ -13,5 +13,6 @@
   }
   ,"scripts": {
     "start": "node src/nasjonalturbase.api.js"
+    ,"test": "mocha test/suit.coffee -R spec -r coffee-script"
   }
 }
