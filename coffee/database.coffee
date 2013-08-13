@@ -15,11 +15,11 @@ exports.connect = (database, cb) ->
   database = database || 'ntb_07'
   host = process.env['MONGO_NODE_DRIVER_HOST'] || 'localhost'
   port = process.env['MONGO_NODE_DRIVER_PORT'] || 27017
-  url  = format "mongodb://%s:%s,%s:%s,%s:%s/%s", host, port, host, port+1, host, port+2, database
+  url  = format "mongodb://%s:%s,%s:%s,%s:%s/%s"
+       , host, port, host, port+1, host, port+2, database
 
   MongoClient.connect url, (err, db) ->
-    db.close() if err
-    return cb err, db
+    cb err, db
 
 #
 # Process documents syncronously
@@ -37,11 +37,11 @@ exports.each = (cursor, fn, done) ->
     cursor.nextObject (err, doc) ->
       return done err, i, count if err
       return done null, i, count if doc is null
-      fn doc, i count, (err) ->
+      fn doc, i, count, (err) ->
         return done err, i, count if err
         next(++i, count)
 
   cursor.count (err, count) ->
-    return done err, 0, count if err
+    return done err, 0, count if err or count is 0
     next 0, count
   
