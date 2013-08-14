@@ -14,9 +14,9 @@ describe '#connect()', ->
       assert.equal db, null
       done()
 
-  it 'should return error if database does not exist', (done) ->
+  it.skip 'should return error if database does not exist', (done) ->
     database.connect 'foo', (err, db) ->
-      console.log db
+      #console.log db
       #assert.fail()
       done()
 
@@ -26,4 +26,13 @@ describe '#connect()', ->
       assert.notEqual db, null, 'db should not be null'
       assert.equal db.databaseName, 'ntb_07', 'database should be ntb_07'
       done()
+
+  it 'should not suprepress runtime errors', (done) ->
+    database.connect null, (err, db) ->
+      try
+        foobar()
+      catch e
+        assert e instanceof Error, 'e should be an instance of error'
+        assert /ReferenceError: foobar is not defined/.test(e), 'e should be ReferenceError'
+        done()
 
