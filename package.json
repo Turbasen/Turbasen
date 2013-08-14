@@ -6,7 +6,7 @@
   ,"main": "src/nasjonalturbase.api.js"
   ,"dependencies": {
     "coffee-script": "~1"
-    ,"mongodb": "git+ssh://github.com:mongodb/node-mongodb-native.git"
+    ,"mongodb": "1.3.18"
     ,"express": "~3"
     ,"jshint": "~2"
     ,"mocha": "~1"
