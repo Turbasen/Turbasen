@@ -33,7 +33,7 @@ exports.connect = (database, cb) ->
 #
 exports.each = (cursor, fn, done) ->
   next = (i, count) ->
-    return done null, i, count if i is count
+    return done null, --i, count if i is count
     cursor.nextObject (err, doc) ->
       return done err, i, count if err
       return done null, i, count if doc is null
@@ -42,6 +42,7 @@ exports.each = (cursor, fn, done) ->
         next(++i, count)
 
   cursor.count (err, count) ->
+    count = cursor.limitValue || count
     return done err, 0, count if err or count is 0
     next 0, count
   
