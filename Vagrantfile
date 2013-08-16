@@ -32,6 +32,9 @@ cd /vagrant/
 npm install
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 
+# Install localtunnel
+npm install -g localtunnel
+
 # Auto SSH
 echo "Setting up remote ports..."
 sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
