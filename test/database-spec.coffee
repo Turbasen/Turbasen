@@ -39,7 +39,7 @@ describe '#connect()', ->
         db.close ->
           done()
 
-describe.only '#each()', ->
+describe '#each()', ->
   db = col = null
 
   before (done) ->
