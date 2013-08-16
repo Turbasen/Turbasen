@@ -33,6 +33,7 @@ database.connect 'ntb_07', (err, db) ->
       #  cb err
     , (err, i, count) ->
       console.log err, i, count
-      db.close()
+      db.close ->
+        console.log 'db is closed!'
 
 
