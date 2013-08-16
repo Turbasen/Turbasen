@@ -5,6 +5,7 @@
 $script = <<SCRIPT
 
 # SSH keys
+sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 
 # Update & Install
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
@@ -20,6 +21,12 @@ mongod --port 27017 --dbpath /srv/mongodb/ntb0 --replSet ntb --smallfiles --oplo
 mongod --port 27018 --dbpath /srv/mongodb/ntb1 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb1.log
 mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb2.log
 cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
+
+# Copy production DB
+echo "Copying production database..."
+sudo -u vagrant autossh -f -L 30000:localhost:27017 -CN sherpa2
+sleep 5;
+cat /vagrant/config/mongodb-copy.js | mongo --port 27017
 
 # Change user
 echo "Changing user to vagrant..."
@@ -48,7 +55,6 @@ echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 
 # Auto SSH
 # echo "Setting up remote ports..."
-# sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 # sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
 # sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
 # sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
