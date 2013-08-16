@@ -42,7 +42,7 @@ exports.each = (cursor, fn, done) ->
         next(++i, count)
 
   cursor.count (err, count) ->
-    count = cursor.limitValue || count
+    count = cursor.limitValue || count if count isnt 0
     return done err, 0, count if err or count is 0
     next 0, count
   
