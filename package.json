@@ -1,6 +1,7 @@
 {
   "name": "nasjonalturbase.api"
   ,"version": "0.0.1"
+  ,"private": true
   ,"description": "API against Nasjonal Turbase (NTB)"
   ,"repository": "git@github.com:Turistforeningen/nasjonalturbase.git"
   ,"main": "src/nasjonalturbase.api.js"
