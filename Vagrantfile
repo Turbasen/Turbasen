@@ -6,16 +6,27 @@ $script = <<SCRIPT
 
 # SSH keys
 
-# Update
+# Update & Install
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential git curl autossh
+apt-get install -y build-essential git curl mongodb-10gen #autossh
+
+# Start Mongodb
+echo "Starting mongodb cluster..."
+service mongodb stop 
+mkdir -p /srv/mongodb/ntb0 /srv/mongodb/ntb1 /srv/mongodb/ntb2
+mongod --port 27017 --dbpath /srv/mongodb/ntb0 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb0.log
+mongod --port 27018 --dbpath /srv/mongodb/ntb1 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb1.log
+mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb2.log
+cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
 
 # Change user
 echo "Changing user to vagrant..."
-su vagrant
+#su vagrant
 cd /home/vagrant/
 export HOME=/home/vagrant
-whoami
+#whoami
 
 # NodeJS via NVM
 echo "Installing NVM..."
@@ -33,14 +44,14 @@ npm install
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 
 # Install localtunnel
-npm install -g localtunnel
+# npm install -g localtunnel
 
 # Auto SSH
-echo "Setting up remote ports..."
-sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
-sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
-sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
-sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
+# echo "Setting up remote ports..."
+# sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
+# sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
+# sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
+# sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
 
 SCRIPT
 
