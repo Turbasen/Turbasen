@@ -21,7 +21,7 @@ describe '#connect()', ->
       db.close ->
         done()
 
-  it 'should connect to default database if none provided', (done) ->
+  it 'should connect to default database if none specified', (done) ->
     database.connect null, (err, db) ->
       assert.equal err, null, 'err should be null'
       assert.notEqual db, null, 'db should not be null'
@@ -53,7 +53,7 @@ describe '#each()', ->
 
   after (done) -> db.close -> done()
 
-  it 'should itterate over cursor', (done) ->
+  it 'should itterate over database cursor', (done) ->
     this.timeout = 2000
 
     cursor = col.find()
@@ -68,7 +68,7 @@ describe '#each()', ->
       assert.equal i+1, count
       done()
 
-  it 'should ittereate over cursor with limit', (done) ->
+  it 'should ittereate over database cursor with limit', (done) ->
     cursor  = col.find().limit(10)
     counter = 0
 
