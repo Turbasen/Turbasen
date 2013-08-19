@@ -43,7 +43,7 @@ describe '#each()', ->
   db = col = null
 
   before (done) ->
-    database.connect null, (err, database) ->
+    database.connect 'ntb_test', (err, database) ->
       throw err if err
       db = database
       db.collection 'turer', (err, collection) ->
