@@ -26,7 +26,7 @@ task 'compile', 'Compile all source files...', (opts) ->
 #                 CLEAN UP SRC FOLDER
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 clean = (dir, cb) ->
-  child = exec "rm -rf #{dir}*", (error, stdout, stderr) -> 
+  child = exec "rm -rf #{dir}*", (error, stdout, stderr) ->
     if stderr
       debug 'Clean: failed!', 1, stderr
     else
@@ -38,7 +38,7 @@ clean = (dir, cb) ->
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 compile = (src, out, cb) ->
   debug 'CoffeeScript: compiling...'
-  child = exec "coffee -o #{out} -c #{src}", (error, stdout, stderr) ->    
+  child = exec "coffee -o #{out} -c #{src}", (error, stdout, stderr) ->
     if stderr
       debug 'Compile: failed!', 1, stderr
     else
@@ -52,7 +52,7 @@ validate = (src, out, cb) ->
   return watch src, out, cb if not options.validate
   
   debug 'JShint: validating...'
-  child = exec "jshint #{out}", (error, stdout, stderr) ->    
+  child = exec "jshint #{out}", (error, stdout, stderr) ->
     if error
       debug "JShint: validation failed!\n", 1, stdout
     else
@@ -65,7 +65,7 @@ validate = (src, out, cb) ->
 watch = (src, out, cb) ->
   return cb() if not options.watch
   
-  fs = require 'fs'  
+  fs = require 'fs'
   fs.readdir src, (err, files) ->
     for file in files
       fs.watchFile src + file, (event, filename) ->
