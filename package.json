@@ -15,6 +15,6 @@
   }
   ,"scripts": {
     "start": "node src/nasjonalturbase.api.js"
-    ,"test": "mocha test/suit.coffee -R spec -r coffee-script"
+    ,"test": "export MONGO_NODE_DRIVER_DB=ntb_test && mocha test/suit.coffee -R spec -r coffee-script"
   }
 }
