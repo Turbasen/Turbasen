@@ -9,7 +9,7 @@
 mongodb = require 'mongodb'
 database = require './../database.coffee'
 
-database.connect 'ntb_07', (err, db) ->
+database.connect 'ntb_test', (err, db) ->
   return console.log err if err
 
   console.log 'Database connection is open'
