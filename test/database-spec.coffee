@@ -25,7 +25,7 @@ describe '#connect()', ->
     database.connect null, (err, db) ->
       assert.equal err, null, 'err should be null'
       assert.notEqual db, null, 'db should not be null'
-      assert.equal db.databaseName, 'ntb_07', 'database should be ntb_07'
+      assert.equal db.databaseName, 'ntb_test', 'database should be ntb_07'
       db.close ->
         done()
 
