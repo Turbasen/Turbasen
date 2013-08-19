@@ -11,7 +11,7 @@ sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential git curl mongodb-10gen #autossh
+apt-get install -y build-essential git curl mongodb-10gen autossh
 
 # Start Mongodb
 echo "Starting mongodb cluster..."
@@ -23,10 +23,14 @@ mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplo
 cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
 
 # Copy production DB
-echo "Copying production database..."
+echo "Conecting to remote database..."
 sudo -u vagrant autossh -f -L 30000:localhost:27017 -CN sherpa2
 sleep 5;
+echo "Copying production database..."
 cat /vagrant/config/mongodb-copy.js | mongo --port 27017
+sleep 5;
+echo "Closing connection to remote database..."
+killall autossh
 
 # Change user
 echo "Changing user to vagrant..."
