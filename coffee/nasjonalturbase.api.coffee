@@ -4,7 +4,7 @@
 
 express = require 'express'
 app     = express()
-turbase = require '../src/turbase'
+turbase = require './turbase'
 
 # Logging
 app.use express.logger()
