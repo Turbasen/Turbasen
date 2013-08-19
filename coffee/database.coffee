@@ -12,7 +12,7 @@ format = require('util').format
 # github.com/mongodb/node-mongodb-native/blob/master/docs/articles/MongoClient.md
 #
 exports.connect = (database, cb) ->
-  database = database || 'ntb_07'
+  database = database || process.env['MONGO_NODE_DRIVER_DB'] || 'ntb_07'
   host = process.env['MONGO_NODE_DRIVER_HOST'] || 'localhost'
   port = process.env['MONGO_NODE_DRIVER_PORT'] || 27017
   url  = format "mongodb://%s:%s,%s:%s,%s:%s/%s"
