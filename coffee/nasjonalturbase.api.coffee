@@ -6,7 +6,8 @@ express = require 'express'
 app     = express()
 turbase = require './turbase'
 
-debug = false
+# Set debug initially to false
+app.set 'debug', false
 
 # Logging
 # app.use express.logger()
@@ -72,7 +73,7 @@ app.all '/:object/:id', (req, res) ->
 
 # Error handling
 app.use (err, req, res, next) ->
-  console.error err.stack if debug
+  console.error err.stack if app.get 'debug'
 
   code = err.code || 500
   mesg = err.mesg || 'InternalServerError'
