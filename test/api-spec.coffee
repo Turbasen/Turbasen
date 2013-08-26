@@ -27,4 +27,12 @@ describe 'API keys', ->
       .get('/?api_key=dnt')
       .expect(200, done)
 
-    
+describe.skip '/turer', ->
+  describe 'HTTP GET', ->
+    it 'should return objects', (done) ->
+      app.set 'debug', true
+      request(app)
+        .get('/turer/?api_key=dnt')
+        #.expect(200, done)
+        .end (err, res) ->
+          console.log res.body
