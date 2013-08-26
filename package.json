@@ -14,7 +14,7 @@
     ,"mocha": "~1"
   }
   ,"scripts": {
-    "start": "node src/nasjonalturbase.api.js"
-    ,"test": "export MONGO_NODE_DRIVER_DB=ntb_test && mocha test/suit.coffee -R spec -r coffee-script"
+    "start": "export MODE=local && node src/nasjonalturbase.api.js"
+    ,"test": "export MODE=development && mocha test/suit.coffee -R spec -r coffee-script"
   }
 }
