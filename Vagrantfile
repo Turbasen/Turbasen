@@ -22,6 +22,11 @@ mongod --port 27018 --dbpath /srv/mongodb/ntb1 --replSet ntb --smallfiles --oplo
 mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb2.log
 cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
 
+# Vagratnt Environment Varaibles
+auth=$(cat config/mongodb-auth.txt)
+echo "MONGO_DEV_URI=$auth" >> /home/vagrant/.bashrc
+echo "MONGO_STAGE_URI=$auth" >> /home/vagrant/.bashrc
+
 # Copy production DB
 echo "Conecting to remote database..."
 sudo -u vagrant autossh -f -L 30000:localhost:27017 -CN sherpa2
