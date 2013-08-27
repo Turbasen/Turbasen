@@ -3,21 +3,13 @@
 #
 
 mongodb = require 'mongodb'
-#MongoDB kobling
-#server  = new mongodb.Server "127.0.0.1", 27017, {safe:true, auto_reconnect: true}, {}
-#db      = new mongodb.Db 'ntb', server, {safe:true}
-#db.open(()->)
+database = require './database'
 
-replSet = new mongodb.ReplSet( [
-  new mongodb.Server( '127.0.0.1', 27017, {}),
-  new mongodb.Server( '127.0.0.1', 27018, {}),
-  new mongodb.Server( '127.0.0.1', 27019, {})
-  ]
-)
+db = null
 
-db = new mongodb.Db('ntb_03', replSet, {native_parser: true})
-console.log "Kobler seg til mongodb replica set ntb og database ntb_<versjon>"
-db.open(()->)
+database.connect null, (err, db_ref) ->
+  throw err if err
+  db = db_ref
 
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
