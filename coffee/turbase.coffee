@@ -30,7 +30,7 @@ exports.list = (req, res) ->
   # sett inn dynamisk collection her: req.params.object
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
-    collection.find({'eier':req.eier},{'tp_name':1}).limit(limit).skip(offset).toArray (err, result) ->
+    collection.find({},{'navn':1}).limit(limit).skip(offset).toArray (err, result) ->
       res.jsonp result if result
       res.jsonp err if err
 
