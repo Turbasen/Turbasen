@@ -13,12 +13,12 @@ format = require('util').format
 #
 exports.connect = (database, cb) ->
   switch process.env['MODE']
-    when "production" then url = process.env['MONGO_PROD_URI']
-    when "stage" then url = process.env['MONGO_STAGE_URI']
-    when "development" then url = process.env['MONGO_DEV_URI']
-    else url = "mongodb://localhost:27017/ntb_test"
+    when "production" then uri = process.env['MONGO_PROD_URI']
+    when "stage" then uri = process.env['MONGO_STAGE_URI']
+    when "development" then uri = process.env['MONGO_DEV_URI']
+    else uri = "mongodb://localhost:27017/ntb_test"
 
-  MongoClient.connect url, (err, db) ->
+  MongoClient.connect uri, (err, db) ->
     cb err, db
 
 #
