@@ -23,9 +23,10 @@ mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplo
 cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
 
 # Vagratnt Environment Varaibles
-auth=$(cat config/mongodb-auth.txt)
-echo "MONGO_DEV_URI=$auth" >> /home/vagrant/.bashrc
-echo "MONGO_STAGE_URI=$auth" >> /home/vagrant/.bashrc
+auth=$(cat /vagrant/config/mongodb-auth.txt)
+echo "export MONGO_DEV_URI=\"$auth\"" >> /home/vagrant/.bashrc
+echo "export MONGO_STAGE_URI=\"$auth\"" >> /home/vagrant/.bashrc
+echo "export MONGO_PROD_URI=\"$auth\"" >> /home/vagrant/.bashrc
 
 # Copy production DB
 echo "Conecting to remote database..."
