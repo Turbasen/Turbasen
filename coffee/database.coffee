@@ -11,12 +11,14 @@ format = require('util').format
 #
 # github.com/mongodb/node-mongodb-native/blob/master/docs/articles/MongoClient.md
 #
-exports.connect = (database, cb) ->
+exports.connect = (custom_uri, cb) ->
   switch process.env['MODE']
     when "production" then uri = process.env['MONGO_PROD_URI']
     when "stage" then uri = process.env['MONGO_STAGE_URI']
     when "development" then uri = process.env['MONGO_DEV_URI']
     else uri = "mongodb://localhost:27017/ntb_test"
+
+  uri = custom_uri if custom_uri isnt null
 
   MongoClient.connect uri, (err, db) ->
     cb err, db
