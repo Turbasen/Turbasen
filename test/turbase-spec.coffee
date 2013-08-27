@@ -5,6 +5,6 @@ describe '#get()', ->
     req =
       params:
         object: 'turer'
-        id: abc
-    turbase.get
+        id: 'abc'
+    #turbase.get
     done()
