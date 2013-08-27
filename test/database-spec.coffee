@@ -2,30 +2,38 @@ assert = require 'assert'
 database = require './../coffee/database'
 
 describe '#connect()', ->
-  beforeEach ->
-    delete process.env['MONGO_NODE_DRIVER_PORT']
-    delete process.env['MONGO_NODE_DRIVER_HOST']
+  MONGO_DEV_URI = process.env['MONGO_DEV_URI']
+  MONGO_STAGE_URI = process.env['MONGO_STAGE_URI']
+  MONGO_PROD_URI = process.env['MONGO_PROD_URI']
+  MODE = process.env['MODE']
 
-  it 'should return an error if database port is closed', (done) ->
-    process.env['MONGO_NODE_DRIVER_PORT'] = 12345
-    database.connect 'foo', (err, db) ->
+  afterEach ->
+    process.env['MONGO_DEV_URI'] = MONGO_DEV_URI
+    process.env['MONGO_STAGE_URI'] = MONGO_STAGE_URI
+    process.env['MONGO_PROD_URI'] = MONGO_PROD_URI
+    process.env['MODE'] = MODE
+
+  it 'should return an error if database connections fails', (done) ->
+    process.env['MONGO_DEV_URI'] = 'mongodb://undefined:1234/foo'
+    database.connect null, (err, db) ->
       assert.notEqual err, null, 'err should not be null'
       assert err instanceof Error, 'err should be Error'
       assert.equal db, null
       done()
 
   it.skip 'should return error if database does not exist', (done) ->
-    database.connect 'foo', (err, db) ->
+    database.connect null, (err, db) ->
       #console.log db
       #assert.fail()
       db.close ->
         done()
 
-  it 'should connect to default database if none specified', (done) ->
+  it 'should connect to curstom database uri if specified', (done) ->
+    process.env['MONGO_DEV_URI'] = 'mongodb://localhost:27017/ntb_test'
     database.connect null, (err, db) ->
       assert.equal err, null, 'err should be null'
       assert.notEqual db, null, 'db should not be null'
-      assert.equal db.databaseName, 'ntb_test', 'database should be ntb_07'
+      assert.equal db.databaseName, 'ntb_test', 'database should be ntb_test'
       db.close ->
         done()
 
@@ -43,7 +51,7 @@ describe '#each()', ->
   db = col = null
 
   before (done) ->
-    database.connect 'ntb_test', (err, database) ->
+    database.connect null, (err, database) ->
       throw err if err
       db = database
       db.collection 'turer', (err, collection) ->
@@ -54,7 +62,7 @@ describe '#each()', ->
   after (done) -> db.close -> done()
 
   it 'should itterate over database cursor', (done) ->
-    this.timeout = 2000
+    @timeout 10000
 
     cursor = col.find()
     counter = 0
