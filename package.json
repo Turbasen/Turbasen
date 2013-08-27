@@ -16,5 +16,6 @@
   ,"scripts": {
     "start": "export MODE=local && node src/nasjonalturbase.api.js"
     ,"test": "export MODE=development && mocha test/suit.coffee -R spec -r coffee-script"
+    ,"postinstall": "cake compile"
   }
 }
