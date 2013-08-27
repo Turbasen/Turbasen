@@ -24,8 +24,23 @@ describe.skip '#get()', ->
     #turbase.get
     done()
 
-describe.skip '#list()', ->
-  it 'should list all the tings'
+describe '#list()', ->
+  it 'should list all the tings', (done) ->
+    req =
+      eier: 'dnt'
+      query:
+        limit: 1,
+        offset: 0
+      params:
+        object: 'turer'
+
+    turbase.list req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        console.log data
+        #assert.equal data, {}
+        done()
 
 describe.skip '#insert()', ->
   it 'should insert all the things'
