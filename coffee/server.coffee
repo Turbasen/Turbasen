@@ -7,7 +7,9 @@ app     = express()
 turbase = require './turbase'
 
 # Set debug initially to false
-app.set 'debug', false
+app.set 'debug', process.env['DEBUG'] || false
+app.set 'mode',  process.env['MODE']  || 'local'
+app.set 'port',  process.env['PORT']  || 8080
 
 # Logging
 # app.use express.logger()
@@ -81,13 +83,14 @@ app.use (err, req, res, next) ->
   res.jsonp code, err: mesg
 
 if not module.parent
-  srv = app.listen 4000
+  srv = app.listen app.get 'port'
   srv.on 'close', ->
     console.log 'closing server port...'
     srv = app = null
     return
   
-  console.log 'Nasjonal turbase running on port 4000'
+  console.log "Nasjonal Turbase is running on port #{ app.get 'port' }"
+  console.log "API mode is #{ app.get 'mode' }, debug mode is #{ app.get 'debug' }"
 else
   srv = null
   module.exports = app

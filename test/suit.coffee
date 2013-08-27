@@ -4,6 +4,6 @@ describe 'database.coffee', ->
 describe 'turbase.coffee', ->
   require './turbase-spec'
 
-describe 'api.coffee', ->
-  require './api-spec'
+describe 'server.coffee', ->
+  require './server-spec'
 

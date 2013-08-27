@@ -1,7 +1,7 @@
 assert = require 'assert'
 request = require 'supertest'
 
-app = require './../coffee/nasjonalturbase.api'
+app = require './../coffee/server'
 
 describe 'API keys', ->
   it 'should return 403 error for no API key', (done) ->
@@ -36,3 +36,4 @@ describe.skip '/turer', ->
         #.expect(200, done)
         .end (err, res) ->
           console.log res.body
+
