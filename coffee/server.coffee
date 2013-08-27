@@ -28,7 +28,7 @@ app.use (req, res, next) ->
     "nrk":
       "navn": "NRK"
 
-  if typeof req.query.api_key is 'undefined' or typeof eiere[req.query.api_key] is 'undefined'
+  if not req?.query?.api_key or not eiere[req.query.api_key]
     err = new Error('API Authentication Failed')
     err.mesg = 'AuthenticationFailed'
     err.code = 403
