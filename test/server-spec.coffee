@@ -27,6 +27,16 @@ describe 'API keys', ->
       .get('/?api_key=dnt')
       .expect(200, done)
 
+describe.skip '/objekttyper', ->
+  it 'should return a list of the different types', (done) ->
+    request(app)
+      .get('/objekttyper?api_key=dnt')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        console.log res.body
+        done()
+
 describe.skip '/turer', ->
   describe 'HTTP GET', ->
     it 'should return objects', (done) ->
