@@ -11,6 +11,11 @@ database.connect null, (err, db_ref) ->
   throw err if err
   db = db_ref
 
+exports.getTypes = (req, res) ->
+  res.jsonp
+    types: ['aktiviteter', 'bilder', 'områder', 'steder', 'turer']
+    count: 5
+
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
     res.jsonp "{'error':#{err}}" if err
