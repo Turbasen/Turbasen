@@ -5,17 +5,45 @@
 $script = <<SCRIPT
 
 # SSH keys
+sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 
-# Update
+# Update & Install
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential git curl autossh
+apt-get install -y build-essential git curl mongodb-10gen autossh
+
+# Start Mongodb
+echo "Starting mongodb cluster..."
+service mongodb stop 
+mkdir -p /srv/mongodb/ntb0 /srv/mongodb/ntb1 /srv/mongodb/ntb2
+mongod --port 27017 --dbpath /srv/mongodb/ntb0 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb0.log
+mongod --port 27018 --dbpath /srv/mongodb/ntb1 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb1.log
+mongod --port 27019 --dbpath /srv/mongodb/ntb2 --replSet ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb2.log
+cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
+
+# Vagratnt Environment Varaibles
+auth=$(cat /vagrant/config/mongodb-auth.txt)
+echo "export MONGO_DEV_URI=\"$auth\"" >> /home/vagrant/.bashrc
+echo "export MONGO_STAGE_URI=\"$auth\"" >> /home/vagrant/.bashrc
+echo "export MONGO_PROD_URI=\"$auth\"" >> /home/vagrant/.bashrc
+
+# Copy production DB
+echo "Conecting to remote database..."
+sudo -u vagrant autossh -f -L 30000:localhost:27017 -CN sherpa2
+sleep 5;
+echo "Copying production database..."
+cat /vagrant/config/mongodb-copy.js | mongo --port 27017
+sleep 5;
+echo "Closing connection to remote database..."
+killall autossh
 
 # Change user
 echo "Changing user to vagrant..."
-su vagrant
+#su vagrant
 cd /home/vagrant/
 export HOME=/home/vagrant
-whoami
+#whoami
 
 # NodeJS via NVM
 echo "Installing NVM..."
@@ -32,12 +60,14 @@ cd /vagrant/
 npm install
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 
+# Install localtunnel
+# npm install -g localtunnel
+
 # Auto SSH
-echo "Setting up remote ports..."
-sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
-sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
-sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
-sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
+# echo "Setting up remote ports..."
+# sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
+# sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
+# sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
 
 SCRIPT
 

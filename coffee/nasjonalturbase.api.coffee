@@ -4,10 +4,13 @@
 
 express = require 'express'
 app     = express()
-turbase = require '../src/turbase'
+turbase = require './turbase'
+
+# Set debug initially to false
+app.set 'debug', false
 
 # Logging
-app.use express.logger()
+# app.use express.logger()
 # Query params
 app.use express.bodyParser()
 # Error handling
@@ -23,12 +26,19 @@ app.use (req, res, next) ->
     "nrk":
       "navn": "NRK"
 
-  req.eier = eiere[req.query.api_key]?.navn or res.end 'api_key parameter mangler eller er feil'
+  if typeof req.query.api_key is 'undefined' or typeof eiere[req.query.api_key] is 'undefined'
+    err = new Error('API Authentication Failed')
+    err.mesg = 'AuthenticationFailed'
+    err.code = 403
+    return next err
+
+  req.eier = eiere[req.query.api_key].navn
 
   data = req.params?.data or req.query?.data
   if data
     req.data = JSON.parse data if data
     req.data.eier = req.eier
+
   next()
 
 # Routing
@@ -63,8 +73,22 @@ app.all '/:object/:id', (req, res) ->
 
 # Error handling
 app.use (err, req, res, next) ->
-  console.error err.stack
-  res.jsonp 500, {'err':err}
+  console.error err.stack if app.get 'debug'
 
-app.listen 4000
-console.log 'Nasjonal turbase running on port 4000'
+  code = err.code || 500
+  mesg = err.mesg || 'InternalServerError'
+
+  res.jsonp code, err: mesg
+
+if not module.parent
+  srv = app.listen 4000
+  srv.on 'close', ->
+    console.log 'closing server port...'
+    srv = app = null
+    return
+  
+  console.log 'Nasjonal turbase running on port 4000'
+else
+  srv = null
+  module.exports = app
+

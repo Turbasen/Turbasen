@@ -1,0 +1,25 @@
+#!/bin/sh
+ 
+if git-rev-parse --verify HEAD >/dev/null 2>&1; then
+    against=HEAD
+else
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+ 
+for FILE in `git diff-index --name-status --cached $against -- | cut -c3-` ; do
+  # Check if the file contains 'describe.only'
+  if grep -q 'describe.only' "$FILE"
+  then
+    echo $FILE 'contains describe.only()'
+    exit 1
+  fi
+
+  # Check if the file contains 'it.only'
+  if grep -q 'it.only' "$FILE"
+  then
+    echo $FILE 'contains it.only()'
+    exit 1
+  fi
+
+done
+exit 
