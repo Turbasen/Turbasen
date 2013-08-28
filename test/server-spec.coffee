@@ -27,14 +27,18 @@ describe 'API keys', ->
       .get('/?api_key=dnt')
       .expect(200, done)
 
-describe.skip '/objekttyper', ->
+describe '/objekttyper', ->
   it 'should return a list of the different types', (done) ->
     request(app)
       .get('/objekttyper?api_key=dnt')
       .expect(200)
       .end (err, res) ->
         throw err if err
-        console.log res.body
+
+        assert.equal typeof res.body.types, 'object', 'types should be an object'
+        assert.equal typeof res.body.count, 'number', 'count should be a number'
+        assert.equal res.body.types.length, res.body.count, 'types.length and count should be equal'
+
         done()
 
 describe.skip '/turer', ->

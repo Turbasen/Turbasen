@@ -59,6 +59,8 @@ app.all '/',(req, res) ->
   "
   res.send intro
 
+app.get '/objekttyper', turbase.getTypes
+
 app.all '/:object/', (req, res) ->
   switch req.query.method
     when 'post' then turbase.insert req, res
