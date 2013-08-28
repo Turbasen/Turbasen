@@ -88,6 +88,23 @@ describe '#list()', ->
 
         done()
 
+  it 'should show items editited after a certain date', (done) ->
+    req =
+      eier: 'dnt'
+      query:
+        after: '2013-01-01'
+      params:
+        object: 'turer'
+
+    turbase.list req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        for document in data.documents
+          assert document.endret > '2013-01-01', 'document should be edited after 2013-01-01'
+
+        done()
+
 describe.skip '#insert()', ->
   it 'should insert all the things'
 

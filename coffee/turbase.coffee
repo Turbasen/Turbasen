@@ -26,8 +26,9 @@ exports.get = (req, res) ->
 
 exports.list = (req, res) ->
   # @TODO parse arguments in server.coffee
-  limit   = Math.min(parseInt(req?.query?.limit) || 10, 50)
-  offset  = parseInt(req?.query?.offset) || 0
+  limit  = Math.min(parseInt(req?.query?.limit) || 10, 50)
+  offset = parseInt(req?.query?.offset) || 0
+  query  = {endret:{$gt:req.query.after}} if req?.query?.after
 
   db.collection req.params.object, (err, collection) ->
     # @TODO move to propper error handling
@@ -40,10 +41,11 @@ exports.list = (req, res) ->
       
     # @TODO add endret paramter
     # @TODO add support for queries
-    collection.find({},{'navn':1},opts).toArray (err, result) ->
+    collection.find(query,{navn:1, endret:1},opts).toArray (err, result) ->
       # @TODO move to propper error handling
       return res.jsonp err if err
       return res.jsonp documents: result, count: result.length if result
+      # @TODO what if neither?
 
 exports.insert = (req, res) ->
   #dynamisk collection via req.params.object
