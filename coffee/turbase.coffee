@@ -25,14 +25,25 @@ exports.get = (req, res) ->
       res.jsonp err if err
 
 exports.list = (req, res) ->
-  limit   = parseInt(req.query.limit) or 10
-  offset  = parseInt(req.query.offset) or 0
-  # sett inn dynamisk collection her: req.params.object
+  # @TODO parse arguments in server.coffee
+  limit   = Math.min(parseInt(req?.query?.limit) || 10, 50)
+  offset  = parseInt(req?.query?.offset) || 0
+
   db.collection req.params.object, (err, collection) ->
-    res.jsonp "{'error':#{err}}" if err
-    collection.find({},{'navn':1}).limit(limit).skip(offset).toArray (err, result) ->
-      res.jsonp result if result
-      res.jsonp err if err
+    # @TODO move to propper error handling
+    return res.jsonp "{'error':#{err}}" if err
+
+    opts =
+      limit: limit
+      skip: offset
+      sort: "endret"
+      
+    # @TODO add endret paramter
+    # @TODO add support for queries
+    collection.find({},{'navn':1},opts).toArray (err, result) ->
+      # @TODO move to propper error handling
+      return res.jsonp err if err
+      return res.jsonp documents: result, count: result.length if result
 
 exports.insert = (req, res) ->
   #dynamisk collection via req.params.object

@@ -25,12 +25,17 @@ describe.skip '#get()', ->
     done()
 
 describe '#list()', ->
-  it 'should list all the tings', (done) ->
+  last = null
+
+  before (done) ->
+    this.timeout 2000
+    setTimeout ->
+      done()
+    ,1500
+
+  it 'should list documents in given collection', (done) ->
     req =
       eier: 'dnt'
-      query:
-        limit: 1,
-        offset: 0
       params:
         object: 'turer'
 
@@ -38,8 +43,49 @@ describe '#list()', ->
       jsonp: (data) ->
         throw data if data instanceof Error
 
-        console.log data
-        #assert.equal data, {}
+        assert.equal typeof data, 'object', 'data should be an object'
+        assert data.documents instanceof Array, 'data.documents should be an array'
+        assert.equal typeof data.count, 'number', 'data.count should be a number'
+        assert.equal data.count, 10, 'number of documents should default to 10'
+        assert.equal data.documents.length, data.count, 'data.documents.length should equal data.count'
+
+        done()
+
+  it 'should limit the number of items based on limit query param', (done) ->
+    req =
+      eier: 'dnt'
+      query:
+        limit: 5
+      params:
+        object: 'turer'
+
+    turbase.list req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        last = data.documents[4]
+
+        assert.equal data.documents.length, 5, 'number of items returned should equal 5'
+        assert.equal data.count, 5, 'count should limit (5)'
+
+        done()
+
+  it 'should skip n items based on offset query param', (done) ->
+    req =
+      eier: 'dnt'
+      query:
+        limit: 1
+        offset: 4
+      params:
+        object: 'turer'
+
+    turbase.list req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        assert.equal typeof data.documents[0], 'object', 'First element in array should be an object'
+        assert.deepEqual data.documents[0], last, 'First and last last object should be the same'
+
         done()
 
 describe.skip '#insert()', ->
