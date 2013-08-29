@@ -59,6 +59,15 @@ app.all '/',(req, res) ->
   "
   res.send intro
 
+app.param 'id', (req, res, next, id) ->
+  if /^[0-9a-f]{24}$/i.test id
+    next()
+  else
+    err = new Error('ID is not a string of 24 hex chars')
+    err.code = 400
+    err.mesg = 'ObjectIDMustBe24HexChars'
+    next err
+
 app.get '/objekttyper', turbase.getTypes
 
 app.all '/:object/', (req, res) ->
