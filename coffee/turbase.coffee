@@ -3,6 +3,7 @@
 #
 
 mongodb = require 'mongodb'
+ObjectID = mongodb.ObjectID
 database = require './database'
 
 db = null
@@ -18,11 +19,19 @@ exports.getTypes = (req, res) ->
 
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
-    res.jsonp "{'error':#{err}}" if err
-    res.jsonp "{'error': 'Mangler id'}" if not req.params.id
-    collection.find({_id: mongodb.ObjectID(req.params.id), 'eier':req.eier}).toArray (err, result) ->
-      res.jsonp result if result
-      res.jsonp err if err
+    # @TODO move to propper error handling
+    return res.jsonp "{'error':#{err}}" if err
+    return res.jsonp "{'error': 'Mangler id'}" if not req.params.id
+
+    collection.findOne _id: ObjectID.createFromHexString(req.params.id), (err, doc) ->
+      # @TODO move to propper error handling
+
+      delete doc.privat if req.eier.toLowerCase() isnt doc?.eier?.toLowerCase()
+
+      return res.jsonp err if err
+      return res.jsonp doc if doc
+      # @TODO this should 404 Not Found
+      return res.jsonp {}
 
 exports.list = (req, res) ->
   # @TODO parse arguments in server.coffee
