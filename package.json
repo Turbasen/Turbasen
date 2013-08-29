@@ -14,7 +14,7 @@
     ,"mocha": "~1"
   }
   ,"scripts": {
-    "start": "MODE=local PORT=8080 node src/server.js"
+    "start": "MODE=local PORT=8080 coffee coffee/server.coffee"
     ,"test": "MODE=development mocha test/suit.coffee -R spec -r coffee-script"
     ,"postinstall": "cake compile"
   }
