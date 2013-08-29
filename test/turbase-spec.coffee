@@ -15,14 +15,58 @@ describe '#getTypes()', ->
         assert 'turer' in data.types, 'types should contain turer'
         done()
 
-describe.skip '#get()', ->
-  it 'should get without errors', (done) ->
+describe '#get()', ->
+  before (done) ->
+    this.timeout 2000
+    setTimeout ->
+      done()
+    ,1500
+
+  it 'should get existing document without errors', (done) ->
     req =
+      eier: 'dnt'
       params:
         object: 'turer'
-        id: 'abc'
-    #turbase.get
-    done()
+        id: '51c7fccf57a4f9770f528841'
+      
+    turbase.get req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        assert.equal typeof data, 'object', 'data should be an object'
+        assert.equal data._id, '51c7fccf57a4f9770f528841', 'data._id should equal the request id'
+        assert.equal typeof data.privat, 'object', 'private object property should show up'
+
+        done()
+
+  it.skip 'should get an error for nonexisting documents', (done) ->
+    req =
+      eier: 'dnt'
+      params:
+        object: 'turer'
+        id: 1
+
+    turbase.get req,
+      jsonp: (data) ->
+        console.log data
+        done()
+
+  it 'should hide private object properties', (done) ->
+    req =
+      eier: 'nrk'
+      params:
+        object: 'turer'
+        id: '51c7fccf57a4f9770f528841'
+
+    turbase.get req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        assert.equal typeof data, 'object', 'data should be an object'
+        assert.equal data._id, '51c7fccf57a4f9770f528841', 'data._id should equal the request id'
+        assert.equal typeof data.privat, 'undefined', 'private object property should be undefined'
+
+        done()
 
 describe '#list()', ->
   last = null
