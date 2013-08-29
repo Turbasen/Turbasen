@@ -41,7 +41,7 @@ describe '/objekttyper', ->
 
         done()
 
-describe.skip '/turer', ->
+describe.skip '/:object/', ->
   describe 'HTTP GET', ->
     it 'should return objects', (done) ->
       app.set 'debug', true
@@ -50,4 +50,40 @@ describe.skip '/turer', ->
         #.expect(200, done)
         .end (err, res) ->
           console.log res.body
+
+describe '/:object/:id', ->
+
+  before (done) ->
+    this.timeout 2000
+    setTimeout ->
+      done()
+    ,1500
+
+  it 'should return error for invalid document id', (done) ->
+    request(app)
+      .get('/turer/123/?api_key=dnt')
+      .expect(400)
+      .end (err, res) ->
+        throw err if err
+
+        assert.equal typeof res.body.err, 'string', 'err should be string'
+        assert.equal res.body.err, 'ObjectIDMustBe24HexChars', 'err should equal ObjectIDMustBe24HexChars'
+
+        done()
+  
+  describe 'HTTP GET', ->
+    it 'should return existing document', (done) ->
+      app.set 'debug', true
+      request(app)
+        .get('/turer/51c7fccf57a4f9770f528841/?api_key=dnt')
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+
+          assert.equal typeof res.body, 'object', 'document should be an object'
+          assert.equal res.body._id, '51c7fccf57a4f9770f528841', 'document._id should equal request id'
+          assert.equal typeof res.body.privat, 'object', 'document.privat should be a document'
+
+          done()
+
 
