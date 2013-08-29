@@ -28,7 +28,7 @@ app.use (req, res, next) ->
     "nrk":
       "navn": "NRK"
 
-  if typeof req.query.api_key is 'undefined' or typeof eiere[req.query.api_key] is 'undefined'
+  if not req?.query?.api_key or not eiere[req.query.api_key]
     err = new Error('API Authentication Failed')
     err.mesg = 'AuthenticationFailed'
     err.code = 403
@@ -58,6 +58,17 @@ app.all '/',(req, res) ->
   <br /><a href='http://api.nasjonalturbase.no/v0/turer/50ceff817f706c9d57000008?api_key=dnt&method=del'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del</a>
   "
   res.send intro
+
+app.param 'id', (req, res, next, id) ->
+  if /^[0-9a-f]{24}$/i.test id
+    next()
+  else
+    err = new Error('ID is not a string of 24 hex chars')
+    err.code = 400
+    err.mesg = 'ObjectIDMustBe24HexChars'
+    next err
+
+app.get '/objekttyper', turbase.getTypes
 
 app.all '/:object/', (req, res) ->
   switch req.query.method

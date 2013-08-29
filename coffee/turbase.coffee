@@ -3,6 +3,7 @@
 #
 
 mongodb = require 'mongodb'
+ObjectID = mongodb.ObjectID
 database = require './database'
 
 db = null
@@ -11,23 +12,49 @@ database.connect null, (err, db_ref) ->
   throw err if err
   db = db_ref
 
+exports.getTypes = (req, res) ->
+  res.jsonp
+    types: ['aktiviteter', 'bilder', 'områder', 'steder', 'turer']
+    count: 5
+
 exports.get = (req, res) ->
   db.collection req.params.object, (err, collection) ->
-    res.jsonp "{'error':#{err}}" if err
-    res.jsonp "{'error': 'Mangler id'}" if not req.params.id
-    collection.find({_id: mongodb.ObjectID(req.params.id), 'eier':req.eier}).toArray (err, result) ->
-      res.jsonp result if result
-      res.jsonp err if err
+    # @TODO move to propper error handling
+    return res.jsonp "{'error':#{err}}" if err
+    return res.jsonp "{'error': 'Mangler id'}" if not req.params.id
+
+    collection.findOne _id: ObjectID.createFromHexString(req.params.id), (err, doc) ->
+      # @TODO move to propper error handling
+
+      delete doc.privat if req.eier.toLowerCase() isnt doc?.eier?.toLowerCase()
+
+      return res.jsonp err if err
+      return res.jsonp doc if doc
+      # @TODO this should 404 Not Found
+      return res.jsonp {}
 
 exports.list = (req, res) ->
-  limit   = parseInt(req.query.limit) or 10
-  offset  = parseInt(req.query.offset) or 0
-  # sett inn dynamisk collection her: req.params.object
+  # @TODO parse arguments in server.coffee
+  limit  = Math.min(parseInt(req?.query?.limit) || 10, 50)
+  offset = parseInt(req?.query?.offset) || 0
+  query  = {endret:{$gt:req.query.after}} if req?.query?.after
+
   db.collection req.params.object, (err, collection) ->
-    res.jsonp "{'error':#{err}}" if err
-    collection.find({'eier':req.eier},{'tp_name':1}).limit(limit).skip(offset).toArray (err, result) ->
-      res.jsonp result if result
-      res.jsonp err if err
+    # @TODO move to propper error handling
+    return res.jsonp "{'error':#{err}}" if err
+
+    opts =
+      limit: limit
+      skip: offset
+      sort: "endret"
+      
+    # @TODO add endret paramter
+    # @TODO add support for queries
+    collection.find(query,opts).toArray (err, result) ->
+      # @TODO move to propper error handling
+      return res.jsonp err if err
+      return res.jsonp documents: result, count: result.length if result
+      # @TODO what if neither?
 
 exports.insert = (req, res) ->
   #dynamisk collection via req.params.object
