@@ -4,10 +4,15 @@
 
 express = require 'express'
 app     = express()
-turbase = require '../src/turbase'
+turbase = require './turbase'
+
+# Set debug initially to false
+app.set 'debug', process.env['DEBUG'] || false
+app.set 'mode',  process.env['MODE']  || 'local'
+app.set 'port',  process.env['PORT']  || 8080
 
 # Logging
-app.use express.logger()
+# app.use express.logger()
 # Query params
 app.use express.bodyParser()
 # Error handling
@@ -23,12 +28,19 @@ app.use (req, res, next) ->
     "nrk":
       "navn": "NRK"
 
-  req.eier = eiere[req.query.api_key]?.navn or res.end 'api_key parameter mangler eller er feil'
+  if not req?.query?.api_key or not eiere[req.query.api_key]
+    err = new Error('API Authentication Failed')
+    err.mesg = 'AuthenticationFailed'
+    err.code = 403
+    return next err
+
+  req.eier = eiere[req.query.api_key].navn
 
   data = req.params?.data or req.query?.data
   if data
     req.data = JSON.parse data if data
     req.data.eier = req.eier
+
   next()
 
 # Routing
@@ -47,6 +59,17 @@ app.all '/',(req, res) ->
   "
   res.send intro
 
+app.param 'id', (req, res, next, id) ->
+  if /^[0-9a-f]{24}$/i.test id
+    next()
+  else
+    err = new Error('ID is not a string of 24 hex chars')
+    err.code = 400
+    err.mesg = 'ObjectIDMustBe24HexChars'
+    next err
+
+app.get '/objekttyper', turbase.getTypes
+
 app.all '/:object/', (req, res) ->
   switch req.query.method
     when 'post' then turbase.insert req, res
@@ -63,8 +86,23 @@ app.all '/:object/:id', (req, res) ->
 
 # Error handling
 app.use (err, req, res, next) ->
-  console.error err.stack
-  res.jsonp 500, {'err':err}
+  console.error err.stack if app.get 'debug'
 
-app.listen 4000
-console.log 'Nasjonal turbase running on port 4000'
+  code = err.code || 500
+  mesg = err.mesg || 'InternalServerError'
+
+  res.jsonp code, err: mesg
+
+if not module.parent
+  srv = app.listen app.get 'port'
+  srv.on 'close', ->
+    console.log 'closing server port...'
+    srv = app = null
+    return
+  
+  console.log "Nasjonal Turbase is running on port #{ app.get 'port' }"
+  console.log "API mode is #{ app.get 'mode' }, debug mode is #{ app.get 'debug' }"
+else
+  srv = null
+  module.exports = app
+

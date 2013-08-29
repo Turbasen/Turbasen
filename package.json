@@ -1,14 +1,21 @@
 {
   "name": "nasjonalturbase.api"
   ,"version": "0.0.1"
+  ,"private": true
+  ,"description": "API against Nasjonal Turbase (NTB)"
+  ,"repository": "git@github.com:Turistforeningen/nasjonalturbase.git"
+  ,"main": "src/nasjonalturbase.api.js"
   ,"dependencies": {
-    "coffee-script": "~1.6"
+    "coffee-script": "~1"
+    ,"mongodb": "~1.2"
     ,"express": "~3"
-    ,"mongodb": "*"
+    ,"supertest": "~0"
     ,"jshint": "~2"
     ,"mocha": "~1"
   }
   ,"scripts": {
-    "start": "node src/nasjonalturbase.api.js"
+    "start": "MODE=local PORT=8080 coffee coffee/server.coffee"
+    ,"test": "MODE=development mocha test/suit.coffee -R spec -r coffee-script"
+    ,"postinstall": "cake compile"
   }
 }
