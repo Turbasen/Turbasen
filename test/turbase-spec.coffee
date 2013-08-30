@@ -149,6 +149,20 @@ describe '#list()', ->
 
         done()
 
+  it 'should only list some object keys', (done) ->
+    req =
+      eier: 'dnt'
+      params:
+        object: 'turer'
+
+    turbase.list req,
+      jsonp: (data) ->
+        throw data if data instanceof Error
+
+        assert.equal Object.keys(data.documents[0]).length, 4
+
+        done()
+
 describe.skip '#insert()', ->
   it 'should insert all the things'
 
