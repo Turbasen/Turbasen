@@ -1,16 +1,43 @@
 #
-# Nasjonal Turbase 
+# Nasjonal Turbase MongoDB wrapper
+#
+# @author Hans Skjerpen
+# @author Hans Kristian Flaatten
 #
 
-mongodb = require 'mongodb'
+events   = require 'events'
+util     = require 'util'
+mongodb  = require 'mongodb'
 ObjectID = mongodb.ObjectID
 database = require './database'
 
-db = null
+#
+# Constructor
+#
+# @param dbUri {code string} database uri ¨
+# @param cb - {code function} callback function (err, data)
+#
+# Thsi method will set up database connection before returning callback. It will
+# allso emmit  'error' and 'ready' events accordingly.
+#
+Turbase = (dbUri, cb) ->
+  events.EventEmitter.call @
 
-database.connect null, (err, db_ref) ->
-throw err if err
-db = db_ref
+  @db = null
+
+  $this = @
+  database.connect null, (err, db) ->
+    cb err if err and typeof cb is 'function'
+    return $this.emit 'error', err if err
+
+    $this.db = db
+    cb db if typeof cb is 'function'
+    return $this.emit 'ready', db
+
+  @
+
+# Initiate event emmitting 
+util.inherits Turbase, events.EventEmitter
 
 exports.getTypes = (req, res) ->
 res.jsonp
