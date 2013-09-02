@@ -9,8 +9,8 @@ database = require './database'
 db = null
 
 database.connect null, (err, db_ref) ->
-throw err if err
-db = db_ref
+  throw err if err
+  db = db_ref
 
 exports.getTypes = (req, res) ->
 res.jsonp
