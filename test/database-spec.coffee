@@ -111,10 +111,46 @@ describe '#getCollection', ->
       ntb.cols.steder = steder_old
       done()
 
+describe.only '#_parseFields()', ->
+  ntb = ntb = new Database 'mongodb://localhost:27017/ntb_test'
+
+  it 'should return empty list if fields object is undefined', ->
+    fields = ntb._parseFields undefined
+    assert.deepEqual fields, {}, 'fields object should be empty'
+
+  it 'should return empty list if fields object is null', ->
+    fields = ntb._parseFields null
+    assert.deepEqual fields, {}, 'fields object should be empty'
+
+  it 'should return empty list if fields are not arrays', ->
+    fields = ntb._parseFields include: 'foo', exclude: 'bar'
+    assert.deepEqual fields, {}, 'fields object should be empty'
+
+  it 'should return correct list of include fields', ->
+    fields = ntb._parseFields include: ['foo', 'bar']
+    
+    assert fields.foo, 'foo filed should be included'
+    assert fields.bar, 'bar field should be included'
+
+  it 'should return currect list of excluded fields', ->
+    fields = ntb._parseFields exclude: ['foo', 'bar']
+    
+    assert not fields.foo, 'foo filed should not be included'
+    assert not fields.bar, 'bar field should not be included'
+    
+  it 'should return currect list of excluded and include fields', ->
+    fields = ntb._parseFields include: ['foo', 'bar'], exclude: ['baz', 'zab']
+    
+    assert fields.foo, 'foo filed should be included'
+    assert fields.bar, 'bar field should be included'
+    
+    assert not fields.baz, 'baz field should not be included'
+    assert not fields.zab, 'zab field should not be included'
+
 describe '#getDocuments', ->
   ntb = null
   before (done) ->
-    ntb =  new Database process.env.MONGO_DEV_URI, (err, db) ->
+    ntb = new Database process.env.MONGO_DEV_URI, (err, db) ->
       throw err if err
       done()
 
@@ -185,6 +221,7 @@ describe '#getDocuments', ->
           assert.equal docs[4]._id.toString(), docs2[0]._id.toString()
           done()
 
+  it 'should handle '
 
  
 #describe.skip '#getCollection', ->

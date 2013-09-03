@@ -120,9 +120,37 @@ Database.prototype.each = (cursor, fn, done) ->
     next 0, count
 
 #
+# Parse projection fields
+#
+Database.prototype._parseFields = (fields) ->
+  return {} if not fields
+
+  returnFields = {}
+
+  if fields.include and fields.include instanceof Array
+    for field in fields.include
+      returnFields[field] = true
+
+  if fields.exclude and fields.include instanceof Array
+    for field in fields.exclude
+      returnFields[field] = false
+
+  return returnFields
+
+#
 # Get matching documents from collection
 #
-Database.prototype.getDocuments = (col, query, fields, options, cb) ->
+# @param opts - {@code object} parameter
+# @param cb - {@code function} callback function
+#
+Database.prototype.getDocuments = (opts, cb) ->
+  query   = opts.query || {}
+  fields  = @parseFields opts.fields
+  options =
+    limit : opts.limit || 10
+    skip  : opts.skip  || 0
+    sort  : opts.sort  || ""
+
   col.find(query,fields,options).toArray cb
 
 #
