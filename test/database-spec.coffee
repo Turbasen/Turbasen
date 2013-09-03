@@ -11,60 +11,54 @@
 assert = require 'assert'
 Database = require './../coffee/database'
 
-describe 'new instance', ->
-  describe 'connection failure', ->
-    it 'should return an Error variable in callback mode', (done) ->
-      instance = new Database 'mongodb://undefined:1234/foo', (err, db) ->
-        assert.notEqual err, null, 'err should not be null'
-        assert err instanceof Error, 'err should be Error'
-        assert.equal db, null
-        done()
-  
-    it 'should emit error event in event mode', (done) ->
-      db_instance = new Database 'mongodb://undefined:1234/foo'
-      db_instance.once 'error', (err) ->
-        assert.notEqual err, null, 'err should not be null'
-        assert err instanceof Error, 'err should be Error'
-        done()
+describe 'new Database()', ->
+  ntb = null
+  afterEach (done) ->
+    return done() if ntb is null
+    return ntb.close done
 
-      db_instance.open()
+  it 'should return an Error if database connection fails', (done) ->
+    ntb = new Database 'mongodb://undefined:1234/foo', (err, db) ->
+      assert.notEqual err, null, 'err should not be null'
+      assert err instanceof Error, 'err should be Error'
+      assert.equal db, null
+      done()
 
-    it.skip 'should return error if database does not exist', (done) ->
-      database.connect null, (err, db) ->
-        #console.log db
-        #assert.fail()
-        db.close ->
-          done()
+  it 'should return the database instance for successfull connection', (done) ->
+    ntb = new Database 'mongodb://localhost:27017/ntb_test', (err, db) ->
+      assert.equal err, null, 'err should be null'
+      assert.notEqual db, null, 'db should not be null'
+      assert.equal db.databaseName, 'ntb_test', 'database should be ntb_test'
+      done()
 
-  describe 'connection success', ->
-    ntb = null
-    afterEach (done) -> ntb.close done
-
-    it 'should return database instance in callback mode', (done) ->
-      ntb = new Database 'mongodb://localhost:27017/ntb_test', (err, db) ->
-        assert.equal err, null, 'err should be null'
-        assert.notEqual db, null, 'db should not be null'
-        assert.equal db.databaseName, 'ntb_test', 'database should be ntb_test'
+  it 'should not suprepress runtime errors', (done) ->
+    ntb = new Database 'mongodb://localhost:27017/ntb_test', (err, db) ->
+      try
+        foobar()
+      catch e
+        assert e instanceof Error, 'e should be an instance of error'
+        assert /ReferenceError: foobar is not defined/.test(e), 'e should be ReferenceError'
         done()
 
-    it 'should emit database instance in event mode', (done) ->
-      ntb = new Database 'mongodb://localhost:27017/ntb_test'
-      ntb.once 'error', (err) -> done err
-      ntb.once 'ready', (db) ->
-        assert.equal db.databaseName, 'ntb_test', 'database should be ntb_test'
-        done()
-      ntb.open()
+describe '#open()', ->
+  it 'should emit error if database connection fails', (done) ->
+    ntb = new Database 'mongodb://undefined:1234/foo'
+    ntb.once 'error', (err) ->
+      assert.notEqual err, null, 'err should not be null'
+      assert err instanceof Error, 'err should be Error'
+      done()
+    ntb.open()
 
-    it 'should not suprepress runtime errors', (done) ->
-      ntb = new Database 'mongodb://localhost:27017/ntb_test', (err, db) ->
-        try
-          foobar()
-        catch e
-          assert e instanceof Error, 'e should be an instance of error'
-          assert /ReferenceError: foobar is not defined/.test(e), 'e should be ReferenceError'
-          done()
+  it 'should emit database instance in event mode', (done) ->
+    ntb = new Database 'mongodb://localhost:27017/ntb_test'
+    ntb.once 'error', (err) -> done err
+    ntb.once 'ready', (db) ->
+      assert.equal db.databaseName, 'ntb_test', 'database should be ntb_test'
+      done()
+    ntb.open()
 
-describe '#getDatabase', ->
+
+describe '#getDatabase()', ->
   ntb = db = null
   before (done) ->
     ntb = new Database 'mongodb://localhost:27017/ntb_test', (err, db_ref) ->
@@ -79,7 +73,7 @@ describe '#getDatabase', ->
     assert.equal db.databaseName, ntb_db.databaseName, 'database names should equal'
     done()
 
-describe '#getCollection', ->
+describe '#getCollection()', ->
   ntb = null
   before (done) ->
     ntb =  new Database 'mongodb://localhost:27017/ntb_test', (err, db) ->
@@ -147,95 +141,104 @@ describe '#_parseFields()', ->
     assert not fields.baz, 'baz field should not be included'
     assert not fields.zab, 'zab field should not be included'
 
-describe '#getDocuments', ->
-  ntb = null
+describe '#getDocuments()', ->
+  ntb = col = null
   before (done) ->
     ntb = new Database process.env.MONGO_DEV_URI, (err, db) ->
       throw err if err
-      done()
+      ntb.getCollection 'turer', (err, turer) ->
+        throw err if err
+        col = turer
+        done()
 
   after = (done) -> ntb.close done
 
   it 'should return documents for given collection', (done) ->
-    ntb.getCollection 'turer', (err, turer) ->
+    ntb.getDocuments col, limit: 10, (err, docs) ->
       throw err if err
-      
-      opts = limit: 10
-      ntb.getDocuments turer, {}, {}, opts, (err, docs) ->
-        throw err if err
 
-        assert.equal typeof docs, 'object', 'documents should be be an object'
-        assert docs instanceof Array, 'documents should be an array'
-        assert.equal docs.length, 10, 'document array length should be 10'
-      
-        done()
+      assert.equal typeof docs, 'object', 'documents should be be an object'
+      assert docs instanceof Array, 'documents should be an array'
+      assert.equal docs.length, 10, 'document array length should be 10'
+    
+      done()
 
   it 'should set document projection fields correctly', (done) ->
-    ntb.getCollection 'turer', (err, turer) ->
+    ntb.getDocuments col, {fields: {include: ['navn']}, limit: 10}, (err, docs) ->
       throw err if err
 
-      fields = _id: 1, navn:1
-      opts = limit: 10
-  
-      ntb.getDocuments turer, {}, fields, opts, (err, docs) ->
-        throw err if err
+      assert.equal typeof docs, 'object', 'documents should be an object'
+      assert docs instanceof Array, 'documents should be an array'
 
-        assert.equal typeof docs, 'object', 'documents should be an object'
-        assert docs instanceof Array, 'documents should be an array'
+      for doc in docs
+        assert.notEqual typeof doc._id, 'undefined', 'doc.id should be defined'
+        assert.notEqual typeof doc.navn, 'undefined', 'doc.navn should be defined'
 
-        for doc in docs
-          assert.notEqual typeof doc._id, 'undefined', 'doc.id should be defined'
-          assert.notEqual typeof doc.navn, 'undefined', 'doc.navn should be defined'
-
-        done()
+      done()
 
   it 'should handle limit correctly', (done) ->
-    ntb.getCollection 'turer', (err, turer) ->
+    ntb.getDocuments col, {fields: {include: ['navn']}, limit: 5}, (err, docs) ->
       throw err if err
 
-      fields = _id: 1, navn: 1
-      opts = limit: 5
+      assert.equal typeof docs, 'object', 'documents should be an object'
+      assert docs instanceof Array, 'documents should be an array'
+      assert.equal docs.length, 5, 'documents array should be 5 documents'
 
-      ntb.getDocuments turer, {}, fields, opts, (err, docs) ->
-        throw err if err
-
-        assert.equal typeof docs, 'object', 'documents should be an object'
-        assert docs instanceof Array, 'documents should be an array'
-        assert.equal docs.length, 5, 'documents array should be 5 documents'
-
-        done()
+      done()
 
   it 'should handle offset correctly', (done) ->
-    ntb.getCollection 'turer', (err, turer) ->
+    fields = include: ['navn']
+    ntb.getDocuments col, {fields: fields, limit: 5}, (err, docs) ->
       throw err if err
 
-      fields = _id: 1, navn: 1
-      opts   = limit: 5
-
-      ntb.getDocuments turer, {}, fields, opts, (err, docs) ->
+      assert.equal docs.length, 5
+      ntb.getDocuments col, {fields: fields, limit: 1, skip: 4}, (err, docs2) ->
         throw err if err
+        assert.equal docs2.length, 1, 'number of documents returned should be 1'
+        assert.equal docs[4]._id.toString(), docs2[0]._id.toString(), 'documents _ids shoudl be equal'
+        done()
 
-        opts = limit: 1, skip: 4
-        ntb.getDocuments turer, {}, fields, opts, (err, docs2) ->
-          throw err if err
-          assert.equal docs[4]._id.toString(), docs2[0]._id.toString()
-          done()
+  it 'should handle sort correctly', (done) ->
+    fields = include: ['navn', 'endret']
+    ntb.getDocuments col, {fileds: fields, limit: 5, sort: 'endret'}, (err, docs) ->
+      throw err if err
+      for i in [1..4]
+        assert docs[i].endret >= docs[i-1].endret, 'edited date should be gte from previous'
+      done()
 
-  it 'should handle '
+  it 'should handle query correctly', (done) ->
+    query = endret: $gte: '2013-01-01'
+    ntb.getDocuments col, {query: query, limit: 5}, (err, docs) ->
+      throw err if err
+      assert.equal docs.length, 5, 'number of documents returned should be 5'
+      for doc in docs
+        assert doc.endret > '2013-01-01', 'edit date should be gte 2013-01-01'
+      done()
 
- 
-#describe.skip '#getCollection', ->
-#  ntb = null
-#  before (done) ->
-#    ntb = new Database process.env.MONGO_DEV_URI, (err, db_ref) ->
-#      throw err if err
-#      done()
-#
-#  after = (done) -> ntb.close done
-#
-#  it 'should get existing collection', (done) ->
-#    ntb.getDatabase().
+  it 'should handle empty collections', (done) ->
+    ntb.getCollection 'does-not-exist', (err, collection) ->
+      throw err if err
+      ntb.getDocuments collection, {query: {endret: {$gte: '2013-01-01'}}}, (err, docs) ->
+        throw err if err
+        assert.equal docs.length, 0, 'number of documents returned should be 0'
+        done()
 
+describe.only '#getDocument', ->
+  ntb = col = null
+  before (done) ->
+    ntb = new Database process.env.MONGO_DEV_URI, (err, db_ref) ->
+      throw err if err
+      ntb.getCollection 'turer', (err, turer) ->
+        throw err if err
+        col = turer
+        done()
+
+  after = (done) -> ntb.close done
+
+  it 'should get existing document', (done) ->
+    ntb.getDocument col, "foobar", (err, doc) ->
+      console.log doc
+      done()
 
 describe.skip '#each()', ->
   db = col = null
