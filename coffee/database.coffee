@@ -9,6 +9,7 @@
 "use strict"
 
 MongoClient = require('mongodb').MongoClient
+ObjectId    = require('mongodb').ObjectId
 events      = require 'events'
 util        = require 'util'
 
@@ -46,6 +47,7 @@ Database.prototype.open = ->
 # Close database connection
 #
 Database.prototype.close = (cb) ->
+  return cb() if @db is null
   return @db.close cb
 
 #
@@ -95,31 +97,6 @@ Database.prototype.getCollection = (collection, cb) ->
       return cb null, coll
 
 #
-# Process documents syncronously
-#
-# @param {@code Object} cursor - active mongodb cursor
-# @param {@code Function} each - document processing function (doc, cb)
-# @param {@code Functuon} done - done callback function (err)
-#
-# @todo add counter
-# @todo add success, fail calbacks?
-#
-Database.prototype.each = (cursor, fn, done) ->
-  next = (i, count) ->
-    return done null, --i, count if i is count
-    cursor.nextObject (err, doc) ->
-      return done err, i, count if err
-      return done null, i, count if doc is null
-      fn doc, i, count, (err) ->
-        return done err, i, count if err
-        next(++i, count)
-
-  cursor.count (err, count) ->
-    count = cursor.limitValue || count if count isnt 0
-    return done err, 0, count if err or count is 0
-    next 0, count
-
-#
 # Parse projection fields
 #
 Database.prototype._parseFields = (fields) ->
@@ -150,16 +127,41 @@ Database.prototype.getDocuments = (col, opts, cb) ->
   options =
     limit : opts.limit || 10
     skip  : opts.skip  || 0
-    sort  : opts.sort  || ""
+    sort  : opts.sort
 
   col.find(query,fields,options).toArray cb
 
 #
 # Get document for ID
 #
-Database.prototype.getDocument = (col, id) ->
+Database.prototype.getDocument = (col, id, cb) ->
   col.findOne _id: id, cb
 
-# Export database
+#
+# Process documents syncronously
+#
+# @param {@code Object} cursor - active mongodb cursor
+# @param {@code Function} each - document processing function (doc, cb)
+# @param {@code Functuon} done - done callback function (err)
+#
+# @todo add counter
+# @todo add success, fail calbacks?
+#
+Database.prototype.each = (cursor, fn, done) ->
+  next = (i, count) ->
+    return done null, --i, count if i is count
+    cursor.nextObject (err, doc) ->
+      return done err, i, count if err
+      return done null, i, count if doc is null
+      fn doc, i, count, (err) ->
+        return done err, i, count if err
+        next(++i, count)
+
+  cursor.count (err, count) ->
+    count = cursor.limitValue || count if count isnt 0
+    return done err, 0, count if err or count is 0
+    next 0, count
+
+# Export class
 module.exports = Database
 
