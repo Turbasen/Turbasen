@@ -140,12 +140,13 @@ Database.prototype._parseFields = (fields) ->
 #
 # Get matching documents from collection
 #
+# @param col - {@code object} collection instance
 # @param opts - {@code object} parameter
 # @param cb - {@code function} callback function
 #
-Database.prototype.getDocuments = (opts, cb) ->
+Database.prototype.getDocuments = (col, opts, cb) ->
   query   = opts.query || {}
-  fields  = @parseFields opts.fields
+  fields  = @_parseFields opts.fields
   options =
     limit : opts.limit || 10
     skip  : opts.skip  || 0
