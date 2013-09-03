@@ -111,7 +111,7 @@ describe '#getCollection', ->
       ntb.cols.steder = steder_old
       done()
 
-describe.only '#_parseFields()', ->
+describe '#_parseFields()', ->
   ntb = ntb = new Database 'mongodb://localhost:27017/ntb_test'
 
   it 'should return empty list if fields object is undefined', ->
