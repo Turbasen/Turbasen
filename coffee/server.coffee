@@ -4,85 +4,29 @@
 
 express = require 'express'
 app     = express()
-turbase = require './turbase'
 
-# Set debug initially to false
+api.    = require './api.api'
+
+# Application Settings
 app.set 'debug', process.env['DEBUG'] || false
 app.set 'mode',  process.env['MODE']  || 'local'
 app.set 'port',  process.env['PORT']  || 8080
 
-# Logging
-# app.use express.logger()
-# Query params
-app.use express.bodyParser()
-# Error handling
+app.set 'trust proxy', true
+app.set 'json spaces', 0 if app.get('mode') is 'production'
+app.set 'strict routing', false
+
+app.use express.logger()
 app.use express.errorHandler()
+app.use express.compress()
+app.use express.methodOverride()
+app.use express.bodyParser()
+app.use app.router()
 
-# Hvis data sendes med, så sanitize data og legg til eier (fra api-key etter hvert)
-
-# Hent eier ut fra api-key.
+# Attach database instance
 app.use (req, res, next) ->
-  eiere =
-    "dnt":
-      "navn": "DNT"
-    "nrk":
-      "navn": "NRK"
-
-  if not req?.query?.api_key or not eiere[req.query.api_key]
-    err = new Error('API Authentication Failed')
-    err.mesg = 'AuthenticationFailed'
-    err.code = 403
-    return next err
-
-  req.eier = eiere[req.query.api_key].navn
-
-  data = req.params?.data or req.query?.data
-  if data
-    req.data = JSON.parse data if data
-    req.data.eier = req.eier
-
+  req.db.con = app.get 'db'
   next()
-
-# Routing
-app.use app.router
-# Configure for reverse proxy
-app.enable 'trust proxy'
-
-app.all '/',(req, res) ->
-  intro = "
-  API for Nasjonal Turbase. Versjon 0.
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?api_key=dnt'>http://api.nasjonalturbase.no/v0/turer/?api_key=dnt</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/50ceff817f706c9d57000008?api_key=dnt'>http://api.nasjonalturbase.no/v0/turer/508598979f938fd06740ee75?api_key=dnt</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}'>http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&method=post&data={%22Navn%22:%22Testtur%22,%22Beskrivelse%22:%22Dette%20er%20en%20test%22}</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/50ceff817f706c9d57000008?api_key=dnt&method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=put&data={%22Beskrivelse%22:%22N%C3%A5%20funker%20det%20som%20snuuuus%22}</a>
-  <br /><a href='http://api.nasjonalturbase.no/v0/turer/50ceff817f706c9d57000008?api_key=dnt&method=del'>http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del</a>
-  "
-  res.send intro
-
-app.param 'id', (req, res, next, id) ->
-  if /^[0-9a-f]{24}$/i.test id
-    next()
-  else
-    err = new Error('ID is not a string of 24 hex chars')
-    err.code = 400
-    err.mesg = 'ObjectIDMustBe24HexChars'
-    next err
-
-app.get '/objekttyper', turbase.getTypes
-
-app.all '/:object/', (req, res) ->
-  switch req.query.method
-    when 'post' then turbase.insert req, res
-    when 'put' then turbase.updates req, res
-    when 'del' then turbase.deletes req, res
-    else turbase.list req, res
-
-app.all '/:object/:id', (req, res) ->
-  switch req.query.method
-    when 'post' then res.send 'Error'
-    when 'put' then turbase.update req, res
-    when 'del' then turbase.delete req, res
-    else turbase.get req, res
 
 # Error handling
 app.use (err, req, res, next) ->
@@ -93,16 +37,53 @@ app.use (err, req, res, next) ->
 
   res.jsonp code, err: mesg
 
-if not module.parent
-  srv = app.listen app.get 'port'
-  srv.on 'close', ->
-    console.log 'closing server port...'
-    srv = app = null
-    return
+# REST API key verificiation
+app.use api.apiKeyVerificiation
+
+app.param 'id', api.paramId
+app.param 'object', api.paramObject
+
+app.get '/', (req , res, next) -> res.end()
+app.get '/objekttyper', api.getObjectTypes
+
+# Object type
+app.all '/:object/', (req, res, next) ->
+  switch req.query.method
+    when 'post' then api.insert req, res, next
+    when 'put' then api.updates req, res, next
+    when 'del' then api.deletes req, res, next
+    else api.list req, res, next
+
+# Single object
+app.all '/:object/:id/', (req, res, next) ->
+  switch req.query.method
+    when 'post' then next new Error('MethodNotSupported')
+    when 'put' then api.update req, res, next
+    when 'del' then api.delete req, res, next
+    else api.get req, res, next
+
+# Connect to database
+switch process.env.MODE
+  when 'development' then uri = process.env.MONGO_DEV_URI
+  when 'stage'       then uri = process.env.MONGO_STAGE_URI
+  when 'production'  then uri = process.env.MONGO_PROD_URI
+                     else uri = process.env.MONGO_LOCAL_URI
+
+ntb = database.connect uri, (err, db) ->
+  return console.log 'db con failed' if err
   
-  console.log "Nasjonal Turbase is running on port #{ app.get 'port' }"
-  console.log "API mode is #{ app.get 'mode' }, debug mode is #{ app.get 'debug' }"
-else
-  srv = null
+  app.set 'db', ntb
   module.exports = app
+
+  if not module.parent
+    srv = app.listen app.get 'port'
+    srv.on 'close', ->
+      console.log 'closing server port...'
+      srv = app = null
+      return
+    
+    console.log "Nasjonal Turbase is running on port #{ app.get 'port' }"
+    console.log "API mode is #{ app.get 'mode' }, debug mode is #{ app.get 'debug' }"
+  else
+    srv = null
 
