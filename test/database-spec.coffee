@@ -223,7 +223,7 @@ describe '#getDocuments()', ->
         assert.equal docs.length, 0, 'number of documents returned should be 0'
         done()
 
-describe.only '#getDocument', ->
+describe '#getDocument', ->
   ntb = col = null
   before (done) ->
     ntb = new Database process.env.MONGO_DEV_URI, (err, db_ref) ->
@@ -235,9 +235,8 @@ describe.only '#getDocument', ->
 
   after = (done) -> ntb.close done
 
-  it 'should get existing document', (done) ->
+  it.skip 'should get existing document', (done) ->
     ntb.getDocument col, "foobar", (err, doc) ->
-      console.log doc
       done()
 
 describe.skip '#each()', ->
