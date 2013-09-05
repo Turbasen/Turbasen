@@ -50,7 +50,7 @@ exports.list = (req, res) ->
       
     # @TODO add endret paramter
     # @TODO add support for queries
-    collection.find(query,{eier:1,navn:1,endret:1},opts).toArray (err, result) ->
+    collection.find(query,{},opts).toArray (err, result) ->
         # @TODO move to propper error handling
         return res.jsonp err if err
         return res.jsonp documents: result, count: result.length if result
