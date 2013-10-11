@@ -11,7 +11,7 @@ sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential git curl mongodb-10gen autossh
+apt-get install -y build-essential git curl mongodb-10gen
 
 # Start Mongodb
 echo "Starting mongodb cluster..."
@@ -22,20 +22,8 @@ mongod --port 27017 --dbpath /srv/mongodb/ntb --smallfiles --oplogSize 128 --jou
 
 # Vagratnt Environment Varaibles
 auth=$(cat /vagrant/config/mongodb-auth.txt)
-echo "export MONGO_DEV_URI=\\\"$auth\\\"" >> /home/vagrant/.bashrc
-echo "export MONGO_STAGE_URI=\\\"$auth\\\"" >> /home/vagrant/.bashrc
-echo "export MONGO_PROD_URI=\\\"$auth\\\"" >> /home/vagrant/.bashrc
+echo "export MONGO_URI=\\\"$auth\\\"" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
-
-# Copy production DB
-echo "Conecting to remote database..."
-sudo -u vagrant autossh -f -L 30000:localhost:27017 -CN sherpa2
-sleep 5;
-echo "Copying production database..."
-cat /vagrant/config/mongodb-copy.js | mongo --port 27017
-sleep 5;
-echo "Closing connection to remote database..."
-killall autossh
 
 # NodeJS via NVM
 echo "Installing NVM..."
@@ -45,7 +33,7 @@ echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
 nvm install 0.10
-nvm install 0.11
+#nvm install 0.11
 export HOME=/home/root
 
 # NPM package install
@@ -55,13 +43,7 @@ PATH=$PATH:/vagrant/node_modules/.bin
 cd /vagrant/ && npm install
 
 # Install localtunnel
-# npm install -g localtunnel
-
-# Auto SSH
-# echo "Setting up remote ports..."
-# sudo -u vagrant autossh -f -L 27017:localhost:27017 -CN sherpa2
-# sudo -u vagrant autossh -f -L 27018:localhost:27018 -CN sherpa2
-# sudo -u vagrant autossh -f -L 27019:localhost:27019 -CN sherpa2
+npm install -g localtunnel
 
 SCRIPT
 
