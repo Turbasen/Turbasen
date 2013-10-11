@@ -1,89 +1,87 @@
-# 
-# Nasjonal Turbase API - CoffeeScript
-#
+"use strict"
 
 express = require 'express'
-app     = express()
+MongoClient = require('mongodb').MongoClient
 
-api.    = require './api.api'
+collection = require './collection'
+document = require './document'
 
-# Application Settings
-app.set 'debug', process.env['DEBUG'] || false
-app.set 'mode',  process.env['MODE']  || 'local'
-app.set 'port',  process.env['PORT']  || 8080
+app = module.exports = express()
 
-app.set 'trust proxy', true
-app.set 'json spaces', 0 if app.get('mode') is 'production'
-app.set 'strict routing', false
+error = (status, msg) ->
+  err = new Error(msg)
+  err.status = status
+  err
 
-app.use express.logger()
-app.use express.errorHandler()
-app.use express.compress()
-app.use express.methodOverride()
-app.use express.bodyParser()
-app.use app.router()
+# API key
+app.use '/', (req, res, next) ->
+  key = req.query['api_key']
 
-# Attach database instance
-app.use (req, res, next) ->
-  req.db.con = app.get 'db'
+  return res.send 400, 'api key required' if not key
+  return res.send 401, 'invalid api key' if not apiKeys[key]
+
+  req.key = key
+  req.db = app.get 'db'
+  
+  res.setHeader 'Access-Control-Allow-Origin', '*'
+
   next()
 
-# Error handling
+app.use(express.favicon())
+app.use(express.logger('dev')) if app.get('env') isnt 'test'
+app.set('json spaces', 0) if app.get('env') is 'production'
+app.use(express.compress())
+app.use(express.methodOverride())
+app.use(express.bodyParser())
+app.disable('x-powered-by')
+app.enable('verbose errors')
+app.set 'port', process.env.PORT or 8080
+app.use(app.router)
+
+# Error Handler
 app.use (err, req, res, next) ->
-  console.error err.stack if app.get 'debug'
+  status = err.status or 500
+  message = err.message or 'Unknown Error'
+  res.json status, error: message
 
-  code = err.code || 500
-  mesg = err.mesg || 'InternalServerError'
+  console.error err.message
+  console.error err.stack
 
-  res.jsonp code, err: mesg
+app.use (req, res) -> res.json 404, error: "Lame, can't find that"
 
-# REST API key verificiation
-app.use api.apiKeyVerificiation
+apiKeys =
+  dnt: 'DNT'
+  nrk: 'NRK'
 
-app.param 'id', api.paramId
-app.param 'object', api.paramObject
+app.get '/', (req, res) ->
+  res.json 'Here be dragons'
 
-app.get '/', (req , res, next) -> res.end()
-app.get '/objekttyper', api.getObjectTypes
+app.param 'objectid', document.param
+app.all '/:collection/:objectid', (req, res, next) ->
+  switch req.method
+    when 'OPTIONS' then document.options req, res, next
+    when 'GET' then document.get req, res, next
+    when 'PUT' then document.put req, res, next
+    when 'PATCH' then document.patch req, res, next
+    when 'DELETE' then document.delete req, res, next
+    else res.send 405, ''
 
-# Object type
-app.all '/:object/', (req, res, next) ->
-  switch req.query.method
-    when 'post' then api.insert req, res, next
-    when 'put' then api.updates req, res, next
-    when 'del' then api.deletes req, res, next
-    else api.list req, res, next
+app.param 'collection', collection.param
+app.all '/:collection', (req, res, next) ->
+  switch req.method
+    when 'OPTIONS' then collection.options req, res, next
+    when 'GET' then collection.get req, res, next
+    when 'POST' then collection.post req, res, next
+    when 'PUT'  then collection.put req, res, next
+    when 'PATCH' then collection.patch req, res, next
+    else res.send 405, ''
 
-# Single object
-app.all '/:object/:id/', (req, res, next) ->
-  switch req.query.method
-    when 'post' then next new Error('MethodNotSupported')
-    when 'put' then api.update req, res, next
-    when 'del' then api.delete req, res, next
-    else api.get req, res, next
-
-# Connect to database
-switch process.env.MODE
-  when 'development' then uri = process.env.MONGO_DEV_URI
-  when 'stage'       then uri = process.env.MONGO_STAGE_URI
-  when 'production'  then uri = process.env.MONGO_PROD_URI
-                     else uri = process.env.MONGO_LOCAL_URI
-
-ntb = database.connect uri, (err, db) ->
-  return console.log 'db con failed' if err
-  
-  app.set 'db', ntb
-  module.exports = app
-
+MongoClient.connect process.env.MONGO_URI, (err, db) ->
+  return err if err
+  app.set 'db', db
   if not module.parent
-    srv = app.listen app.get 'port'
-    srv.on 'close', ->
-      console.log 'closing server port...'
-      srv = app = null
-      return
-    
-    console.log "Nasjonal Turbase is running on port #{ app.get 'port' }"
-    console.log "API mode is #{ app.get 'mode' }, debug mode is #{ app.get 'debug' }"
+    app.listen app.get 'port'
+    console.log "Server is listening on port #{app.get('port')}"
   else
-    srv = null
+    app.emit 'ready'
 
