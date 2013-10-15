@@ -14,8 +14,8 @@
     ,"mocha": "~1"
   }
   ,"scripts": {
-    "start": "MODE=local PORT=8080 coffee coffee/server.coffee"
-    ,"test": "MODE=development mocha test/suit.coffee -R spec -r coffee-script"
+    "start": "NODE_ENV=development DEBUG=true PORT=8080 coffee coffee/server.coffee"
+    ,"test": "NODE_ENV=test DEBUG=false MONGO_URI='mongodb://127.0.0.1:27017/test' mocha test/suite.coffee -R progress -r coffee-script"
     ,"postinstall": "cake compile"
   }
 }
