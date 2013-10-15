@@ -30,6 +30,8 @@ exports.get = (req, res, next) ->
 
 exports.post = (req, res, next) ->
   return res.send 400, 'Missing Request Payload' if Object.keys(req.body).length is 0
+  # @TODO fix required fields
+  # @TODO check _id if existing
   req.col.insert req.body, safe: true, (err, doc) ->
     return next(err) if err
     return res.json 201, documents: doc, count: doc.length
