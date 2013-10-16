@@ -3,8 +3,8 @@
 ObjectID = require('mongodb').ObjectID
 
 exports.param = (req, res, next, id) ->
-  return res.send 400, 'invalid oid' if not /[a-f0-9]{24}/.test id
-  req.id = new ObjectID id
+  return res.json 400, error: 'Invalid ObjectID' if not /[a-f0-9]{24}/.test id
+  req.id = ObjectID.createFromHexString id
   next()
 
 exports.options = (req, res, next) ->
