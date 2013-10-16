@@ -16,7 +16,7 @@ describe 'OPTIONS', ->
       .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
 
 describe 'POST', ->
-  it 'should insert single object in collection', (done) ->
+  it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
     req.post('/turer?api_key=dnt').send(doc)
       .expect(201)
@@ -24,11 +24,10 @@ describe 'POST', ->
         throw err if err
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
-        assert.equal res.body.documents[0].name, doc.name
-        assert.equal typeof res.body.documents[0]._id, 'string'
+        assert.equal typeof res.body.documents[0], 'string'
         done()
 
-  it 'should insert multiple objects in collection', (done) ->
+  it 'should insert multiple objects in collection and return ObjectIDs', (done) ->
     docs = [
       {name: 'foo'}
       {name: 'bar'}
@@ -39,10 +38,8 @@ describe 'POST', ->
         throw err if err
         assert.equal res.body.documents.length, 2
         assert.equal res.body.count, 2
-        assert.equal res.body.documents[0].name, docs[0].name
-        assert.equal res.body.documents[1].name, docs[1].name
-        assert.equal typeof res.body.documents[0]._id, 'string'
-        assert.equal typeof res.body.documents[1]._id, 'string'
+        assert.equal typeof res.body.documents[0], 'string'
+        assert.equal typeof res.body.documents[1], 'string'
         done()
 
   it 'should handle rapid requests to collection', (done) ->
@@ -51,6 +48,9 @@ describe 'POST', ->
     for i in [1..target]
       req.post('/turer?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
         throw err if err
+        assert.equal res.body.documents.length, 1
+        assert.equal res.body.count, 1
+        assert.equal typeof res.body.documents[0], 'string'
         done() if ++count is target
 
   it 'should return error for missing request body', (done) ->
