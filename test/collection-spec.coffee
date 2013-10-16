@@ -22,6 +22,7 @@ describe 'POST', ->
       .expect(201)
       .end (err, res) ->
         throw err if err
+        console.log res.body
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
         assert.equal res.body.documents[0].name, doc.name
@@ -37,6 +38,7 @@ describe 'POST', ->
       .expect(201)
       .end (err, res) ->
         throw err if err
+        console.log res.body
         assert.equal res.body.documents.length, 2
         assert.equal res.body.count, 2
         assert.equal res.body.documents[0].name, docs[0].name
