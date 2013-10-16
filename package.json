@@ -7,7 +7,7 @@
   ,"main": "src/nasjonalturbase.api.js"
   ,"dependencies": {
     "coffee-script": "~1"
-    ,"mongodb": "~1.2"
+    ,"mongodb": "~1"
     ,"express": "~3"
     ,"supertest": "~0"
     ,"jshint": "~2"
