@@ -28,7 +28,7 @@ app.use '/', (req, res, next) ->
   next()
 
 app.use(express.favicon())
-app.use(express.logger('dev')) if app.get('env') isnt 'test'
+app.use(express.logger(':date - :method :url - :res[content-type]')) if app.get('env') isnt 'test'
 app.set('json spaces', 0) if app.get('env') is 'production'
 app.use(express.compress())
 app.use(express.methodOverride())
