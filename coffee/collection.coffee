@@ -30,11 +30,19 @@ exports.get = (req, res, next) ->
 
 exports.post = (req, res, next) ->
   return res.send 400, 'Payload Missing' if Object.keys(req.body).length is 0
-  # @TODO fix required fields
-  # @TODO check _id if existing
-  req.col.save req.body, safe: true, (err, doc) ->
-    return next(err) if err
-    return res.json 201, documents: doc, count: doc.length
+  req.body = [req.body] if (req.body instanceof Array) is false
+
+  ret = []
+  for item, i in req.body
+    # @TODO item._id
+    # @TODO item.opprettet
+    # @TODO item.endret
+    # @TODO item.tilbyder
+    do (item, i) ->
+      req.col.save item, safe: true, (err, doc) ->
+        return next(err) if err
+        ret[i] = doc._id
+        return res.json 201, documents: ret, count: ret.length if ret.length is req.body.length
 
 exports.patch = (req, res, next) ->
   res.send 501, 'Not Implmented'
