@@ -28,8 +28,8 @@ describe 'GET', ->
     doc = name: 'hans'
     req.post('/turer?api_key=dnt').send(doc).end (err, res) ->
       throw err if err
-      assert.equal typeof res.body.documents[0]._id, 'string'
-      req.get('/turer/' + res.body.documents[0]._id + '?api_key=dnt')
+      assert.equal typeof res.body.documents[0], 'string'
+      req.get('/turer/' + res.body.documents[0] + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
           throw err if err
