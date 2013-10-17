@@ -20,7 +20,7 @@ exports.get = (req, res, next) ->
   query = {}
   query.endret = {$gte:req.query.after} if typeof req.query.after is 'string'
 
-  fields = {navn: true}
+  fields = navn: true, endret: true
 
   options =
     limit: Math.min((parseInt(req.query.limit) or 20), 100)
