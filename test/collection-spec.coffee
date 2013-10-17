@@ -15,6 +15,17 @@ describe 'OPTIONS', ->
       .expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
 
+describe 'GET', ->
+  url = '/turer?api_key=dnt'
+
+  it 'should get the collection', (done) ->
+    req.get(url)
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 20
+        done()
+
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
@@ -56,14 +67,6 @@ describe 'POST', ->
   it 'should return error for missing request body', (done) ->
     req.post('/turer?api_key=dnt')
       .expect(400, done)
-
-describe 'GET', ->
-  it 'should get the collection', (done) ->
-    req.get('/turer?api_key=dnt')
-      .expect(200)
-      .end (err, res) ->
-        assert res.body.documents.length > 0
-        done()
 
 describe 'PUT', ->
   it 'should not be implemeted', (done) ->
