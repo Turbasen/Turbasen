@@ -34,6 +34,19 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 5
         done()
 
+  it 'should offset items correctly', (done) ->
+    req.get(url + '&limit=5')
+      .expect(200)
+      .end (err, res1) ->
+        throw err if err
+
+        req.get(url + '&limit=1&skip=4')
+          .expect(200)
+          .end (err, res2) ->
+            throw err if err
+            assert.deepEqual res1.body.documents[4], res2.body.documents[0]
+            done()
+
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
