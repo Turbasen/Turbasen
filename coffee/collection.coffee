@@ -36,16 +36,17 @@ exports.post = (req, res, next) ->
   req.body = [req.body] if (req.body instanceof Array) is false
 
   ret = []
+  cnt = 0
   for item, i in req.body
     item._id = ObjectID(item._id) if item._id # @TODO restrict this
     # @TODO item.opprettet
     # @TODO item.endret
     # @TODO item.tilbyder
     do (item, i) ->
-      req.col.save item, safe: true, (err, doc) ->
+      req.col.save item, {safe: true, w: 1}, (err, doc) ->
         return next(err) if err
         ret[i] = doc._id
-        return res.json 201, documents: ret, count: ret.length if ret.length is req.body.length
+        return res.json 201, documents: ret, count: ret.length if ++cnt is req.body.length
 
 exports.patch = (req, res, next) ->
   res.send 501, 'Not Implmented'
