@@ -21,5 +21,12 @@ for FILE in `git diff-index --name-status --cached $against -- | cut -c3-` ; do
     exit 1
   fi
 
+  # Check if file contains 'console.log'
+  if grep -q 'console.log' "$FILE"
+  then
+    echo $FILE 'contains console.log()'
+    exit 1
+  fi
+
 done
 exit 
