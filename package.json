@@ -18,6 +18,6 @@
     "start": "supervisor coffee coffee/server.coffee"
     ,"test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script"
     ,"postinstall": "rm -rf src/* && coffee -o src/ -c coffee/"
-    ,"test-drone": "SILENT=ture mocha test/suite.coffee -R spec -r coffee-script"
+    ,"test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec -r coffee-script"
   }
 }
