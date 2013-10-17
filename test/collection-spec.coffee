@@ -56,6 +56,17 @@ describe 'GET', ->
             assert.deepEqual res1.body.documents[4], res2.body.documents[0]
             done()
 
+  it 'should get items after data', (done) ->
+    req.get(url + '&after=' + data[50].endret)
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+
+        for doc in res.body.documents
+          assert doc.endret >= data[50].endret
+
+        done()
+
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
