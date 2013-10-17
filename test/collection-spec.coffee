@@ -56,7 +56,7 @@ describe 'GET', ->
             assert.deepEqual res1.body.documents[4], res2.body.documents[0]
             done()
 
-  it 'should get items after data', (done) ->
+  it 'should get items after specified date', (done) ->
     req.get(url + '&after=' + data[50].endret)
       .expect(200)
       .end (err, res) ->
