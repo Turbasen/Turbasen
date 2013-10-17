@@ -18,10 +18,13 @@ exports.options = (req, res, next) ->
 
 exports.get = (req, res, next) ->
   query = {}
+  query.endret = {$gte:req.query.after} if req.query.after
+
   fields = {navn: true}
+
   options =
-    limit: req.query.limit or 20
-    skip: req.query.skip or 0
+    limit: Math.min((parseInt(req.query.limit) or 20), 100)
+    skip: parseInt(req.query.skip) or 0
     sort: 'endret'
 
   req.col.find(query, fields, options).toArray (err, docs) ->
