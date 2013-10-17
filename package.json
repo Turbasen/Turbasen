@@ -15,8 +15,9 @@
     ,"moniker": "~0"
   }
   ,"scripts": {
-    "start": "NODE_ENV=development DEBUG=true PORT=8080 supervisor coffee coffee/server.coffee"
-    ,"test": "NODE_ENV=test DEBUG=false MONGO_URI='mongodb://localhost:27017/test' mocha  -b -c --check-leaks test/suite.coffee -R progress -r coffee-script"
+    "start": "supervisor coffee coffee/server.coffee"
+    ,"test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script"
     ,"postinstall": "rm -rf src/* && coffee -o src/ -c coffee/"
+    ,"test-drone": "SILENT=ture mocha test/suite.coffee -R spec -r coffee-script"
   }
 }
