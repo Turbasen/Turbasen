@@ -6,3 +6,4 @@ src/
 *.swo
 node_modules
 config/mongodb-auth.txt
+.dotcloud
