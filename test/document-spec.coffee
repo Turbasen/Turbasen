@@ -22,7 +22,11 @@ describe 'GET', ->
 
   it 'should return 404 for not existing document', (done) ->
     req.get('/turer/52580f8165de660317000001/?api_key=dnt')
-      .expect(404, done)
+      .expect(404)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.error, 'Document Not Found'
+        done()
 
   it 'should return existing document', (done) ->
     doc = name: 'hans'
