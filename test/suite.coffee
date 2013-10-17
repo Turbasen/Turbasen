@@ -9,7 +9,7 @@ before (done) -> app.once 'ready', done
 beforeEach (done) ->
   db = app.get 'db'
   db.collection('test').drop (err) ->
-    throw err if err
+    #throw err if err
     db.collection('test').insert data, (err) ->
       throw err if err
       done()
