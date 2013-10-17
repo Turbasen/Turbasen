@@ -13,6 +13,7 @@
     ,"jshint": "~2"
     ,"mocha": "~1"
     ,"supervisor": "~0"
+    ,"moniker": "~0"
   }
   ,"scripts": {
     "start": "NODE_ENV=development DEBUG=true PORT=8080 supervisor coffee coffee/server.coffee"
