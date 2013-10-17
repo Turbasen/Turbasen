@@ -26,6 +26,14 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 20
         done()
 
+  it 'should handle improper formated parameters', (done) ->
+    req.get(url + '&limit=foo&offset=bar')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 20
+        done()
+
   it 'should limit number of items correctly', (done) ->
     req.get(url + '&limit=5')
       .expect(200)
