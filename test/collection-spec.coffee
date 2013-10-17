@@ -67,6 +67,13 @@ describe 'GET', ->
 
         done()
 
+  it 'should check for invalid after parameter', (done) ->
+    req.get(url + '&after=' + ['foo', 'bar'])
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        done()
+
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
