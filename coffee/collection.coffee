@@ -34,7 +34,7 @@ exports.post = (req, res, next) ->
 
   ret = []
   for item, i in req.body
-    # @TODO item._id
+    item._id = ObjectID(item._id) if item._id # @TODO restrict this
     # @TODO item.opprettet
     # @TODO item.endret
     # @TODO item.tilbyder
