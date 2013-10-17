@@ -11,12 +11,12 @@ before ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/turer?api_key=dnt')
+    req.options('/test?api_key=dnt')
       .expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
 
 describe 'GET', ->
-  url = '/turer?api_key=dnt'
+  url = '/test?api_key=dnt'
 
   it 'should get the collection', (done) ->
     req.get(url)
@@ -50,7 +50,7 @@ describe 'GET', ->
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
-    req.post('/turer?api_key=dnt').send(doc)
+    req.post('/test?api_key=dnt').send(doc)
       .expect(201)
       .end (err, res) ->
         throw err if err
@@ -64,7 +64,7 @@ describe 'POST', ->
       {name: 'foo'}
       {name: 'bar'}
     ]
-    req.post('/turer?api_key=dnt').send(docs)
+    req.post('/test?api_key=dnt').send(docs)
       .expect(201)
       .end (err, res) ->
         throw err if err
@@ -78,7 +78,7 @@ describe 'POST', ->
     count = 0
     target = 200
     for i in [1..target]
-      req.post('/turer?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
+      req.post('/test?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
         throw err if err
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
@@ -86,21 +86,21 @@ describe 'POST', ->
         done() if ++count is target
 
   it 'should return error for missing request body', (done) ->
-    req.post('/turer?api_key=dnt')
+    req.post('/test?api_key=dnt')
       .expect(400, done)
 
 describe 'PUT', ->
   it 'should not be implemeted', (done) ->
-    req.put('/turer?api_key=dnt')
+    req.put('/test?api_key=dnt')
       .expect(501, done)
 
 describe 'PATCH', ->
   it 'should not be implemented', (done) ->
-    req.patch('/turer?api_key=dnt')
+    req.patch('/test?api_key=dnt')
       .expect(501, done)
 
 describe 'DELETE', ->
   it 'should not be able to DELETE', (done) ->
-    req.del('/turer?api_key=dnt')
+    req.del('/test?api_key=dnt')
       .expect(405, done)
 
