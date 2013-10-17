@@ -18,7 +18,7 @@ exports.options = (req, res, next) ->
 
 exports.get = (req, res, next) ->
   query = {}
-  query.endret = {$gte:req.query.after} if req.query.after
+  query.endret = {$gte:req.query.after} if typeof req.query.after is 'string'
 
   fields = {navn: true}
 
