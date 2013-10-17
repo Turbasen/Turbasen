@@ -33,7 +33,7 @@ describe 'GET', ->
         .expect(200)
         .end (err, res) ->
           throw err if err
-          assert.equal res.body.documents[0].name, doc.name
+          assert.equal res.body.name, doc.name
           done()
 
 describe 'POST', ->
