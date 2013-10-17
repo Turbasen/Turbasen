@@ -15,15 +15,14 @@ apt-get install -y build-essential python-setuptools git curl mongodb-10gen
 easy_install pop && pip install dotcloud
 
 # Start Mongodb
-echo "Starting mongodb cluster..."
-service mongodb stop 
-mkdir -p /srv/mongodb/ntb
-mongod --port 27017 --dbpath /srv/mongodb/ntb --smallfiles --oplogSize 128 --journal --fork --logpath /var/log/mongodb/ntb.log
-#cat /vagrant/config/mongdb-setup.js | mongo --port 27017 
+echo "Starting mongodb database..."
+service mongodb start
 
 # Vagratnt Environment Varaibles
-auth=$(cat /vagrant/config/mongodb-auth.txt)
-echo "export MONGO_URI=\\\"$auth\\\"" >> /home/vagrant/.bashrc
+echo "Setting environment variables..."
+echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
+echo "export NODE_ENV=development" >> /home/vagrant/.bashrc
+echo "export PORT=8080" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
 
 # NodeJS via NVM
@@ -41,7 +40,7 @@ export HOME=/home/root
 echo "Installing NPM packages..."
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 PATH=$PATH:/vagrant/node_modules/.bin
-cd /vagrant/api && npm install
+cd /vagrant && npm install
 
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
