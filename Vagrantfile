@@ -5,13 +5,14 @@
 $script = <<SCRIPT
 
 # SSH keys
-sudo -u vagrant cp /vagrant/.ssh/* /home/vagrant/.ssh/.
+sudo -u vagrant cp /vagrant/config/.ssh/* /home/vagrant/.ssh/.
 
 # Update & Install
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential git curl mongodb-10gen
+apt-get install -y build-essential python-setuptools git curl mongodb-10gen
+easy_install pop && pip install dotcloud
 
 # Start Mongodb
 echo "Starting mongodb cluster..."
@@ -31,8 +32,8 @@ export HOME=/home/vagrant
 curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
-#nvm install 0.8
-nvm install 0.10
+nvm install 0.8
+#nvm install 0.10
 #nvm install 0.11
 export HOME=/home/root
 
@@ -40,10 +41,10 @@ export HOME=/home/root
 echo "Installing NPM packages..."
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 PATH=$PATH:/vagrant/node_modules/.bin
-cd /vagrant/ && npm install
+cd /vagrant/api && npm install
 
-# Install localtunnel
-npm install -g localtunnel
+echo "cd /vagrant" >> /home/vagrant/.bashrc
+
 
 SCRIPT
 
