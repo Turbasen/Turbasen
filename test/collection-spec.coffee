@@ -3,10 +3,11 @@
 request = require 'supertest'
 assert = require 'assert'
 
-app = req = null
+data = app = req = null
 
 before ->
-  app = module.parent.exports
+  data = module.parent.exports.data
+  app = module.parent.exports.app
   req = request(app)
 
 describe 'OPTIONS', ->

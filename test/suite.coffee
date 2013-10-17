@@ -2,10 +2,8 @@
 
 request = require 'supertest'
 assert = require 'assert'
-app = require './../coffee/server.coffee'
-data = require('./util/data-gen.coffee')(100)
-
-module.exports = app
+exports.app = app = require './../coffee/server.coffee'
+exports.data = data = require('./util/data-gen.coffee')(100)
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
