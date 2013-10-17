@@ -3,10 +3,18 @@
 request = require 'supertest'
 assert = require 'assert'
 app = require './../coffee/server.coffee'
-
-before (done) -> app.once 'ready', done
+data = require('./util/data-gen.coffee')(100)
 
 module.exports = app
+
+before (done) -> app.once 'ready', done
+beforeEach (done) ->
+  db = app.get 'db'
+  db.collection('test').drop (err) ->
+    throw err if err
+    db.collection('test').insert data, (err) ->
+      throw err if err
+      done()
 
 describe 'ntb.api', ->
   describe '/', ->
