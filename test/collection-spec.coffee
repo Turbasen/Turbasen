@@ -26,6 +26,14 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 20
         done()
 
+  it 'should limit number of items correctly', (done) ->
+    req.get(url + '&limit=5')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 5
+        done()
+
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
