@@ -1,5 +1,7 @@
 "use strict"
 
+ObjectID = require('mongodb').ObjectID
+
 collections = {}
 
 exports.param = (req, res, next, collection) ->
@@ -45,7 +47,7 @@ exports.post = (req, res, next) ->
     do (item, i) ->
       req.col.save item, {safe: true, w: 1}, (err, doc) ->
         return next(err) if err
-        ret[i] = doc._id
+        ret[i] = doc._id or item._id # doc is 1 if updated
         return res.json 201, documents: ret, count: ret.length if ++cnt is req.body.length
 
 exports.patch = (req, res, next) ->
