@@ -1,5 +1,6 @@
 "use strict"
 
+ObjectID = require('mongodb').ObjectID
 request = require 'supertest'
 assert = require 'assert'
 
@@ -35,6 +36,18 @@ describe 'GET', ->
       throw err if err
       assert.equal typeof res.body.documents[0], 'string'
       req.get('/test/' + res.body.documents[0] + '?api_key=dnt')
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.name, doc.name
+          done()
+
+  it 'should return existing document (with id)', (done) ->
+    doc = _id: new ObjectID().toString(), name: 'kristian'
+    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+      throw err if err
+      assert.equal res.body.documents[0], doc._id
+      req.get('/test/' + doc._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
           throw err if err
