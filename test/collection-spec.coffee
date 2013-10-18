@@ -1,5 +1,6 @@
 "use strict"
 
+ObjectID = require('mongodb').ObjectID
 request = require 'supertest'
 assert = require 'assert'
 
@@ -111,6 +112,13 @@ describe 'POST', ->
         assert.equal res.body.count, 1
         assert.equal typeof res.body.documents[0], 'string'
         done() if ++count is target
+
+  it 'should convert _id to ObjectID if provided with one', (done) ->
+    doc = _id: new ObjectID().toString(), name: 'tuut-tuut'
+    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+      throw err if err
+      assert.equal res.body.documents[0], doc._id
+      done()
 
   it 'should return error for missing request body', (done) ->
     req.post('/test?api_key=dnt')
