@@ -8,17 +8,12 @@ document = require './document'
 
 app = module.exports = express()
 
-error = (status, msg) ->
-  err = new Error(msg)
-  err.status = status
-  err
-
 # API key
 app.use '/', (req, res, next) ->
   key = req.query['api_key']
 
-  return res.send 400, 'api key required' if not key
-  return res.send 401, 'invalid api key' if not apiKeys[key]
+  return res.json 403, message: 'API key missing' if not key
+  return res.json 401, message: 'API key invalid' if not apiKeys[key]
 
   req.key = key
   req.db = app.get 'db'
@@ -42,19 +37,19 @@ app.use(app.router)
 app.use (err, req, res, next) ->
   status = err.status or 500
   message = err.message or 'Unknown Error'
-  res.json status, error: message
+  res.json status, message: message
 
   console.error err.message
   console.error err.stack
 
-app.use (req, res) -> res.json 404, error: "Lame, can't find that"
+app.use (req, res) -> res.json 404, message: "Resource not found"
 
 apiKeys =
   dnt: 'DNT'
   nrk: 'NRK'
 
 app.get '/', (req, res) ->
-  res.json 'Here be dragons'
+  res.json message: 'Here be dragons'
 
 app.get '/objekttyper', (req, res, next) ->
   res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
@@ -67,7 +62,7 @@ app.all '/:collection/:objectid', (req, res, next) ->
     when 'PUT' then document.put req, res, next
     when 'PATCH' then document.patch req, res, next
     when 'DELETE' then document.delete req, res, next
-    else res.send 405, ''
+    else res.json 405, message: 'HTTP method not supported'
 
 app.param 'collection', collection.param
 app.all '/:collection', (req, res, next) ->
@@ -77,7 +72,7 @@ app.all '/:collection', (req, res, next) ->
     when 'POST' then collection.post req, res, next
     when 'PUT'  then collection.put req, res, next
     when 'PATCH' then collection.patch req, res, next
-    else res.send 405, ''
+    else res.json 405, message: 'HTTP method not supported'
 
 MongoClient.connect process.env.MONGO_URI, (err, db) ->
   return err if err

@@ -18,14 +18,14 @@ exports.get = (req, res, next) ->
     return res.json 404, error: 'Document Not Found'
 
 exports.put = (req, res, next) ->
-  res.send 501, 'Not Implemented'
+  res.json 501, message: 'HTTP method not implmented'
   # 200, object
 
 exports.patch = (req, res, next) ->
-  res.send 501, 'Not Implemented'
+  res.json 501, message: 'HTTP method not implmented'
   # 200, object
 
 exports.delete = (req, res, next) ->
-  res.send 501, 'Not Implemented'
+  res.json 501, message: 'HTTP method not implmented'
   # 204
 

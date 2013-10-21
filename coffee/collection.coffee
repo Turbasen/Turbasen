@@ -34,7 +34,7 @@ exports.get = (req, res, next) ->
     res.json documents: docs, count: docs.length
 
 exports.post = (req, res, next) ->
-  return res.send 400, 'Payload Missing' if Object.keys(req.body).length is 0
+  return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0
   req.body = [req.body] if (req.body instanceof Array) is false
 
   ret = []
@@ -51,8 +51,8 @@ exports.post = (req, res, next) ->
         return res.json 201, documents: ret, count: ret.length if ++cnt is req.body.length
 
 exports.patch = (req, res, next) ->
-  res.send 501, 'Not Implmented'
+  res.json 501, message: 'HTTP method not implmented'
 
 exports.put = (req, res, next) ->
-  res.send 501, 'Not Implmented'
+  res.json 501, message: 'HTTP method not implmented'
 
