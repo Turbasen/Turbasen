@@ -31,6 +31,16 @@ describe 'ntb.api', ->
         .get('/?api_key=dnt')
         .expect(200, done)
 
+  describe '/objekttyper', ->
+    it 'should get avaiable object types', (done) ->
+      request(app)
+        .get('/objekttyper?api_key=dnt')
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
+          done()
+
   describe '/:collection', ->
     require './collection-spec.coffee'
 
