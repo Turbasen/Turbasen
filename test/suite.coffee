@@ -19,17 +19,29 @@ describe 'ntb.api', ->
     it 'should fail with no api key', (done) ->
       request(app)
         .get('/')
-        .expect(400, done)
+        .expect(403)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.message, 'API key missing'
+          done()
 
     it 'should fail for invalid api key', (done) ->
       request(app)
         .get('/?api_key=fail')
-        .expect(401, done)
+        .expect(401)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.message, 'API key invalid'
+          done()
 
     it 'should authenticate for valid api key', (done) ->
       request(app)
         .get('/?api_key=dnt')
-        .expect(200, done)
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.message, 'Here be dragons'
+          done()
 
   describe '/objekttyper', ->
     it 'should get avaiable object types', (done) ->
