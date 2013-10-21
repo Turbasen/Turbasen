@@ -56,6 +56,9 @@ apiKeys =
 app.get '/', (req, res) ->
   res.json 'Here be dragons'
 
+app.get '/objekttyper', (req, res, next) ->
+  res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
+
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
   switch req.method
