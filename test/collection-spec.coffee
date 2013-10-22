@@ -28,6 +28,20 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 20
         done()
 
+  it 'should return a limited set of document properties', (done) ->
+    req.get(url)
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        
+        for doc in res.body.documents
+          assert.equal Object.keys(doc).length, 3
+          assert.equal typeof doc._id, 'string'
+          assert.equal typeof doc.navn, 'string'
+          assert.equal typeof doc.endret, 'string'
+
+        done()
+
   it 'should handle improper formated parameters', (done) ->
     req.get(url + '&limit=foo&offset=bar')
       .expect(200)
