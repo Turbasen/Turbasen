@@ -26,7 +26,7 @@ exports.get = (req, res, next) ->
   fields = navn: true, endret: true if req.usr isnt 'NRK' # @TODO Hack for NRK river
 
   options =
-    limit: Math.min((parseInt(req.query.limit) or 20), 100)
+    limit: Math.min((parseInt(req.query.limit) or 20), 40)
     skip: parseInt(req.query.skip) or 0
     sort: 'endret'
 
