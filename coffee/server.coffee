@@ -16,6 +16,7 @@ app.use '/', (req, res, next) ->
   return res.json 401, message: 'API key invalid' if not apiKeys[key]
 
   req.key = key
+  req.usr = apiKeys[key]
   req.db = app.get 'db'
   
   res.setHeader 'Access-Control-Allow-Origin', '*'
