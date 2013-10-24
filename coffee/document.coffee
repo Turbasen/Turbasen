@@ -14,7 +14,9 @@ exports.options = (req, res, next) ->
 exports.get = (req, res, next) ->
   req.col.findOne _id: req.id, (err, doc) ->
     return next err if err
-    return res.json 200, doc if doc
+    if doc
+      res.set 'Last-Modified', new Date(doc.endret).getTime()
+      return res.json 200, doc
     return res.json 404, error: 'Document Not Found'
 
 exports.put = (req, res, next) ->

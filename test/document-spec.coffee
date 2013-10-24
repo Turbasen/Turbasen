@@ -31,16 +31,21 @@ describe 'GET', ->
         done()
 
   it 'should return existing document', (done) ->
-    doc = name: 'hans'
-    req.post('/test?api_key=dnt').send(doc).end (err, res) ->
-      throw err if err
-      assert.equal typeof res.body.documents[0], 'string'
-      req.get('/test/' + res.body.documents[0] + '?api_key=dnt')
-        .expect(200)
-        .end (err, res) ->
-          throw err if err
-          assert.equal res.body.name, doc.name
-          done()
+    src = JSON.parse(JSON.stringify(data[50]))
+    src._id = src._id.toString()
+
+    req.get('/test/' + src._id + '?api_key=dnt')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.deepEqual res.body, src
+        done()
+
+  it 'should set last modified header correctly', (done) ->
+    time = new Date(data[50].endret).getTime().toString()
+    req.get('/test/' + data[50]._id + '?api_key=dnt')
+      .expect(200)
+      .expect('Last-Modified', time, done)
 
   it 'should return existing document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
