@@ -92,6 +92,17 @@ describe 'GET', ->
 
         done()
 
+  it 'should parse milliseconds to ISO datestamp', (done) ->
+    req.get(url + '&after=' + new Date(data[50].endret).getTime())
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+
+        for doc in res.body.documents
+          assert doc.endret >= data[50].endret
+
+        done()
+
   it 'should check for invalid after parameter', (done) ->
     req.get(url + '&after=' + ['foo', 'bar'])
       .expect(200)
