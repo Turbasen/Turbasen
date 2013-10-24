@@ -26,6 +26,8 @@ describe 'GET', ->
       .end (err, res) ->
         throw err if err
         assert.equal res.body.documents.length, 20
+        assert.equal res.body.count, 20
+        assert.equal res.body.total, 100
         done()
 
   it 'should return a limited set of document properties', (done) ->
@@ -107,7 +109,13 @@ describe 'POST', ->
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
         assert.equal typeof res.body.documents[0], 'string'
-        done()
+
+        req.get('/test?api_key=dnt')
+          .expect(200)
+          .end (err, res) ->
+            throw err if err
+            assert.equal res.body.total, 101, 'there should be total of 101 documents in collection'
+            done()
 
   it 'should insert multiple objects in collection and return ObjectIDs', (done) ->
     docs = [

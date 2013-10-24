@@ -30,9 +30,13 @@ exports.get = (req, res, next) ->
     skip: parseInt(req.query.skip) or 0
     sort: 'endret'
 
-  req.col.find(query, fields, options).toArray (err, docs) ->
+  cursor = req.col.find(query, fields, options)
+  cursor.count (err, total) ->
     return next err if err
-    res.json documents: docs, count: docs.length
+    return res.json documents: [], count: 0, total: 0 if total is 0
+    cursor.toArray (err, docs) ->
+      return next err if err
+      res.json documents: docs, count: docs.length, total: total
 
 exports.post = (req, res, next) ->
   return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0
