@@ -24,7 +24,7 @@ module.exports = (num) ->
   num = num or 100
   ret = []
 
-  for i in [0..num]
+  for i in [1..num]
     d1 = rand(past, now)
     d2 = rand(d1, now)
 

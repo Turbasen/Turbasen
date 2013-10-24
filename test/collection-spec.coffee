@@ -26,6 +26,8 @@ describe 'GET', ->
       .end (err, res) ->
         throw err if err
         assert.equal res.body.documents.length, 20
+        assert.equal res.body.count, 20
+        assert.equal res.body.total, 100
         done()
 
   it 'should return a limited set of document properties', (done) ->
@@ -39,24 +41,6 @@ describe 'GET', ->
           assert.equal typeof doc._id, 'string'
           assert.equal typeof doc.navn, 'string'
           assert.equal typeof doc.endret, 'string'
-
-        done()
-
-  it 'should return full set of document properties for nrk', (done) ->
-    req.get('/test?api_key=nrk')
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        
-        for doc in res.body.documents
-          assert.equal Object.keys(doc).length, 7
-          assert.equal typeof doc._id, 'string'
-          assert.equal typeof doc.opprettet, 'string'
-          assert.equal typeof doc.endret, 'string'
-          assert.equal typeof doc.tilbyder, 'string'
-          assert.equal typeof doc.lisens, 'string'
-          assert.equal typeof doc.navn, 'string'
-          assert.equal typeof doc.privat, 'object'
 
         done()
 
@@ -74,6 +58,14 @@ describe 'GET', ->
       .end (err, res) ->
         throw err if err
         assert.equal res.body.documents.length, 5
+        done()
+
+  it 'should limit limit to max 50', (done) ->
+    req.get(url + '&limit=100')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 50
         done()
 
   it 'should offset items correctly', (done) ->
@@ -117,7 +109,13 @@ describe 'POST', ->
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
         assert.equal typeof res.body.documents[0], 'string'
-        done()
+
+        req.get('/test?api_key=dnt')
+          .expect(200)
+          .end (err, res) ->
+            throw err if err
+            assert.equal res.body.total, 101, 'there should be total of 101 documents in collection'
+            done()
 
   it 'should insert multiple objects in collection and return ObjectIDs', (done) ->
     docs = [
