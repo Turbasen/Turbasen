@@ -58,6 +58,14 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 5
         done()
 
+  it 'should limit limit to max 50', (done) ->
+    req.get(url + '&limit=100')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 50
+        done()
+
   it 'should offset items correctly', (done) ->
     req.get(url + '&limit=5')
       .expect(200)

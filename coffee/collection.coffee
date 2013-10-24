@@ -26,7 +26,7 @@ exports.get = (req, res, next) ->
   fields = navn: true, endret: true
 
   options =
-    limit: Math.min((parseInt(req.query.limit) or 20), 20)
+    limit: Math.min((parseInt(req.query.limit) or 20), 50)
     skip: parseInt(req.query.skip) or 0
     sort: 'endret'
 
