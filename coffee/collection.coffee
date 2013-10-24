@@ -23,7 +23,7 @@ exports.get = (req, res, next) ->
   query.endret = {$gte:req.query.after} if typeof req.query.after is 'string'
 
   fields = {}
-  fields = navn: true, endret: true if req.usr isnt 'NRK' # @TODO Hack for NRK river
+  fields = navn: true, endret: true
 
   options =
     limit: Math.min((parseInt(req.query.limit) or 20), 20)

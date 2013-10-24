@@ -42,24 +42,6 @@ describe 'GET', ->
 
         done()
 
-  it 'should return full set of document properties for nrk', (done) ->
-    req.get('/test?api_key=nrk')
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        
-        for doc in res.body.documents
-          assert.equal Object.keys(doc).length, 7
-          assert.equal typeof doc._id, 'string'
-          assert.equal typeof doc.opprettet, 'string'
-          assert.equal typeof doc.endret, 'string'
-          assert.equal typeof doc.tilbyder, 'string'
-          assert.equal typeof doc.lisens, 'string'
-          assert.equal typeof doc.navn, 'string'
-          assert.equal typeof doc.privat, 'object'
-
-        done()
-
   it 'should handle improper formated parameters', (done) ->
     req.get(url + '&limit=foo&offset=bar')
       .expect(200)
