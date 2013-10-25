@@ -35,7 +35,7 @@ describe 'GET', ->
       .expect(200)
       .end (err, res) ->
         throw err if err
-        
+
         for doc in res.body.documents
           assert.equal Object.keys(doc).length, 3
           assert.equal typeof doc._id, 'string'
@@ -118,6 +118,38 @@ describe 'GET', ->
         throw err if err
         assert.equal res.body.documents.length, 20
         done()
+
+  it 'should list items with given tag in first position', (done) ->
+    count = 0
+    req.get(url + '&tag=Hytte')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 20
+        for doc in res.body.documents
+          do (doc) ->
+            req.get('/test/' + doc._id + '?api_key=dnt')
+              .expect(200)
+              .end (err, r) ->
+                throw err if err
+                assert.equal r.body.tags[0], 'Hytte'
+                done() if ++count is res.body.documents.length
+
+  it 'should list items with not given tag in first position', (done) ->
+    count = 0
+    req.get(url + '&tag=!Hytte')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 20
+        for doc in res.body.documents
+          do (doc) ->
+            req.get('/test/' + doc._id + '?api_key=dnt')
+              .expect(200)
+              .end (err, r) ->
+                throw err if err
+                assert.equal r.body.tags[0], 'Sted'
+                done() if ++count is res.body.documents.length
 
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->

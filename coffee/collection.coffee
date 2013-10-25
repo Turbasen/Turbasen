@@ -20,6 +20,12 @@ exports.options = (req, res, next) ->
 
 exports.get = (req, res, next) ->
   query = {}
+  if typeof req.query.tag is 'string' and req.query.tag isnt ''
+    if req.query.tag.charAt(0) is '!' and req.query.tag.length > 1
+      query['tags.0'] = $ne: req.query.tag.substr(1)
+    else
+      query['tags.0'] = req.query.tag
+    
   if typeof req.query.after is 'string' and req.query.after isnt ''
     if not isNaN(req.query.after)
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
