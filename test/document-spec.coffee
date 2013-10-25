@@ -64,7 +64,7 @@ describe 'GET', ->
           .set('if-none-match', res.header.etag)
           .expect(304, done)
 
-  it 'should return existing document (with id)', (done) ->
+  it 'should return newly created document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
     req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
       throw err if err
@@ -75,6 +75,15 @@ describe 'GET', ->
           throw err if err
           assert.equal res.body.name, doc.name
           done()
+
+  it 'should handle rapid fire', (done) ->
+    count = 0
+    for d in data
+      request(app).get('/test/' + d._id + '?api_key=dnt')
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          done() if ++count is data.length
 
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->
