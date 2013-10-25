@@ -40,6 +40,7 @@ exports.get = (req, res, next) ->
     cursor.toArray (err, docs) ->
       return next err if err
       res.json documents: docs, count: docs.length, total: total
+      err = docs = null
 
 exports.post = (req, res, next) ->
   return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0

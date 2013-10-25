@@ -13,6 +13,7 @@ exports.param = (req, res, next, id) ->
     return res.status(304).end() if req.get('if-none-match') is req.etag
     res.set 'ETag', req.etag
     res.set 'Last-Modified', new Date(docs[0].endret).getTime()
+    err = docs = null
     next()
 
 exports.options = (req, res, next) ->
@@ -24,7 +25,7 @@ exports.get = (req, res, next) ->
     return next err if err
     if doc
       res.json 200, doc
-      doc = null
+      err = docs = null
       return
     return res.json 404, error: 'Document Not Found'
 
