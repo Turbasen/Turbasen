@@ -10,7 +10,7 @@ app = module.exports = express()
 
 # API key
 app.use '/', (req, res, next) ->
-  key = req.query['api_key']
+  key = req.query.api_key
 
   return res.json 403, message: 'API key missing' if not key
   return res.json 401, message: 'API key invalid' if not apiKeys[key]
