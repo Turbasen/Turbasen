@@ -13,7 +13,7 @@ before ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/test/52580f8165de660317000001?api_key=dnt')
+    req.options('/test/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE', done)
 
@@ -47,6 +47,23 @@ describe 'GET', ->
       .expect(200)
       .expect('Last-Modified', time, done)
 
+  it 'should set Etag header correctly', (done) ->
+    req.get('/test/' + data[50]._id + '?api_key=dnt')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal typeof res.header.etag, 'string'
+        done()
+
+  it 'should return 403 when provided with current valid Etag', (done) ->
+    req.get('/test/' + data[50]._id + '?api_key=dnt')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        req.get('/test/' + data[50]._id + '?api_key=dnt')
+          .set('if-none-match', res.header.etag)
+          .expect(304, done)
+
   it 'should return existing document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
     req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
@@ -61,21 +78,21 @@ describe 'GET', ->
 
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->
-    req.post('/test/52580f8165de660317000001?api_key=dnt')
+    req.post('/test/' + data[50]._id + '?api_key=dnt')
       .expect 405, done
 
 describe 'PUT', ->
   it 'should not be implmented', (done) ->
-    req.put('/test/52580f8165de660317000001?api_key=dnt')
+    req.put('/test/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 
 describe 'PATCH', ->
   it 'should not be implmented', (done) ->
-    req.patch('/test/52580f8165de660317000001?api_key=dnt')
+    req.patch('/test/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 
 describe 'DELETE', ->
   it 'should not be implmented', (done) ->
-    req.del('/test/52580f8165de660317000001?api_key=dnt')
+    req.del('/test/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 
