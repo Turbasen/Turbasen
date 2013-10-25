@@ -20,7 +20,7 @@ exports.options = (req, res, next) ->
 
 exports.get = (req, res, next) ->
   query = {}
-  if typeof req.query.after is 'string'
+  if typeof req.query.after is 'string' and req.query.after isnt ''
     if not isNaN(req.query.after)
       req.query.after = new Date(parseInt(req.query.after)).toISOString()
     query.endret = {$gte:req.query.after}

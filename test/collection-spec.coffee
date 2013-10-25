@@ -103,11 +103,20 @@ describe 'GET', ->
 
         done()
 
-  it 'should check for invalid after parameter', (done) ->
+  it 'should handle invalid after parameter', (done) ->
     req.get(url + '&after=' + ['foo', 'bar'])
       .expect(200)
       .end (err, res) ->
         throw err if err
+        assert.equal typeof res.body.message, 'undefined'
+        done()
+
+  it 'should handle empty after parameter', (done) ->
+    req.get(url + '&after=')
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        assert.equal res.body.documents.length, 20
         done()
 
 describe 'POST', ->
