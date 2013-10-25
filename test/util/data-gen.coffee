@@ -40,7 +40,7 @@ module.exports = (num) ->
       tilbyder: provider[rand(0, provider.length-1)]
       lisens: lisence[rand(0, lisence.length-1)]
       navn: Moniker.choose()
-      tag: [tags[rand(0, tags.length-1)]]
+      tags: [tags[rand(0, tags.length-1)]]
       privat:
         foo: Moniker.choose()
         bar: Moniker.choose()
