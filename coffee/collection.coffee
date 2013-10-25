@@ -22,15 +22,15 @@ exports.get = (req, res, next) ->
   query = {}
   if typeof req.query.after is 'string' and req.query.after isnt ''
     if not isNaN(req.query.after)
-      req.query.after = new Date(parseInt(req.query.after)).toISOString()
+      req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
     query.endret = {$gte:req.query.after}
 
   fields = {}
   fields = navn: true, endret: true
 
   options =
-    limit: Math.min((parseInt(req.query.limit) or 20), 50)
-    skip: parseInt(req.query.skip) or 0
+    limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
+    skip: parseInt(req.query.skip, 10) or 0
     sort: 'endret'
 
   cursor = req.col.find(query, fields, options)
@@ -41,6 +41,7 @@ exports.get = (req, res, next) ->
       return next err if err
       res.json documents: docs, count: docs.length, total: total
       err = docs = null
+      return
 
 exports.post = (req, res, next) ->
   return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0
@@ -49,7 +50,7 @@ exports.post = (req, res, next) ->
   ret = []
   cnt = 0
   for item, i in req.body
-    item._id = ObjectID(item._id) if item._id # @TODO restrict this
+    item._id = new ObjectID(item._id) if item._id # @TODO restrict this
     # @TODO item.opprettet
     # @TODO item.endret
     # @TODO item.tilbyder
