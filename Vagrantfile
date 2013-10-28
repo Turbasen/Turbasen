@@ -22,7 +22,6 @@ service mongodb start
 echo "Setting environment variables..."
 echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
 echo "export NODE_ENV=development" >> /home/vagrant/.bashrc
-echo "export PORT=8080" >> /home/vagrant/.bashrc
 echo "export PORT_WWW=8080" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
 
