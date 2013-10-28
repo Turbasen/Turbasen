@@ -10,3 +10,4 @@ Vagrantfile
 node_modules/
 src/
 test/
+npm-debug.log
