@@ -1,0 +1,12 @@
+.*swp
+.DS_Store
+.dotcloud/
+.dotcloudignore
+.git
+.gitignore
+.jshintrc
+README.md
+Vagrantfile
+node_modules/
+src/
+test/
