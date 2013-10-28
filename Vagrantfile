@@ -4,9 +4,6 @@
 # Boostrap Script
 $script = <<SCRIPT
 
-# SSH keys
-sudo -u vagrant cp /vagrant/config/.ssh/* /home/vagrant/.ssh/.
-
 # Update & Install
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
@@ -22,7 +19,7 @@ service mongodb start
 echo "Setting environment variables..."
 echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
 echo "export NODE_ENV=development" >> /home/vagrant/.bashrc
-echo "export PORT=8080" >> /home/vagrant/.bashrc
+echo "export PORT_WWW=8080" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
 
 # NodeJS via NVM
@@ -31,8 +28,8 @@ export HOME=/home/vagrant
 curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
-nvm install 0.8
-#nvm install 0.10
+#nvm install 0.8
+nvm install 0.10.21
 #nvm install 0.11
 export HOME=/home/root
 
@@ -43,7 +40,6 @@ PATH=$PATH:/vagrant/node_modules/.bin
 cd /vagrant && npm install
 
 echo "cd /vagrant" >> /home/vagrant/.bashrc
-
 
 SCRIPT
 
@@ -88,7 +84,7 @@ Vagrant.configure("2") do |config|
   # Example for VirtualBox:
   
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "256"]
+    vb.customize ["modifyvm", :id, "--memory", "256", "--cpus", "2"]
   end
   
 end

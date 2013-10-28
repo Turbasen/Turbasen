@@ -1,7 +1,8 @@
 api:
-  type: nodejs
+  type: custom
+  buildscript: config/builder
+  ports:
+    www: http
+  process: node src/server.js
   approot: .
-  config:
-    node_version: v0.8.x
-  environment:
-    PORT: 8080
+  node_version: v0.10.21

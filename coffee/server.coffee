@@ -31,7 +31,7 @@ app.use(express.methodOverride())
 app.use(express.bodyParser())
 app.disable('x-powered-by')
 app.enable('verbose errors')
-app.set 'port', process.env.PORT or 8080
+app.set 'port', process.env.PORT_WWW or 8080
 app.use(app.router)
 
 # Error Handler
