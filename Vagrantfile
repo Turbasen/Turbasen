@@ -45,7 +45,6 @@ cd /vagrant && npm install
 
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
-
 SCRIPT
 
 Vagrant.configure("2") do |config|
