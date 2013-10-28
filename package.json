@@ -11,7 +11,7 @@
     "express": "~3",
     "nodetime": "~0"
   },
-  "dev-dependencies": {
+  "devDependencies": {
     "supertest": "~0",
     "mocha": "~1",
     "supervisor": "~0",
