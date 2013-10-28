@@ -1,23 +1,26 @@
 {
-  "name": "nasjonalturbase.api"
-  ,"version": "0.0.1"
-  ,"private": true
-  ,"description": "API against Nasjonal Turbase (NTB)"
-  ,"repository": "git@github.com:Turistforeningen/nasjonalturbase.git"
-  ,"main": "src/nasjonalturbase.api.js"
-  ,"dependencies": {
-    "coffee-script": "~1"
-    ,"mongodb": "~1"
-    ,"express": "~3"
-    ,"supertest": "~0"
-    ,"mocha": "~1"
-    ,"supervisor": "~0"
-    ,"moniker": "~0"
-  }
-  ,"scripts": {
-    "start": "supervisor coffee coffee/server.coffee"
-    ,"test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script -w"
-    ,"postinstall": "rm -rf src/* && coffee -o src/ -c coffee/"
-    ,"test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec -r coffee-script"
+  "name": "nasjonalturbase.api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "API against Nasjonal Turbase (NTB)",
+  "repository": "git@github.com:Turistforeningen/nasjonalturbase.git",
+  "main": "src/nasjonalturbase.api.js",
+  "dependencies": {
+    "coffee-script": "~1",
+    "mongodb": "~1",
+    "express": "~3",
+    "nodetime": "~0"
+  },
+  "dev-dependencies": {
+    "supertest": "~0",
+    "mocha": "~1",
+    "supervisor": "~0",
+    "moniker": "~0"
+  },
+  "scripts": {
+    "start": "supervisor coffee coffee/server.coffee",
+    "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script -w",
+    "postinstall": "rm -rf src/* && coffee -o src/ -c coffee/",
+    "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec -r coffee-script"
   }
 }
