@@ -8,8 +8,7 @@
   "dependencies": {
     "coffee-script": "~1",
     "mongodb": "~1",
-    "express": "~3",
-    "nodetime": "~0"
+    "express": "~3"
   },
   "devDependencies": {
     "supertest": "~0",
