@@ -1,10 +1,5 @@
 "use strict"
 
-if process.env.NODE_ENV is 'production'
-  require('nodetime').profile
-    accountKey: '51f8e8978e331337237794c9eaf9d246bf869384'
-    appName: 'ntbdev'
-
 express = require 'express'
 MongoClient = require('mongodb').MongoClient
 
