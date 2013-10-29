@@ -41,13 +41,29 @@ exports.get = (req, res, next) ->
 
   cursor = req.col.find(query, fields, options)
   cursor.count (err, total) ->
-    return next err if err
-    return res.json documents: [], count: 0, total: 0 if total is 0
-    cursor.toArray (err, docs) ->
-      return next err if err
-      res.json documents: docs, count: docs.length, total: total
-      err = docs = null
+    if err
+      next err
+      cursor = err = total = null
       return
+
+    if total is 0
+      res.json documents: [], count: 0, total: 0
+      cursor = err = total = null
+      return
+    
+    err = null
+
+    cursor.toArray (err, docs) ->
+      if err
+        next err
+      else
+        res.json documents: docs, count: docs.length, total: total
+      
+      cursor = err = docs = total = null
+      return
+
+  query = fields = options = null
+  return
 
 exports.post = (req, res, next) ->
   return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0
