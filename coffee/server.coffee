@@ -28,7 +28,7 @@ app.use(express.logger(':date :remote-addr - :method :url :status :res[content-l
 app.set('json spaces', 0) if app.get('env') isnt 'testing'
 app.use(express.compress())
 app.use(express.methodOverride())
-app.use(express.bodyParser())
+app.use(express.json())
 app.disable('x-powered-by')
 app.enable('verbose errors')
 app.set 'port', process.env.PORT_WWW or 8080
