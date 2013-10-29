@@ -22,12 +22,15 @@ exports.options = (req, res, next) ->
 
 exports.get = (req, res, next) ->
   req.col.findOne _id: req.id, (err, doc) ->
-    return next err if err
     if doc
       res.json 200, doc
-      err = docs = null
-      return
-    return res.json 404, error: 'Document Not Found'
+    else if err
+      next err
+    else
+      res.json 404, error: 'Document Not Found'
+      
+    err = doc = null
+    return
 
 exports.put = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
