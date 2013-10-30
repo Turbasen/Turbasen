@@ -56,9 +56,16 @@ app.get '/objekttyper', (req, res, next) ->
   res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
 
 app.get '/system', (req, res, next) ->
+  os = require 'os'
   res.json 200,
-    uptime: process.uptime()
-    memory: process.memoryUsage()
+    app:
+      uptime: process.uptime()
+      memory: process.memoryUsage()
+    os:
+      uptime: os.uptime()
+      loadavg: os.loadavg()
+      totalmem: os.totalmem()
+      freemem: os.freemem()
 
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
