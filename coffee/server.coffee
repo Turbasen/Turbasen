@@ -55,6 +55,12 @@ app.get '/', (req, res) ->
 app.get '/objekttyper', (req, res, next) ->
   res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
 
+app.get '/system', (req, res, next) ->
+  res.json 200,
+    uptime: process.uptime()
+    memory: process.memoryUsage()
+    versions: process.versions()
+
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
   switch req.method
