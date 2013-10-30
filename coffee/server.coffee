@@ -59,7 +59,6 @@ app.get '/system', (req, res, next) ->
   res.json 200,
     uptime: process.uptime()
     memory: process.memoryUsage()
-    versions: process.versions()
 
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
