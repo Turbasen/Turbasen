@@ -67,6 +67,10 @@ app.get '/system', (req, res, next) ->
       totalmem: os.totalmem()
       freemem: os.freemem()
 
+app.get '/system/gc', (req, res, next) ->
+  global.gc() if typeof global.gc is 'function'
+  res.end()
+
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
   switch req.method
@@ -90,6 +94,7 @@ app.all '/:collection', (req, res, next) ->
 MongoClient.connect process.env.MONGO_URI, (err, db) ->
   return err if err
   app.set 'db', db
+
   if not module.parent
     app.listen app.get 'port'
     console.log "Server is listening on port #{app.get('port')}"

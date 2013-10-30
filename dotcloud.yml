@@ -3,6 +3,6 @@ api:
   buildscript: config/builder
   ports:
     www: http
-  process: node src/server.js
+  process: node src/server.js --expose-gc --trace-gc
   approot: .
   node_version: v0.10.21
