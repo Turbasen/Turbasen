@@ -7,30 +7,34 @@ exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Invalid ObjectID' if not /^[a-f0-9]{24}$/.test id
   req.id = new ObjectID id
   return next() if req.method is 'OPTIONS'
-  req.col.find({_id: req.id}, {endret: true}, {limit: 1}).toArray (err, docs) ->
+  cb = (err, docs) ->
     return res.json 404, error: 'Document Not Found' if docs.length is 0
     req.etag = crypto.createHash('md5').update(docs[0]._id + docs[0].endret).digest("hex")
     return res.status(304).end() if req.get('if-none-match') is req.etag
     res.set 'ETag', req.etag
     res.set 'Last-Modified', new Date(docs[0].endret).getTime()
-    err = docs = null
+    cb = err = docs = null
     next()
+
+  req.col.find({_id: req.id}, {endret: true}, {limit: 1}).toArray cb
 
 exports.options = (req, res, next) ->
   res.setHeader 'Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE'
   res.send()
 
 exports.get = (req, res, next) ->
-  req.col.findOne _id: req.id, (err, doc) ->
+  cb = (err, doc) ->
     if doc
       res.json 200, doc
     else if err
       next err
     else
       res.json 404, error: 'Document Not Found'
-      
-    err = doc = null
+
+    cb = err = doc = null
     return
+
+  req.col.findOne _id: req.id, cb
 
 exports.put = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
