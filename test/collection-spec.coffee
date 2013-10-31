@@ -202,6 +202,13 @@ describe 'POST', ->
       assert.equal res.body.documents[0], doc._id
       done()
 
+  it 'should update existing document', (done) ->
+    doc = {_id: data[50]._id, navn: 'foo'}
+    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+      throw err if err
+      assert.equal res.body.documents[0], doc._id
+      done()
+
   it 'should return error for missing request body', (done) ->
     req.post('/test?api_key=dnt')
       .expect(400, done)
