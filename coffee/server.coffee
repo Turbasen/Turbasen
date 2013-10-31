@@ -18,7 +18,7 @@ app.use '/', (req, res, next) ->
   req.key = key
   req.usr = apiKeys[key]
   req.db = app.get 'db'
-  
+
   res.setHeader 'Access-Control-Allow-Origin', '*'
 
   next()
