@@ -5,6 +5,8 @@ ObjectID = require('mongodb').ObjectID
 collections = {}
 
 exports.param = (req, res, next, collection) ->
+  # @TODO url-decode collection
+  # @TODO restricted collections
   if collections[collection]
     req.col = collections[collection]
     return next()
