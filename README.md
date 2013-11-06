@@ -1,67 +1,55 @@
 API for Nasjonal Turbase
 ========================
 
-Adressen til api er: http://api.nasjonalturbase.no/versjon/ , og alle kall må sende med parameter "api_key" for autentisering.  
-F.eks: http://api.nasjonalturbase.no/v0/?api_key=dnt
+## Resurser
 
-Det legges på https:// etter hvert.
+* Turer
+* Steder
+* Områder
+* Bilder
+* Grupper
+* Aktiviteter (kommer)
 
-The Basics
-----------
+### Turer
 
-###Parametre
-API kan benyttes med følgende parametre:  
+#### List ut turer
 
-api_key=dnt  
-Hver innholdspartner får sin egen api_key.
+`curl "dev.nasjonalturbase.no/turer?api_key=abc123"`
 
-method=post  
-Hvilken metode som skal benyttes i REST-kallet. Verdier er [ get | post | put | del ]  
-Hvis ikke method sendes med vil det antas at method=get.
-method=put oppfører seg som en HTTP PATCH, og vil kun overskrive spesifiserte felter.
+```json
+{
+  "documents":[
+    {
+      "_id":"524081f9b8cb77df150006b9",
+      "endret":"2010-07-07T08:14:43.000Z",
+      "navn":"Fra Røros til Femundsmarka på sykkel"
+    },
+    {
+      "_id":"524081f9b8cb77df150006f2",
+      "endret":"2010-10-28T09:35:17.000Z",
+      "navn":
+"Padletur rundt Selja ved Stadlandet"
+    },
+    {...}
+  ]
+}
+```
 
-data={json-objekt}  
-Objekter til post og put sendes i data-parameter enten som HTTP GET (i url/querystringen) eller HTTP POST (i POST HEADER) parameter.
+#### Hent en tur
 
-callback=MyFunc  
-Hvis parameter "callback=MyFunc" sendes med vil retur-json pakkes inn i et funksjonskall med navn lik verdien på parameter "callback" - i dette tilfellet "MyFunc". JSONP.
+`curl "dev.nasjonalturbase.no/turer/524081f9b8cb77df150006b9?api_key=abc123"`
 
-limit=5  
-Returnere de første 5 resultater
+```json
+{
+  "_id":"524081f9b8cb77df150006b9",
+  "tilbyder":"DNT",
+  "opprettet":"2010-07-07T08:14:43.000Z",
+  "endret":"2010-07-07T08:14:43.000Z",
+  "lisens":"CC BY-NC-ND 3.0 NO",
+  "navngivning":"Turen er levert via <a href=\"http://ut.no\">UT.no</a> og lisensiert under <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/no\">CC BY-NC-ND 3.0</a>",
+  "status":"Offentlig",
+  "navn":"Fra Røros til Femundsmarka på sykkel",
+  ...
+}
+```
 
-offset=10  
-Hoppe over de 10 første objektene i resultatet
-
-###Objektstruktur
-Nøyaktig hvilke feltnavn og datastruktur objektene i Nasjonal Turbase skal ha blir en standardiseringsprosess. Det er kanskje naturlig å ta utgangspunkt i eksisterende felter i Sherpa/UT.no, men de bør fornorskes og forenkles.
-Databasen er skjemaløs (MongoDB), så vilkårlige json-objekter kan legges inn
-
-Eksempler
----------
-Nasjonal Turbase inneholder objekttypene: "turer" og "steder".
-
-###Turer:
-**For å liste ut turer**  
-http://api.nasjonalturbase.no/v0/turer/?api_key=dnt
-
-**..med offset (hvor mange som hoppes over), og limit (hvor mange som listes ut), og med callback funksjon ntb_callback**  
-http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&offset=5&limit=3&callback=ntb_callback
-
-**For å legge inn en ny tur**  
-http://api.nasjonalturbase.no/v0/turer/?api_key=dnt&method=post&data={"navn":"Testtur","beskrivelse":"Her er beskrivelsen"}
-
-Kallet returnerer json-objektet (i et array) med innlagt "_id" på objektet, eller en feilmelding.
-
-**For å oppdatere navnet på tur med id 508ec09cd71b8f0000000001**  
-http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=put&data={"navn":"Nytt navn"}
-
-Kallet returnerer oppdatert json-objekt (i et array)
-
-**For å slette tur med id 508ec09cd71b8f0000000001**  
-http://api.nasjonalturbase.no/v0/turer/508ec09cd71b8f0000000001?api_key=dnt&method=del
-
-###Steder:
-**For å liste ut steder**  
-http://api.nasjonalturbase.no/v0/steder/?api_key=dnt
-
-..ellers som for turer.
