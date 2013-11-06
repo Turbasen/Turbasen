@@ -91,3 +91,26 @@ API for Nasjonal Turbase
 }
 ```
 
+## Parametre
+
+### api_key
+
+`curl "dev.nasjonalturbase.no?api_key=acb123"`
+
+### skip
+
+`curl "dev.nasjonalturbase.no/turer?api_key=abc123&skip=10"`
+
+### limit
+
+`curl "dev.nasjonalturbase.no/turer?api_key=abc123&limit=20"`
+
+### after
+
+`curl "dev.nasjonalturbase.no/turer?api_key=abc123&after=2013-11-06"`
+
+### tag
+
+`curl "dev.nasjonalturbase.no/steder?api_key=abc123&tag=Hytte`
+`curl "dev.nasjonalturbase.no/steder?api_key=abc123&tag=!Hytte`
+
