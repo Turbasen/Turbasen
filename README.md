@@ -55,6 +55,8 @@ API for Nasjonal Turbase
 
 ### Steder
 
+#### List ut steder
+
 `curl "dev.nasjonalturbase.no/steder?api_key=abc123"`
 
 ```json
@@ -75,6 +77,8 @@ API for Nasjonal Turbase
 }
 ```
 
+#### Hent ett sted
+
 `curl "dev.nasjonalturbase.no/steder/52407fb375049e5615000294?api_key=abc123"`
 
 ```json
@@ -90,6 +94,21 @@ API for Nasjonal Turbase
   {...}
 }
 ```
+
+### Områder
+
+`curl "dev.nasjonalturbase.no/områder?api_key=abc123"`
+`curl "dev.nasjonalturbase.no/områder/52408144e7926dcf15000010?api_key=abc123"`
+
+### Bilder
+
+`curl "dev.nasjonalturbase.no/bilder?api_key=abc123"`
+`curl "dev.nasjonalturbase.no/bilder/5242a068f92e7d7112032f5a?api_key=abc123"`
+
+### Grupper
+
+`curl "dev.nasjonalturbase.no/grupper?api_key=abc123"`
+`curl "dev.nasjonalturbase.no/grupper/52666d15b9223b8f00000001?api_key=abc123"`
 
 ## Parametre
 
