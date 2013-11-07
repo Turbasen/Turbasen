@@ -48,6 +48,7 @@ app.use (req, res) -> res.json 404, message: "Resource not found"
 apiKeys =
   dnt: 'DNT'
   nrk: 'NRK'
+  '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
 
 app.get '/', (req, res) ->
   res.json message: 'Here be dragons'
