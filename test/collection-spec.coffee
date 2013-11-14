@@ -13,12 +13,12 @@ before ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/test?api_key=dnt')
+    req.options('/turer?api_key=dnt')
       .expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
 
 describe 'GET', ->
-  url = '/test?api_key=dnt'
+  url = '/turer?api_key=dnt'
 
   it 'should get the collection', (done) ->
     req.get(url)
@@ -29,6 +29,29 @@ describe 'GET', ->
         assert.equal res.body.count, 20
         assert.equal res.body.total, 100
         done()
+
+  it 'should grant access for the 6 known collections', (done) ->
+    cols = ['turer', 'steder', 'områder', 'grupper', 'bilder', 'aktiviteter']
+    count = cols.length
+
+    for col in cols
+      req.get(url.replace('turer', col))
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          done() if --count is 0
+
+  it 'should restrict access to unknown collections', (done) ->
+    cols = ['system.test', 'test', 'admin', '_test', 'æøå']
+    count = cols.length
+
+    for col in cols
+      req.get(url.replace('turer', col))
+        .expect(404)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.message, 'Objekttype ikke funnet'
+          done() if --count is 0
 
   it 'should return a limited set of document properties', (done) ->
     req.get(url)
@@ -128,7 +151,7 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 20
         for doc in res.body.documents
           do (doc) ->
-            req.get('/test/' + doc._id + '?api_key=dnt')
+            req.get('/turer/' + doc._id + '?api_key=dnt')
               .expect(200)
               .end (err, r) ->
                 throw err if err
@@ -144,7 +167,7 @@ describe 'GET', ->
         assert.equal res.body.documents.length, 20
         for doc in res.body.documents
           do (doc) ->
-            req.get('/test/' + doc._id + '?api_key=dnt')
+            req.get('/turer/' + doc._id + '?api_key=dnt')
               .expect(200)
               .end (err, r) ->
                 throw err if err
@@ -154,7 +177,7 @@ describe 'GET', ->
 describe 'POST', ->
   it 'should insert single object in collection and return ObjectID', (done) ->
     doc = name: 'tobi'
-    req.post('/test?api_key=dnt').send(doc)
+    req.post('/turer?api_key=dnt').send(doc)
       .expect(201)
       .end (err, res) ->
         throw err if err
@@ -162,7 +185,7 @@ describe 'POST', ->
         assert.equal res.body.count, 1
         assert.equal typeof res.body.documents[0], 'string'
 
-        req.get('/test?api_key=dnt')
+        req.get('/turer?api_key=dnt')
           .expect(200)
           .end (err, res) ->
             throw err if err
@@ -174,7 +197,7 @@ describe 'POST', ->
       {name: 'foo'}
       {name: 'bar'}
     ]
-    req.post('/test?api_key=dnt').send(docs)
+    req.post('/turer?api_key=dnt').send(docs)
       .expect(201)
       .end (err, res) ->
         throw err if err
@@ -188,7 +211,7 @@ describe 'POST', ->
     count = 0
     target = 200
     for i in [1..target]
-      req.post('/test?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
+      req.post('/turer?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
         throw err if err
         assert.equal res.body.documents.length, 1
         assert.equal res.body.count, 1
@@ -197,34 +220,34 @@ describe 'POST', ->
 
   it 'should convert _id to ObjectID if provided with one', (done) ->
     doc = _id: new ObjectID().toString(), name: 'tuut-tuut'
-    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+    req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
       throw err if err
       assert.equal res.body.documents[0], doc._id
       done()
 
   it 'should update existing document', (done) ->
     doc = {_id: data[50]._id, navn: 'foo'}
-    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+    req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
       throw err if err
       assert.equal res.body.documents[0], doc._id
       done()
 
   it 'should return error for missing request body', (done) ->
-    req.post('/test?api_key=dnt')
+    req.post('/turer?api_key=dnt')
       .expect(400, done)
 
 describe 'PUT', ->
   it 'should not be implemeted', (done) ->
-    req.put('/test?api_key=dnt')
+    req.put('/turer?api_key=dnt')
       .expect(501, done)
 
 describe 'PATCH', ->
   it 'should not be implemented', (done) ->
-    req.patch('/test?api_key=dnt')
+    req.patch('/turer?api_key=dnt')
       .expect(501, done)
 
 describe 'DELETE', ->
   it 'should not be able to DELETE', (done) ->
-    req.del('/test?api_key=dnt')
+    req.del('/turer?api_key=dnt')
       .expect(405, done)
 

@@ -13,17 +13,17 @@ before ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/test/' + data[50]._id + '?api_key=dnt')
+    req.options('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE', done)
 
 describe 'GET', ->
   it 'should reject invalid object id', (done) ->
-    req.get('/test/123acb?api_key=dnt')
+    req.get('/turer/123acb?api_key=dnt')
       .expect(400, done)
 
   it 'should return 404 for not existing document', (done) ->
-    req.get('/test/52580f8165de660317000001/?api_key=dnt')
+    req.get('/turer/52580f8165de660317000001/?api_key=dnt')
       .expect(404)
       .end (err, res) ->
         throw err if err
@@ -34,7 +34,7 @@ describe 'GET', ->
     src = JSON.parse(JSON.stringify(data[50]))
     src._id = src._id.toString()
 
-    req.get('/test/' + src._id + '?api_key=dnt')
+    req.get('/turer/' + src._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
         throw err if err
@@ -43,12 +43,12 @@ describe 'GET', ->
 
   it 'should set last modified header correctly', (done) ->
     time = new Date(data[50].endret).getTime().toString()
-    req.get('/test/' + data[50]._id + '?api_key=dnt')
+    req.get('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .expect('Last-Modified', time, done)
 
   it 'should set Etag header correctly', (done) ->
-    req.get('/test/' + data[50]._id + '?api_key=dnt')
+    req.get('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
         throw err if err
@@ -56,20 +56,20 @@ describe 'GET', ->
         done()
 
   it 'should return 403 when provided with current valid Etag', (done) ->
-    req.get('/test/' + data[50]._id + '?api_key=dnt')
+    req.get('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
         throw err if err
-        req.get('/test/' + data[50]._id + '?api_key=dnt')
+        req.get('/turer/' + data[50]._id + '?api_key=dnt')
           .set('if-none-match', res.header.etag)
           .expect(304, done)
 
   it 'should return newly created document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
-    req.post('/test?api_key=dnt').send(doc).expect(201).end (err, res) ->
+    req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
       throw err if err
       assert.equal res.body.documents[0], doc._id
-      req.get('/test/' + doc._id + '?api_key=dnt')
+      req.get('/turer/' + doc._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
           throw err if err
@@ -79,7 +79,7 @@ describe 'GET', ->
   it 'should handle rapid fire', (done) ->
     count = 0
     for d in data
-      request(app).get('/test/' + d._id + '?api_key=dnt')
+      request(app).get('/turer/' + d._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
           throw err if err
@@ -87,21 +87,21 @@ describe 'GET', ->
 
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->
-    req.post('/test/' + data[50]._id + '?api_key=dnt')
+    req.post('/turer/' + data[50]._id + '?api_key=dnt')
       .expect 405, done
 
 describe 'PUT', ->
   it 'should not be implmented', (done) ->
-    req.put('/test/' + data[50]._id + '?api_key=dnt')
+    req.put('/turer/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 
 describe 'PATCH', ->
   it 'should not be implmented', (done) ->
-    req.patch('/test/' + data[50]._id + '?api_key=dnt')
+    req.patch('/turer/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 
 describe 'DELETE', ->
   it 'should not be implmented', (done) ->
-    req.del('/test/' + data[50]._id + '?api_key=dnt')
+    req.del('/turer/' + data[50]._id + '?api_key=dnt')
       .expect 501, done
 

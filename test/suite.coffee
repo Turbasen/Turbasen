@@ -8,9 +8,9 @@ exports.data = data = require('./util/data-gen.coffee')(100)
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
   db = app.get 'db'
-  db.collection('test').drop (err) ->
+  db.collection('turer').drop (err) ->
     #throw err if err
-    db.collection('test').insert data, (err) ->
+    db.collection('turer').insert data, (err) ->
       throw err if err
       done()
 
