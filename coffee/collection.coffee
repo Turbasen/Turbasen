@@ -5,21 +5,18 @@ ObjectID = require('mongodb').ObjectID
 collections = {}
 
 exports.param = (req, res, next, collection) ->
-  # @TODO url-decode collection
-  # @TODO restricted collections
+  if collection not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
+    return res.json 404,
+      message: 'Objekttype ikke funnet'
+
   if collections[collection]
     req.col = collections[collection]
     return next()
 
   cb = (err, col) ->
-    if col
-      collections[collection] = req.col = col
-      next()
-    else
-      next err
-
-    cb = err = col = null
-    return
+    return next err if err
+    collections[collection] = req.col = col
+    next()
 
   req.db.collection collection, cb
 
