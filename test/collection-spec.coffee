@@ -41,6 +41,18 @@ describe 'GET', ->
           throw err if err
           done() if --count is 0
 
+  it 'should restrict access to unknown collections', (done) ->
+    cols = ['system.test', 'test', 'admin', '_test', 'æøå']
+    count = cols.length
+
+    for col in cols
+      req.get(url.replace('turer', col))
+        .expect(404)
+        .end (err, res) ->
+          throw err if err
+          assert.equal res.body.message, 'Objekttype ikke funnet'
+          done() if --count is 0
+
   it 'should return a limited set of document properties', (done) ->
     req.get(url)
       .expect(200)
