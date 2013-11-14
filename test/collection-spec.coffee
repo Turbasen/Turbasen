@@ -30,6 +30,17 @@ describe 'GET', ->
         assert.equal res.body.total, 100
         done()
 
+  it 'should grant access for the 6 known collections', (done) ->
+    cols = ['turer', 'steder', 'områder', 'grupper', 'bilder', 'aktiviteter']
+    count = cols.length
+
+    for col in cols
+      req.get(url.replace('turer', col))
+        .expect(200)
+        .end (err, res) ->
+          throw err if err
+          done() if --count is 0
+
   it 'should return a limited set of document properties', (done) ->
     req.get(url)
       .expect(200)
