@@ -1,6 +1,7 @@
 "use strict"
 
 express = require 'express'
+raven   = require 'raven'
 MongoClient = require('mongodb').MongoClient
 
 collection = require './collection'
@@ -33,6 +34,7 @@ app.disable('x-powered-by')
 app.enable('verbose errors')
 app.set 'port', process.env.PORT_WWW or 8080
 app.use(app.router)
+app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_DNS
 
 # Error Handler
 app.use (err, req, res, next) ->
