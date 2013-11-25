@@ -5,4 +5,4 @@ api:
     www: http
   process: node src/server.js --expose-gc --trace-gc
   approot: .
-  node_version: v0.10.21
+  node_version: v0.10.22
