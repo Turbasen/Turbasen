@@ -19,7 +19,7 @@
     "moniker": "~0"
   },
   "scripts": {
-    "start": "supervisor -w coffee -- coffee/server.coffee --nodejs \"--expose-gc --trace-gc\"",
+    "start": "supervisor -w coffee -- coffee/server.coffee --nodejs \"--expose-gc --always-compact\"",
     "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script -w",
     "postinstall": "rm -rf src/* && coffee -o src/ -c coffee/",
     "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec -r coffee-script"
