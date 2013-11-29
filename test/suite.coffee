@@ -5,12 +5,24 @@ assert = require 'assert'
 exports.app = app = require './../coffee/server.coffee'
 exports.data = data = require('./util/data-gen.coffee')(100)
 
+# @TODO ok, so we had to hack this
+data[50].status = "Offentlig"
+data[51].status = "Offentlig"
+data[52].status = "Offentlig"
+data[53].status = "Offentlig"
+data[53].status = "Offentlig"
+
+exports.cache = redis = null
+
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
   db = app.get 'db'
+  cache = app.get 'cache'
+
+  cache.flushall()
   db.collection('turer').drop (err) ->
     #throw err if err
-    db.collection('turer').insert data, (err) ->
+    db.collection('turer').insert data, {safe: true}, (err) ->
       throw err if err
       done()
 
