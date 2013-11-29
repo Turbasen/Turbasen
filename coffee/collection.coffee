@@ -9,6 +9,8 @@ exports.param = (req, res, next, collection) ->
     return res.json 404,
       message: 'Objekttype ikke funnet'
 
+  req.type = collection
+
   if collections[collection]
     req.col = collections[collection]
     return next()
