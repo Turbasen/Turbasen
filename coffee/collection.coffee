@@ -39,7 +39,6 @@ exports.get = (req, res, next) ->
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
     query.endret = {$gte:req.query.after}
 
-  fields = {}
   fields = endret: true, status: true, navn: true
 
   options =
