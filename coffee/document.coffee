@@ -7,16 +7,31 @@ exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Invalid ObjectID' if not /^[a-f0-9]{24}$/.test id
   req.id = new ObjectID id
   return next() if req.method is 'OPTIONS'
-  cb = (err, docs) ->
-    return res.json 404, error: 'Document Not Found' if docs.length is 0
-    req.etag = crypto.createHash('md5').update(docs[0]._id + docs[0].endret).digest("hex")
+
+  result = (err, doc) ->
+    if not doc or doc.status is 'Slettet'
+      return res.json 404, error: 'Document Not Found'
+    req.etag = crypto.createHash('md5').update(req.id + doc.endret).digest("hex")
     return res.status(304).end() if req.get('if-none-match') is req.etag
     res.set 'ETag', req.etag
-    res.set 'Last-Modified', new Date(docs[0].endret).getTime()
-    cb = err = docs = null
+    res.set 'Last-Modified', new Date(doc.endret).toUTCString()
+    cb = err = doc = null
     next()
 
-  req.col.find({_id: req.id}, {endret: true}, {limit: 1}).toArray cb
+  key = "#{req.type}:#{req.id}"
+  req.cache.hgetall key, (err, data) ->
+    if data and typeof req.query.nocache is 'undefined'
+      res.set 'X-Cache-Hit', 'true'
+      return result(null, data)
+
+    req.col.find({_id: req.id}, {endret: true, status: true}, {limit: 1}).toArray (err, docs) ->
+      endret = docs[0]?.endret or new Date().toISOString()
+      status = docs[0]?.status or 'Slettet'
+
+      req.cache.hmset key, "endret", endret, "status", status, (err, data) ->
+        result null,
+          endret: endret
+          status: status
 
 exports.options = (req, res, next) ->
   res.setHeader 'Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE'

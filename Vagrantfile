@@ -8,19 +8,23 @@ $script = <<SCRIPT
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential python-setuptools git curl mongodb-10gen
+apt-get install -y build-essential python-setuptools git curl mongodb-10gen redis-server
 easy_install pip && pip install dotcloud
 
-# Start Mongodb
-echo "Starting mongodb database..."
+# Start redis and mongodb
+echo "Starting database services..."
 service mongodb start
+service redis-server start
 
 # Vagratnt Environment Varaibles
 echo "Setting environment variables..."
-echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
+
 echo "export NODE_ENV=development" >> /home/vagrant/.bashrc
 echo "export PORT_WWW=8080" >> /home/vagrant/.bashrc
+echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
 echo "export SENTRY_DNS=https://9cd2471bf86b4aaa8e755a6eb08344cf:00b9e1e2f9f9452ca4c8005337b7d873@sentry.turistforeningen.no/8" >> /home/vagrant/.bashrc
+echo "export DOTCLOUD_CACHE_REDIS_HOST=localhost" >> /home/vagrant/.bashrc
+echo "export DOTCLOUD_CACHE_REDIS_PORT=6379" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
 
 # NodeJS via NVM
@@ -60,7 +64,7 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network :forwarded_port, guest: 8080, host: 8080
-  
+
   # The shell provisioner allows you to upload and execute a script as the root
   # user within the guest machine.
   config.vm.provision :shell, :inline => $script
@@ -83,9 +87,9 @@ Vagrant.configure("2") do |config|
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
-  
+
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "256", "--cpus", "2"]
   end
-  
+
 end

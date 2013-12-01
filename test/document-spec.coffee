@@ -41,9 +41,19 @@ describe 'GET', ->
         assert.deepEqual res.body, src
         done()
 
+  it 'should set cache header when using the cache', (done) ->
+    url = '/turer/' + data[51]._id + '?api_key=dnt'
+    req.get(url)
+      .expect(200)
+      .end (err, res) ->
+        throw err if err
+        req.get(url)
+          .expect(200)
+          .expect('X-Cache-Hit', 'true', done)
+
   it 'should set last modified header correctly', (done) ->
-    time = new Date(data[50].endret).getTime().toString()
-    req.get('/turer/' + data[50]._id + '?api_key=dnt')
+    time = new Date(data[51].endret).toUTCString()
+    req.get('/turer/' + data[51]._id + '?api_key=dnt')
       .expect(200)
       .expect('Last-Modified', time, done)
 
@@ -68,7 +78,7 @@ describe 'GET', ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
     req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
       throw err if err
-      assert.equal res.body.documents[0], doc._id
+      assert.equal res.body.document._id, doc._id
       req.get('/turer/' + doc._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
@@ -77,10 +87,11 @@ describe 'GET', ->
           done()
 
   it 'should handle rapid fire', (done) ->
+    this.timeout(5000)
+
     count = 0
     for d in data
       request(app).get('/turer/' + d._id + '?api_key=dnt')
-        .expect(200)
         .end (err, res) ->
           throw err if err
           done() if ++count is data.length

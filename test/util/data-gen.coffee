@@ -18,6 +18,13 @@ provider = [
   "TURAPP"
 ]
 
+statuses = [
+  "Offentlig"
+  "Privat"
+  "Kladd"
+  "Slettet"
+]
+
 tags = [
   'Sted'
   'Hytte'
@@ -39,6 +46,7 @@ module.exports = (num) ->
       endret: new Date(d2).toISOString()
       tilbyder: provider[rand(0, provider.length-1)]
       lisens: lisence[rand(0, lisence.length-1)]
+      status: statuses[rand(0, statuses.length-1)]
       navn: Moniker.choose()
       tags: [tags[rand(0, tags.length-1)]]
       privat:
@@ -46,4 +54,4 @@ module.exports = (num) ->
         bar: Moniker.choose()
 
   ret
-  
+

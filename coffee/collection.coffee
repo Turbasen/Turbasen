@@ -9,6 +9,8 @@ exports.param = (req, res, next, collection) ->
     return res.json 404,
       message: 'Objekttype ikke funnet'
 
+  req.type = collection
+
   if collections[collection]
     req.col = collections[collection]
     return next()
@@ -37,8 +39,7 @@ exports.get = (req, res, next) ->
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
     query.endret = {$gte:req.query.after}
 
-  fields = {}
-  fields = navn: true, endret: true
+  fields = endret: true, status: true, navn: true
 
   options =
     limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
@@ -62,30 +63,48 @@ exports.get = (req, res, next) ->
   return cursor.count countCb
 
 exports.post = (req, res, next) ->
-  return res.json 400, message: 'Payload data is missing' if Object.keys(req.body).length is 0
-  req.body = [req.body] if (req.body instanceof Array) is false
+  return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
+  return res.json 422, message: 'Body should be a JSON Hash' if req.body instanceof Array
 
-  # @TODO this method should only do insert
+  warnings = []
+  errors   = []
+  message  = ''
 
-  # Loop through items
-  #
-  # -throw error if _id exists
-  # -add item.opprettet
-  # -add item.endret
-  # -add item.tilbyder
-  # -check item.lisens
-  # -check item.status
+  req.body._id = new ObjectID(req.body._id) # @TODO restrict this
+  req.body.tilbyder = req.usr
+  req.body.endret = new Date().toISOString()
 
-  ret = []
-  cnt = req.body.length
-  for item in req.body
-    item._id = new ObjectID(item._id) if item._id # @TODO restrict this
-    item._id = new ObjectID() if not item._id
-    ret.push(item._id)
+  if not req.body.lisens
+    req.body.lisens = 'CC BY-ND-NC 3.0 NO'
+    warnings.push
+      resource: req.type
+      field: 'lisens'
+      value: req.body.lisens
+      code: 'missing_field'
 
-    req.col.save item, {safe: true, w: 1}, (err, doc) ->
-      return next(err) if err
-      return res.json 201, documents: ret, count: ret.length if --cnt is 0
+  if not req.body.status
+    req.body.status = 'Kladd'
+    warnings.push
+      resource: req.type
+      field: 'status'
+      value: req.body.status
+      code: 'missing_field'
+
+  req.col.save req.body, {safe: true, w: 1}, (err) ->
+    return next(err) if err
+    req.cache.hmset [
+      "#{req.type}:#{req.body._id}"
+      'tilbyder', req.body.tilbyder
+      'endret', req.body.endret
+      'status', req.body.status
+    ], () -> return
+    return res.json 201,
+      document:
+        _id: req.body._id
+      count: 1
+      message: message if message
+      warnings: warnings if warnings.length > 0
+      errors: errors if errors.length > 0
 
 exports.patch = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
