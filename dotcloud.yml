@@ -6,3 +6,6 @@ api:
   process: node src/server.js --expose-gc --always-compact
   approot: .
   node_version: v0.10.22
+cache:
+  type: redis
+
