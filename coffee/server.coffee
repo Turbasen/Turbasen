@@ -5,9 +5,9 @@ raven   = require 'raven'
 
 MongoClient = require('mongodb').MongoClient
 
-redisPort = process.env.DOTCLOUD_DATA_REDIS_PORT or 6379
-redisHost = process.env.DOTCLOUD_DATA_REDIS_HOST or 'localhost'
-redisPass = process.env.DOTCLOUD_DATA_REDIS_PASSWORD or null
+redisPort = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
+redisHost = process.env.DOTCLOUD_CACHE_REDIS_HOST or 'localhost'
+redisPass = process.env.DOTCLOUD_CACHE_REDIS_PASSWORD or null
 
 redisClient = require('redis').createClient redisPort, redisHost, auth_pass: redisPass
 
