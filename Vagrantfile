@@ -18,10 +18,13 @@ service redis-server start
 
 # Vagratnt Environment Varaibles
 echo "Setting environment variables..."
-echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
+
 echo "export NODE_ENV=development" >> /home/vagrant/.bashrc
 echo "export PORT_WWW=8080" >> /home/vagrant/.bashrc
+echo "export MONGO_URI=mongodb://localhost:27017/test" >> /home/vagrant/.bashrc
 echo "export SENTRY_DNS=https://9cd2471bf86b4aaa8e755a6eb08344cf:00b9e1e2f9f9452ca4c8005337b7d873@sentry.turistforeningen.no/8" >> /home/vagrant/.bashrc
+echo "export DOTCLOUD_CACHE_REDIS_HOST=localhost" >> /home/vagrant/.bashrc
+echo "export DOTCLOUD_CACHE_REDIS_PORT=6379" >> /home/vagrant/.bashrc
 echo "\n\n" >> /home/vagrant/.bashrc
 
 # NodeJS via NVM
