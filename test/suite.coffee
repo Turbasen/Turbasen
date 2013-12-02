@@ -2,8 +2,10 @@
 
 request = require 'supertest'
 assert = require 'assert'
+
 exports.app = app = require './../coffee/server.coffee'
 exports.data = data = require('./util/data-gen.coffee')(100)
+exports.mongo = mongo = null
 
 # @TODO ok, so we had to hack this
 data[50].status = "Offentlig"
@@ -16,13 +18,13 @@ exports.cache = redis = null
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
-  db = app.get 'db'
+  mongo = app.get 'db'
   cache = app.get 'cache'
 
   cache.flushall()
-  db.collection('turer').drop (err) ->
+  mongo.collection('turer').drop (err) ->
     #throw err if err
-    db.collection('turer').insert data, {safe: true}, (err) ->
+    mongo.collection('turer').insert data, {safe: true}, (err) ->
       throw err if err
       done()
 
