@@ -51,6 +51,11 @@ exports.get = (req, res, next) ->
   return cursor.count countCb
 
 exports.post = (req, res, next) ->
+  #
+  # @TODO move update to :/collection/:document
+  # @TODO add access control
+  #
+
   return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
   return res.json 422, message: 'Body should be a JSON Hash' if req.body instanceof Array
 
