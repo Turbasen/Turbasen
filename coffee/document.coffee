@@ -38,18 +38,9 @@ exports.options = (req, res, next) ->
   res.send()
 
 exports.get = (req, res, next) ->
-  cb = (err, doc) ->
-    if doc
-      res.json 200, doc
-    else if err
-      next err
-    else
-      res.json 404, error: 'Document Not Found'
-
-    cb = err = doc = null
-    return
-
-  req.col.findOne _id: req.id, cb
+  req.col.findOne {_id: req.id}, (err, doc) ->
+    return res.json 200, doc if not err
+    return next(err)
 
 exports.put = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
