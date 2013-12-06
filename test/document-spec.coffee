@@ -61,7 +61,7 @@ describe 'GET', ->
     req.get('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal typeof res.header.etag, 'string'
         done()
 
@@ -69,7 +69,7 @@ describe 'GET', ->
     req.get('/turer/' + data[50]._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         req.get('/turer/' + data[50]._id + '?api_key=dnt')
           .set('if-none-match', res.header.etag)
           .expect(304, done)
@@ -77,12 +77,12 @@ describe 'GET', ->
   it 'should return newly created document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
     req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
-      throw err if err
+      assert.ifError(err)
       assert.equal res.body.document._id, doc._id
       req.get('/turer/' + doc._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.name, doc.name
           done()
 
