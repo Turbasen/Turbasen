@@ -24,7 +24,7 @@ describe 'GET', ->
     req.get(url)
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal res.body.documents.length, 20
         assert.equal res.body.count, 20
         assert.equal res.body.total, 100
@@ -38,7 +38,7 @@ describe 'GET', ->
       req.get(url.replace('turer', col))
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           done() if --count is 0
 
   it 'should restrict access to unknown collections', (done) ->
@@ -49,7 +49,7 @@ describe 'GET', ->
       req.get(url.replace('turer', col))
         .expect(404)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'Objekttype ikke funnet'
           done() if --count is 0
 
@@ -57,7 +57,7 @@ describe 'GET', ->
     req.get(url)
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
 
         for doc in res.body.documents
           assert.equal Object.keys(doc).length, 4
@@ -72,7 +72,7 @@ describe 'GET', ->
     req.get(url + '&limit=foo&offset=bar')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal res.body.documents.length, 20
         done()
 
@@ -80,7 +80,7 @@ describe 'GET', ->
     req.get(url + '&limit=5')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal res.body.documents.length, 5
         done()
 
@@ -88,7 +88,7 @@ describe 'GET', ->
     req.get(url + '&limit=100')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal res.body.documents.length, 50
         done()
 
@@ -96,12 +96,12 @@ describe 'GET', ->
     req.get(url + '&limit=5')
       .expect(200)
       .end (err, res1) ->
-        throw err if err
+        assert.ifError(err)
 
         req.get(url + '&limit=1&skip=4')
           .expect(200)
           .end (err, res2) ->
-            throw err if err
+            assert.ifError(err)
             assert.deepEqual res1.body.documents[4], res2.body.documents[0]
             done()
 
@@ -109,7 +109,7 @@ describe 'GET', ->
     req.get(url + '&after=' + data[50].endret)
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
 
         for doc in res.body.documents
           assert doc.endret >= data[50].endret
@@ -120,7 +120,7 @@ describe 'GET', ->
     req.get(url + '&after=' + new Date(data[50].endret).getTime())
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
 
         for doc in res.body.documents
           assert doc.endret >= data[50].endret
@@ -131,7 +131,7 @@ describe 'GET', ->
     req.get(url + '&after=' + ['foo', 'bar'])
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal typeof res.body.message, 'undefined'
         done()
 

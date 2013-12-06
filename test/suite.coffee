@@ -32,7 +32,7 @@ describe 'ntb.api', ->
         .get('/')
         .expect(403)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'API key missing'
           done()
 
@@ -41,7 +41,7 @@ describe 'ntb.api', ->
         .get('/?api_key=fail')
         .expect(401)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'API key invalid'
           done()
 
@@ -50,7 +50,7 @@ describe 'ntb.api', ->
         .get('/?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'Here be dragons'
           done()
 
@@ -60,7 +60,7 @@ describe 'ntb.api', ->
         .get('/objekttyper?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
           done()
 
