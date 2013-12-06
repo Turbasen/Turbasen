@@ -36,6 +36,7 @@ source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
 nvm install 0.10.22
 #nvm install 0.11
+chown -R vagrant:vagrant /home/vagrant/.nvm
 export HOME=/home/root
 
 # NPM package install
