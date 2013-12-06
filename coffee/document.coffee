@@ -4,7 +4,7 @@ ObjectID = require('mongodb').ObjectID
 crypto = require('crypto')
 
 exports.param = (req, res, next, id) ->
-  return res.json 400, error: 'Invalid ObjectID' if not /^[a-f0-9]{24}$/.test id
+  return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   req.id = new ObjectID id
   return next() if req.method is 'OPTIONS'
 
