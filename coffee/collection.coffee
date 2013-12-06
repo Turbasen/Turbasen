@@ -2,25 +2,13 @@
 
 ObjectID = require('mongodb').ObjectID
 
-collections = {}
+exports.param = (req, res, next, col) ->
+  if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
+    return res.json 404, message: 'Objekttype ikke funnet'
 
-exports.param = (req, res, next, collection) ->
-  if collection not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
-    return res.json 404,
-      message: 'Objekttype ikke funnet'
-
-  req.type = collection
-
-  if collections[collection]
-    req.col = collections[collection]
-    return next()
-
-  cb = (err, col) ->
-    return next err if err
-    collections[collection] = req.col = col
-    next()
-
-  req.db.collection collection, cb
+  req.type = col
+  req.col = req.cache.getCol col
+  next()
 
 exports.options = (req, res, next) ->
   res.setHeader 'Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT'
