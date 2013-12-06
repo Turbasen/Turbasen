@@ -2,25 +2,13 @@
 
 ObjectID = require('mongodb').ObjectID
 
-collections = {}
+exports.param = (req, res, next, col) ->
+  if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
+    return res.json 404, message: 'Objekttype ikke funnet'
 
-exports.param = (req, res, next, collection) ->
-  if collection not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
-    return res.json 404,
-      message: 'Objekttype ikke funnet'
-
-  req.type = collection
-
-  if collections[collection]
-    req.col = collections[collection]
-    return next()
-
-  cb = (err, col) ->
-    return next err if err
-    collections[collection] = req.col = col
-    next()
-
-  req.db.collection collection, cb
+  req.type = col
+  req.col = req.cache.getCol col
+  next()
 
 exports.options = (req, res, next) ->
   res.setHeader 'Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT'
@@ -63,6 +51,11 @@ exports.get = (req, res, next) ->
   return cursor.count countCb
 
 exports.post = (req, res, next) ->
+  #
+  # @TODO move update to :/collection/:document
+  # @TODO add access control
+  #
+
   return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
   return res.json 422, message: 'Body should be a JSON Hash' if req.body instanceof Array
 
@@ -92,19 +85,15 @@ exports.post = (req, res, next) ->
 
   req.col.save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    req.cache.hmset [
-      "#{req.type}:#{req.body._id}"
-      'tilbyder', req.body.tilbyder
-      'endret', req.body.endret
-      'status', req.body.status
-    ], () -> return
-    return res.json 201,
-      document:
-        _id: req.body._id
-      count: 1
-      message: message if message
-      warnings: warnings if warnings.length > 0
-      errors: errors if errors.length > 0
+    req.cache.set req.type, req.body._id, req.body, (err, data) ->
+      return next(err) if err
+      return res.json 201,
+        document:
+          _id: req.body._id
+        count: 1
+        message: message if message
+        warnings: warnings if warnings.length > 0
+        errors: errors if errors.length > 0
 
 exports.patch = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'

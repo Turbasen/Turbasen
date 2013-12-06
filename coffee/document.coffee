@@ -1,55 +1,35 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
-crypto = require('crypto')
 
 exports.param = (req, res, next, id) ->
-  return res.json 400, error: 'Invalid ObjectID' if not /^[a-f0-9]{24}$/.test id
-  req.id = new ObjectID id
+  return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   return next() if req.method is 'OPTIONS'
 
-  result = (err, doc) ->
-    if not doc or doc.status is 'Slettet'
-      return res.json 404, error: 'Document Not Found'
-    req.etag = crypto.createHash('md5').update(req.id + doc.endret).digest("hex")
-    return res.status(304).end() if req.get('if-none-match') is req.etag
-    res.set 'ETag', req.etag
+  req.cache.get req.type, id, (err, doc, cacheHit) ->
+    return next err if err
+    res.set 'X-Cache-Hit', cacheHit
+
+    return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
+    # @TODO check rights for non public documents here
+    return res.status(304).end() if req.get('If-None-Match') is doc.checksum
+    return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
+
+    # @TODO what if PUT/PATCH
+    res.set 'ETag', doc.checksum
     res.set 'Last-Modified', new Date(doc.endret).toUTCString()
-    cb = err = doc = null
+    req.id = new ObjectID id
+
     next()
-
-  key = "#{req.type}:#{req.id}"
-  req.cache.hgetall key, (err, data) ->
-    if data and typeof req.query.nocache is 'undefined'
-      res.set 'X-Cache-Hit', 'true'
-      return result(null, data)
-
-    req.col.find({_id: req.id}, {endret: true, status: true}, {limit: 1}).toArray (err, docs) ->
-      endret = docs[0]?.endret or new Date().toISOString()
-      status = docs[0]?.status or 'Slettet'
-
-      req.cache.hmset key, "endret", endret, "status", status, (err, data) ->
-        result null,
-          endret: endret
-          status: status
 
 exports.options = (req, res, next) ->
   res.setHeader 'Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE'
   res.send()
 
 exports.get = (req, res, next) ->
-  cb = (err, doc) ->
-    if doc
-      res.json 200, doc
-    else if err
-      next err
-    else
-      res.json 404, error: 'Document Not Found'
-
-    cb = err = doc = null
-    return
-
-  req.col.findOne _id: req.id, cb
+  req.col.findOne {_id: req.id}, (err, doc) ->
+    return res.json 200, doc if not err
+    return next(err)
 
 exports.put = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'

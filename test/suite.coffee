@@ -1,30 +1,29 @@
 "use strict"
 
 request = require 'supertest'
-assert = require 'assert'
-exports.app = app = require './../coffee/server.coffee'
-exports.data = data = require('./util/data-gen.coffee')(100)
+assert  = require 'assert'
+data    = require './util/data.coffee'
 
-# @TODO ok, so we had to hack this
-data[50].status = "Offentlig"
-data[51].status = "Offentlig"
-data[52].status = "Offentlig"
-data[53].status = "Offentlig"
-data[53].status = "Offentlig"
-
-exports.cache = redis = null
+exports.app   = app = require './../coffee/server.coffee'
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
-  db = app.get 'db'
   cache = app.get 'cache'
+  redis = cache.redis
+  mongo = cache.mongo
 
-  cache.flushall()
-  db.collection('turer').drop (err) ->
-    #throw err if err
-    db.collection('turer').insert data, {safe: true}, (err) ->
-      throw err if err
-      done()
+  redis.flushall()
+  mongo.dropCollection 'turer'
+  mongo.dropCollection 'steder'
+
+  cnt = 2
+  for type in data.getTypes()
+    mongo.collection(type).insert data.get(type, true), {safe: true, w: 1}, (err, msg) ->
+      assert.ifError(err)
+      done() if --cnt is 0
+
+describe 'Cache', ->
+  require './cache-spec.coffee'
 
 describe 'ntb.api', ->
   describe '/', ->
@@ -33,7 +32,7 @@ describe 'ntb.api', ->
         .get('/')
         .expect(403)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'API key missing'
           done()
 
@@ -42,7 +41,7 @@ describe 'ntb.api', ->
         .get('/?api_key=fail')
         .expect(401)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'API key invalid'
           done()
 
@@ -51,7 +50,7 @@ describe 'ntb.api', ->
         .get('/?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.message, 'Here be dragons'
           done()
 
@@ -61,7 +60,7 @@ describe 'ntb.api', ->
         .get('/objekttyper?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
           done()
 

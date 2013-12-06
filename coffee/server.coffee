@@ -4,12 +4,7 @@ express = require 'express'
 raven   = require 'raven'
 
 MongoClient = require('mongodb').MongoClient
-
-redisPort = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
-redisHost = process.env.DOTCLOUD_CACHE_REDIS_HOST or 'localhost'
-redisPass = process.env.DOTCLOUD_CACHE_REDIS_PASSWORD or null
-
-redisClient = require('redis').createClient redisPort, redisHost, auth_pass: redisPass
+Cache = require('./Cache.class')
 
 collection = require './collection'
 document = require './document'
@@ -25,10 +20,7 @@ app.use '/', (req, res, next) ->
 
   req.key = key
   req.usr = apiKeys[key]
-  req.db = app.get 'db'
   req.cache = app.get 'cache'
-
-  res.setHeader 'Access-Control-Allow-Origin', '*'
 
   next()
 
@@ -105,8 +97,12 @@ app.all '/:collection', (req, res, next) ->
 
 MongoClient.connect process.env.MONGO_URI, (err, db) ->
   return err if err
-  app.set 'db', db
-  app.set 'cache', redisClient
+
+  redisPort = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
+  redisHost = process.env.DOTCLOUD_CACHE_REDIS_HOST or 'localhost'
+  redisPass = process.env.DOTCLOUD_CACHE_REDIS_PASSWORD or null
+
+  app.set 'cache', new Cache db, redisPort, redisHost, redisPass
 
   if not module.parent
     app.listen app.get 'port'

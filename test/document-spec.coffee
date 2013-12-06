@@ -1,88 +1,80 @@
 "use strict"
 
-ObjectID = require('mongodb').ObjectID
-request = require 'supertest'
-assert = require 'assert'
+request   = require 'supertest'
+assert    = require 'assert'
+data      = require('./util/data')
+ObjectID  = require('mongodb').ObjectID
 
-data = app = req = null
+req = trip = poi = null
 
 before ->
-  data = module.parent.exports.data
   app = module.parent.exports.app
   req = request(app)
 
+beforeEach ->
+  trip  = data.get('turer', false, 50)
+  poi   = data.get('steder')
+
+url = (id, type) -> '/' + (type or 'turer') + '/' + id + '?api_key=dnt'
+
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/turer/' + data[50]._id + '?api_key=dnt')
-      .expect(200)
+    req.options(url(trip._id)).expect(200)
       .expect('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE', done)
 
 describe 'GET', ->
   it 'should reject invalid object id', (done) ->
-    req.get('/turer/123acb?api_key=dnt')
-      .expect(400, done)
+    req.get(url('abc123')).expect(400, done)
 
   it 'should return 404 for not existing document', (done) ->
-    req.get('/turer/52580f8165de660317000001/?api_key=dnt')
-      .expect(404)
-      .end (err, res) ->
-        throw err if err
-        assert.equal res.body.error, 'Document Not Found'
-        done()
+    req.get(url(new ObjectID())).expect(404).end (err, res) ->
+      assert.ifError(err)
+      assert.equal res.body.error, 'Document Not Found'
+      done()
 
   it 'should return existing document', (done) ->
-    src = JSON.parse(JSON.stringify(data[50]))
-    src._id = src._id.toString()
+    req.get(url(trip._id)).expect(200).end (err, res) ->
+      assert.ifError(err)
+      assert.deepEqual res.body, trip
+      done()
 
-    req.get('/turer/' + src._id + '?api_key=dnt')
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        assert.deepEqual res.body, src
-        done()
-
-  it 'should set cache header when using the cache', (done) ->
-    url = '/turer/' + data[51]._id + '?api_key=dnt'
-    req.get(url)
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        req.get(url)
-          .expect(200)
-          .expect('X-Cache-Hit', 'true', done)
+  it 'should set X-Cache-Hit header for cache hit', (done) ->
+    req.get(url(trip._id)).expect(200).end (err, res) ->
+      assert.ifError(err)
+      req.get(url(trip._id)).expect(200).expect('X-Cache-Hit', 'true', done)
 
   it 'should set last modified header correctly', (done) ->
-    time = new Date(data[51].endret).toUTCString()
-    req.get('/turer/' + data[51]._id + '?api_key=dnt')
+    time = new Date(trip.endret).toUTCString()
+    req.get('/turer/' + trip._id + '?api_key=dnt')
       .expect(200)
       .expect('Last-Modified', time, done)
 
   it 'should set Etag header correctly', (done) ->
-    req.get('/turer/' + data[50]._id + '?api_key=dnt')
+    req.get('/turer/' + trip._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal typeof res.header.etag, 'string'
         done()
 
   it 'should return 403 when provided with current valid Etag', (done) ->
-    req.get('/turer/' + data[50]._id + '?api_key=dnt')
+    req.get('/turer/' + trip._id + '?api_key=dnt')
       .expect(200)
       .end (err, res) ->
-        throw err if err
-        req.get('/turer/' + data[50]._id + '?api_key=dnt')
+        assert.ifError(err)
+        req.get('/turer/' + trip._id + '?api_key=dnt')
           .set('if-none-match', res.header.etag)
           .expect(304, done)
 
   it 'should return newly created document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
     req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
-      throw err if err
+      assert.ifError(err)
       assert.equal res.body.document._id, doc._id
       req.get('/turer/' + doc._id + '?api_key=dnt')
         .expect(200)
         .end (err, res) ->
-          throw err if err
+          assert.ifError(err)
           assert.equal res.body.name, doc.name
           done()
 
@@ -90,29 +82,25 @@ describe 'GET', ->
     this.timeout(5000)
 
     count = 0
-    for d in data
-      request(app).get('/turer/' + d._id + '?api_key=dnt')
-        .end (err, res) ->
-          throw err if err
-          done() if ++count is data.length
+    limit = data.get('turer', true).length
+    for d in data.get('turer', true)
+      req.get(url(d._id)).end (err, res) ->
+        assert.ifError(err)
+        done() if ++count is limit
 
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->
-    req.post('/turer/' + data[50]._id + '?api_key=dnt')
-      .expect 405, done
+    req.post(url(trip._id)).expect 405, done
 
 describe 'PUT', ->
   it 'should not be implmented', (done) ->
-    req.put('/turer/' + data[50]._id + '?api_key=dnt')
-      .expect 501, done
+    req.put(url(trip._id)).expect 501, done
 
 describe 'PATCH', ->
   it 'should not be implmented', (done) ->
-    req.patch('/turer/' + data[50]._id + '?api_key=dnt')
-      .expect 501, done
+    req.patch(url(trip._id)).expect 501, done
 
 describe 'DELETE', ->
   it 'should not be implmented', (done) ->
-    req.del('/turer/' + data[50]._id + '?api_key=dnt')
-      .expect 501, done
+    req.del(url(trip._id)).expect 501, done
 
