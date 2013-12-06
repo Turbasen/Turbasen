@@ -22,6 +22,8 @@ beforeEach (done) ->
       assert.ifError(err)
       done() if --cnt is 0
 
+describe 'Cache', ->
+  require './cache-spec.coffee'
 
 describe 'ntb.api', ->
   describe '/', ->
