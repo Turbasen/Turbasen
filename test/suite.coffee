@@ -1,32 +1,27 @@
 "use strict"
 
 request = require 'supertest'
-assert = require 'assert'
+assert  = require 'assert'
+data    = require './util/data.coffee'
 
-exports.app = app = require './../coffee/server.coffee'
-exports.data = data = require('./util/data-gen.coffee')(100)
-exports.mongo = mongo = null
-
-# @TODO ok, so we had to hack this
-data[50].status = "Offentlig"
-data[51].status = "Offentlig"
-data[52].status = "Offentlig"
-data[53].status = "Offentlig"
-data[53].status = "Offentlig"
-
-exports.cache = redis = null
+exports.app   = app = require './../coffee/server.coffee'
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
-  mongo = app.get 'db'
   cache = app.get 'cache'
+  redis = cache.redis
+  mongo = cache.mongo
 
-  cache.flushall()
-  mongo.collection('turer').drop (err) ->
-    #throw err if err
-    mongo.collection('turer').insert data, {safe: true}, (err) ->
-      throw err if err
-      done()
+  redis.flushall()
+  mongo.dropCollection 'turer'
+  mongo.dropCollection 'steder'
+
+  cnt = 2
+  for type in data.getTypes()
+    mongo.collection(type).insert data.get(type, true), {safe: true, w: 1}, (err, msg) ->
+      assert.ifError(err)
+      done() if --cnt is 0
+
 
 describe 'ntb.api', ->
   describe '/', ->
