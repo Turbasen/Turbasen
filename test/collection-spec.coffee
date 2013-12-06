@@ -1,15 +1,21 @@
 "use strict"
 
-ObjectID = require('mongodb').ObjectID
-request = require 'supertest'
-assert = require 'assert'
+ObjectID  = require('mongodb').ObjectID
+request   = require 'supertest'
+assert    = require 'assert'
+data      = require('./util/data')
+Generator = require('./util/fakeData').Generator
 
-data = app = req = null
+req = cache = trip = poi = null
 
 before ->
-  data = module.parent.exports.data
   app = module.parent.exports.app
   req = request(app)
+  cache = app.get 'cache'
+
+beforeEach ->
+  trip = data.get('turer')
+  poi = data.get('steder')
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
@@ -106,24 +112,24 @@ describe 'GET', ->
             done()
 
   it 'should get items after specified date', (done) ->
-    req.get(url + '&after=' + data[50].endret)
+    req.get(url + '&after=' + trip.endret)
       .expect(200)
       .end (err, res) ->
         assert.ifError(err)
 
         for doc in res.body.documents
-          assert doc.endret >= data[50].endret
+          assert doc.endret >= trip.endret
 
         done()
 
   it 'should parse milliseconds to ISO datestamp', (done) ->
-    req.get(url + '&after=' + new Date(data[50].endret).getTime())
+    req.get(url + '&after=' + new Date(trip.endret).getTime())
       .expect(200)
       .end (err, res) ->
         assert.ifError(err)
 
         for doc in res.body.documents
-          assert doc.endret >= data[50].endret
+          assert doc.endret >= trip.endret
 
         done()
 
@@ -139,121 +145,132 @@ describe 'GET', ->
     req.get(url + '&after=')
       .expect(200)
       .end (err, res) ->
-        throw err if err
+        assert.ifError(err)
         assert.equal res.body.documents.length, 20
         done()
 
   it 'should list items with given tag in first position', (done) ->
-    count = 0
-    req.get(url + '&tag=Hytte')
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        assert.equal res.body.documents.length, 20
-        for doc in res.body.documents when doc.status isnt 'Slettet'
-          count++
-          do (doc) ->
-            req.get('/turer/' + doc._id + '?api_key=dnt')
-              .expect(200)
-              .end (err, r) ->
-                throw err if err
-                assert.equal r.body.tags[0], 'Hytte'
-                done() if --count is 0
+    cache.getCol('turer').find({'tags.0': 'Sykkeltur'}).count (err, c) ->
+      assert.ifError(err)
+      req.get(url + '&tag=Sykkeltur')
+        .expect(200)
+        .end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.total, c
+          done()
 
   it 'should list items with not given tag in first position', (done) ->
-    count = 0
-    req.get(url + '&tag=!Hytte')
-      .expect(200)
-      .end (err, res) ->
-        throw err if err
-        assert.equal res.body.documents.length, 20
-        for doc in res.body.documents when doc.status isnt 'Slettet'
-          count++
-          do (doc) ->
-            req.get('/turer/' + doc._id + '?api_key=dnt')
-              .expect(200)
-              .end (err, r) ->
-                throw err if err
-                assert.equal r.body.tags[0], 'Sted'
-                done() if --count is 0
+    cache.getCol('turer').find({'tags.0': {$ne: 'Sykkeltur'}}).count (err, c) ->
+      assert.ifError(err)
+      req.get(url + '&tag=!Sykkeltur')
+        .expect(200)
+        .end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.total, c
+          done()
 
 describe 'POST', ->
-  it 'should insert single object in collection and return ObjectID', (done) ->
-    doc = name: 'Tur til Bergen', lisens: 'CC BY-NC 3.0 NO', status: 'Offentlig'
-    req.post('/turer?api_key=dnt').send(doc)
-      .expect(201)
-      .end (err, res) ->
-        throw err if err
-        assert.equal res.body.count, 1
-        assert.equal typeof res.body.document, 'object'
+  gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret']
+  url = '/turer?api_key=dnt'
 
-        req.get('/turer?api_key=dnt')
-          .expect(200)
-          .end (err, res) ->
-            throw err if err
-            assert.equal res.body.total, 101, 'there should be total of 101 documents in collection'
-            done()
+  it 'should insert single object in collection and return ObjectID', (done) ->
+    doc = gen.gen()
+    req.post(url).send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
+      assert.equal res.body.count, 1
+      assert.equal typeof res.body.document, 'object'
+      assert.equal typeof res.body.document._id, 'string'
+
+      id = new ObjectID(res.body.document._id)
+      cache.getCol('turer').findOne _id: id, (err, d) ->
+        assert.ifError(err)
+        assert.equal typeof d, 'object'
+        assert.deepEqual d[key], val for key, val of doc
+        done()
+
+  it 'should override tilbyder and opprettet fields', (done) ->
+    doc = gen.gen include: ['endret'], static: tilbyder: 'MINAPP'
+    req.post(url).send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
+
+      id = new ObjectID(res.body.document._id)
+      cache.getCol('turer').findOne _id: id, (err, d) ->
+        assert.ifError(err)
+        assert.notEqual d.tilbyder, doc.tilbyder
+        assert.notEqual d.endret, doc.endret
+        assert.deepEqual d[key], val for key, val of doc when key not in ['tilbyder', 'endret']
+        done()
 
   it 'should handle rapid requests to collection', (done) ->
     this.timeout(5000)
 
-    count = 0
-    target = 200
-    for i in [1..target]
-      req.post('/turer?api_key=dnt').send({num:i}).expect(201).end (err, res) ->
-        throw err if err
+    count = 100
+    docs  = gen.gen(count)
+
+    for doc in docs
+      req.post(url).send(doc).expect(201).end (err, res) ->
+        assert.ifError(err)
         assert.equal res.body.count, 1
         assert.equal typeof res.body.document, 'object'
-        done() if ++count is target
+        done() if --count is 0
 
   it 'should convert _id to ObjectID if provided with one', (done) ->
-    doc = _id: new ObjectID().toString(), name: 'tuut-tuut'
-    req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
-      throw err if err
+    doc = gen.gen include: ['_id']
+    req.post(url).send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
       assert.equal res.body.document._id, doc._id
       done()
 
   it 'should update existing document', (done) ->
-    doc = {_id: data[50]._id, navn: 'foo'}
+    doc = JSON.parse(JSON.stringify(trip))
+    doc.navn = 'Testtur'
+    req.post(url).send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
+
+      cache.getCol('turer').findOne _id: new ObjectID(doc._id), (err, d) ->
+        assert.ifError(err)
+        assert.deepEqual d[key], val for key, val of doc when key not in ['_id', 'tilbyder', 'endret']
+        done()
+
+  it 'should add new documents to cache', (done) ->
+    doc = gen.gen()
+    req.post(url).send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
+      cache.get 'turer', res.body.document._id, (err, d) ->
+        # @TODO undefined values
+        assert.equal d[key], val for key,val of cache.filterData('turer', doc) when val
+        done()
+
+  it 'should warn about missing lisens field', (done) ->
+    doc = new Generator('turer').gen exclude: ['lisens']
     req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
-      throw err if err
-      assert.equal res.body.document._id, doc._id
+      assert.ifError(err)
+      assert res.body.warnings, [{
+        resource: 'turer'
+        field: 'lisens'
+        value: 'CC BY-ND-NC 3.0 NO'
+        code: 'missing_field'
+      }]
       done()
 
-  it 'should precache new documents', (done) ->
-    req.post('/turer?api_key=dnt').send({ navn: 'foo' })
-      .expect(201)
-      .end (err, res) ->
-        throw err if err
-        req.get('/turer/' + res.body.document._id + '?api_key=dnt')
-          .expect(200)
-          .expect('X-Cache-Hit', 'true', done)
-
-  it 'should warn about missing fields', (done) ->
-    req.post('/turer?api_key=dnt').send({ navn: 'foo' })
-      .expect(201)
-      .end (err, res) ->
-        throw err if err
-        assert res.body.warnings, [
-          {
-            resource: 'turer'
-            field: 'lisens'
-            value: 'CC BY-ND-NC 3.0 NO'
-            code: 'missing_field'
-          }, {
-            resource: 'turer'
-            field: 'status'
-            value: 'Kladd'
-            code: 'missing_field'
-          }
-        ]
-        done()
+  it 'should warn about missing status field', (done) ->
+    doc = new Generator('turer').gen exclude: ['status']
+    req.post('/turer?api_key=dnt').send(doc).expect(201).end (err, res) ->
+      assert.ifError(err)
+      assert res.body.warnings, [{
+        resource: 'turer'
+        field: 'status'
+        value: 'Kladd'
+        code: 'missing_field'
+      }]
+      done()
 
   it 'should return error for missing request body', (done) ->
     req.post('/turer?api_key=dnt').expect(400, done)
 
   it 'should return error if request body is an array', (done) ->
-    req.post('/turer?api_key=dnt').send([{navn: 'foo'}]).expect(422, done)
+    doc = new Generator('turer').gen()
+    req.post('/turer?api_key=dnt').send([doc]).expect(422, done)
 
 describe 'PUT', ->
   it 'should not be implemeted', (done) ->
