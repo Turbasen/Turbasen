@@ -85,19 +85,15 @@ exports.post = (req, res, next) ->
 
   req.col.save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    req.cache.hmset [
-      "#{req.type}:#{req.body._id}"
-      'tilbyder', req.body.tilbyder
-      'endret', req.body.endret
-      'status', req.body.status
-    ], () -> return
-    return res.json 201,
-      document:
-        _id: req.body._id
-      count: 1
-      message: message if message
-      warnings: warnings if warnings.length > 0
-      errors: errors if errors.length > 0
+    req.cache.set req.type, req.body._id, req.body, (err, data) ->
+      return next(err) if err
+      return res.json 201,
+        document:
+          _id: req.body._id
+        count: 1
+        message: message if message
+        warnings: warnings if warnings.length > 0
+        errors: errors if errors.length > 0
 
 exports.patch = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
