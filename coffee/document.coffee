@@ -13,8 +13,12 @@ exports.param = (req, res, next, id) ->
     return res.status(304).end() if req.get('If-None-Match') is doc.checksum
     return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
 
-    # @TODO check rights for non public documents here
-    return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
+    if doc.status is 'Slettet' or
+    (doc.tilbyder isnt req.usr and
+    (req.method not in ['HEAD', 'GET'] or doc.status isnt 'Offentlig'))
+      res.status(404)
+      return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
+      return res.end()
 
     req.doc = doc
     req.doc._id = new ObjectID(id)
