@@ -3,7 +3,7 @@
 os = require 'os'
 
 exports.info = (req, res, next) ->
-  return res.status(403).end() if req.usr not in ['DNT', 'Pingdom']
+  return res.status(403).end() if req.usr isnt 'DNT'
 
   res.json 200,
     app:
