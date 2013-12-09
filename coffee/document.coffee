@@ -10,15 +10,18 @@ exports.param = (req, res, next, id) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
+    if doc.status is 'Slettet' or
+    (doc.tilbyder isnt req.usr and
+    (req.method not in ['HEAD', 'GET'] or doc.status isnt 'Offentlig'))
+      res.status(404)
+      return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
+      return res.end()
+
     return res.status(304).end() if req.get('If-None-Match') is doc.checksum
     return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
 
-    # @TODO check rights for non public documents here
-    return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
-
-    res.set 'ETag', doc.checksum
-    res.set 'Last-Modified', new Date(doc.endret).toUTCString()
-    req.id = new ObjectID id
+    req.doc = doc
+    req.doc._id = new ObjectID(id)
 
     next()
 
@@ -27,9 +30,14 @@ exports.options = (req, res, next) ->
   res.send()
 
 exports.get = (req, res, next) ->
+  res.set 'ETag', req.doc.checksum
+  res.set 'Last-Modified', new Date(req.doc.endret).toUTCString()
   res.status(200)
+
+  fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
+
   return res.end() if req.method is 'HEAD'
-  req.col.findOne {_id: req.id}, (err, doc) ->
+  req.col.findOne {_id: req.doc._id}, fields, (err, doc) ->
     return res.json doc if not err
     return next(err)
 

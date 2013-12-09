@@ -6,12 +6,16 @@ data =
   turer: generator.gen 100, type: 'turer', oid: true
   steder: generator.gen 100, type: 'steder', oid: true
 
-data.turer[i].status = "Offentlig" for i in [50..53]
-data.steder[i].status = "Offentlig" for i in [50..53]
+turer = {}
+for doc,key in data.turer
+  turer[doc.tilbyder] = {} if not turer[doc.tilbyder]
+  turer[doc.tilbyder][doc.status] = key
 
 rand = (max, min) -> Math.floor (Math.random() * (max - min + 1) + min)
 
 exports.getTypes = -> Object.keys(data)
+exports.getTrip = (vendor, status) ->
+  JSON.parse(JSON.stringify(data.turer[turer[vendor or 'DNT'][status or 'Offentlig']]))
 exports.new = (type, i) -> generator.gen (i or 0), type: type
 exports.get = (type, all, n) ->
   return data[type] if all

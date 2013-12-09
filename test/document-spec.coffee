@@ -12,7 +12,7 @@ before ->
   req = request(app)
 
 beforeEach ->
-  trip  = data.get('turer', false, 50)
+  trip  = data.getTrip('DNT', 'Offentlig')
   poi   = data.get('steder')
 
 url = (id, type) -> '/' + (type or 'turer') + '/' + id + '?api_key=dnt'
@@ -32,11 +32,34 @@ describe 'GET', ->
       assert.equal res.body.error, 'Document Not Found'
       done()
 
-  it 'should return existing document', (done) ->
+  it 'should return 404 for status=Slettet', (done) ->
+    doc = data.getTrip('DNT', 'Slettet')
+    req.get(url(doc._id)).expect(404, done)
+
+  it 'should return document when status=Offentlig and tilbyder=DNT', (done) ->
     req.get(url(trip._id)).expect(200).end (err, res) ->
       assert.ifError(err)
       assert.deepEqual res.body, trip
       done()
+
+  it 'should return document when status=Privat and tilbyder=DNT', (done) ->
+    doc = data.getTrip('DNT', 'Privat')
+    req.get(url(doc._id)).expect(200).end (err, res) ->
+      assert.ifError(err)
+      assert.deepEqual res.body, doc
+      done()
+
+  it 'should return document when status=Offentlig and tilbyder=TURAPP', (done) ->
+    doc = data.getTrip('TURAPP', 'Offentlig')
+    delete doc.privat
+    req.get(url(doc._id)).expect(200).end (err, res) ->
+      assert.ifError(err)
+      assert.deepEqual res.body, doc
+      done()
+
+  it 'should return 404 for status=Privat and tilbyder TURAPP', (done) ->
+    doc = data.getTrip('TURAPP', 'Privat')
+    req.get(url(doc._id)).expect(404, done)
 
   it 'should set X-Cache-Hit header for cache hit', (done) ->
     req.get(url(trip._id)).expect(200).end (err, res) ->
