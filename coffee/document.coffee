@@ -10,10 +10,11 @@ exports.param = (req, res, next, id) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
-    return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
-    # @TODO check rights for non public documents here
     return res.status(304).end() if req.get('If-None-Match') is doc.checksum
     return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
+
+    # @TODO check rights for non public documents here
+    return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
 
     res.set 'ETag', doc.checksum
     res.set 'Last-Modified', new Date(doc.endret).toUTCString()
