@@ -34,8 +34,10 @@ exports.get = (req, res, next) ->
   res.set 'Last-Modified', new Date(req.doc.endret).toUTCString()
   res.status(200)
 
+  fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
+
   return res.end() if req.method is 'HEAD'
-  req.col.findOne {_id: req.doc._id}, (err, doc) ->
+  req.col.findOne {_id: req.doc._id}, fields, (err, doc) ->
     return res.json doc if not err
     return next(err)
 
