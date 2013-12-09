@@ -63,6 +63,8 @@ describe 'ntb.api', ->
           assert.ifError(err)
           assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
           done()
+  describe '/:system', ->
+    require './system-spec.coffee'
 
   describe '/:collection', ->
     require './collection-spec.coffee'
