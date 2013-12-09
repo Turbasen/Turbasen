@@ -14,7 +14,7 @@ for doc,key in data.turer
 rand = (max, min) -> Math.floor (Math.random() * (max - min + 1) + min)
 
 exports.getTypes = -> Object.keys(data)
-exports.getTrip = (vendor, status) -> turer[vendor or 'DNT'][status or 'Offentlig']
+exports.getTrip = (vendor, status) -> data.turer[turer[vendor or 'DNT'][status or 'Offentlig']]
 exports.new = (type, i) -> generator.gen (i or 0), type: type
 exports.get = (type, all, n) ->
   return data[type] if all
