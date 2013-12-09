@@ -89,7 +89,7 @@ app.param 'collection', collection.param
 app.all '/:collection', (req, res, next) ->
   switch req.method
     when 'OPTIONS' then collection.options req, res, next
-    when 'GET' then collection.get req, res, next
+    when 'HEAD', 'GET' then collection.get req, res, next
     when 'POST' then collection.post req, res, next
     when 'PUT'  then collection.put req, res, next
     when 'PATCH' then collection.patch req, res, next
