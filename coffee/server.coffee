@@ -53,6 +53,7 @@ apiKeys =
   nrk: 'NRK'
   '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
   '0fe3cf9a548f7e158a4a0f5f22a9e8bd': 'UTno'
+  'b523ceb5e16fb92b2a999676a87698d1': 'Pingdom'
 
 app.get '/', (req, res) ->
   res.json message: 'Here be dragons'
