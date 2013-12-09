@@ -1,13 +1,14 @@
 "use strict"
 
-express = require 'express'
-raven   = require 'raven'
+express     = require 'express'
+raven       = require 'raven'
 
 MongoClient = require('mongodb').MongoClient
-Cache = require('./Cache.class')
+Cache       = require('./Cache.class')
 
-collection = require './collection'
-document = require './document'
+system      = require './system'
+collection  = require './collection'
+document    = require './document'
 
 app = module.exports = express()
 
@@ -52,6 +53,7 @@ apiKeys =
   nrk: 'NRK'
   '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
   '0fe3cf9a548f7e158a4a0f5f22a9e8bd': 'UTno'
+  'b523ceb5e16fb92b2a999676a87698d1': 'Pingdom'
 
 app.get '/', (req, res) ->
   res.json message: 'Here be dragons'
@@ -59,21 +61,9 @@ app.get '/', (req, res) ->
 app.get '/objekttyper', (req, res, next) ->
   res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
 
-app.get '/system', (req, res, next) ->
-  os = require 'os'
-  res.json 200,
-    app:
-      uptime: process.uptime()
-      memory: process.memoryUsage()
-    os:
-      uptime: os.uptime()
-      loadavg: os.loadavg()
-      totalmem: os.totalmem()
-      freemem: os.freemem()
-
-app.get '/system/gc', (req, res, next) ->
-  global.gc() if typeof global.gc is 'function'
-  res.end()
+app.get '/system', system.info
+app.get '/system/gc', system.gc
+app.get '/CloudHealthCheck', system.check
 
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
