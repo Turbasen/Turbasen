@@ -47,7 +47,7 @@ app.use (err, req, res, next) ->
   return res.end() if req.method is 'HEAD'
   return res.json message: err.message or 'Ukjent feil'
 
-app.use (req, res) -> res.json 404, message: "Resource not found"
+app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
 
 apiKeys =
   dnt: 'DNT'
