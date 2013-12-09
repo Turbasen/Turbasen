@@ -69,6 +69,6 @@ describe 'ntb.api', ->
   describe '/:collection', ->
     require './collection-spec.coffee'
 
-  describe ':collection/:document', ->
+  describe '/:collection/:document', ->
     require './document-spec.coffee'
 
