@@ -54,6 +54,14 @@ describe 'ntb.api', ->
           assert.equal res.body.message, 'Here be dragons'
           done()
 
+  describe '/notfound', ->
+    it 'should return 404 Not Found for missing resources', (done) ->
+      request(app)
+        .get('/this/is/not/found?api_key=dnt').expect(404).end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.message, 'Resurs ikke funnet'
+          done()
+
   describe '/objekttyper', ->
     it 'should get avaiable object types', (done) ->
       request(app)
