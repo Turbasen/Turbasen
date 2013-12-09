@@ -45,7 +45,7 @@ app.use (err, req, res, next) ->
   console.error err.stack
 
   return res.end() if req.method is 'HEAD'
-  return res.json message: err.message or 'Unknown Error'
+  return res.json message: err.message or 'Ukjent feil'
 
 app.use (req, res) -> res.json 404, message: "Resource not found"
 
