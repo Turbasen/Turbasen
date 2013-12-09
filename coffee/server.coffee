@@ -69,7 +69,7 @@ app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
   switch req.method
     when 'OPTIONS' then document.options req, res, next
-    when 'GET' then document.get req, res, next
+    when 'HEAD', 'GET' then document.get req, res, next
     when 'PUT' then document.put req, res, next
     when 'PATCH' then document.patch req, res, next
     when 'DELETE' then document.delete req, res, next
