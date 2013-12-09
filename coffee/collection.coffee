@@ -11,7 +11,7 @@ exports.param = (req, res, next, col) ->
   next()
 
 exports.options = (req, res, next) ->
-  res.setHeader 'Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT'
+  res.setHeader 'Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, PUT'
   res.send()
 
 exports.get = (req, res, next) ->
