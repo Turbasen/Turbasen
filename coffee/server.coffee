@@ -39,12 +39,13 @@ app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_
 
 # Error Handler
 app.use (err, req, res, next) ->
-  status = err.status or 500
-  message = err.message or 'Unknown Error'
-  res.json status, message: message
+  res.status(err.status or 500)
 
   console.error err.message
   console.error err.stack
+
+  return res.end() if req.method is 'HEAD'
+  return res.json message: err.message or 'Unknown Error'
 
 app.use (req, res) -> res.json 404, message: "Resource not found"
 
