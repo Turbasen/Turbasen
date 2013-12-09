@@ -19,9 +19,8 @@ beforeEach ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/turer?api_key=dnt')
-      .expect(200)
-      .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
+    req.options('/turer?api_key=dnt').expect(200)
+      .expect('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, PUT', done)
 
 describe 'GET', ->
   url = '/turer?api_key=dnt'
