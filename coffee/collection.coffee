@@ -34,21 +34,16 @@ exports.get = (req, res, next) ->
     skip: parseInt(req.query.skip, 10) or 0
     sort: 'endret'
 
-  total = 0
   cursor = req.col.find(query, fields, options)
-  query = fields = options = null
-
-  countCb = (err, t) ->
+  cursor.count (err, total) ->
     return next err if err
-    return res.json documents: [], count: 0, total: 0 if t is 0
-    total = t
-    return cursor.toArray cursorCb
-
-  cursorCb = (err, docs) ->
-    return next err if err
-    return res.json documents: docs, count: docs.length, total: total
-
-  return cursor.count countCb
+    res.set 'Count-Return', Math.min(options.limit, total)
+    res.set 'Count-Total', total
+    return res.end() if req.method is 'HEAD'
+    return res.json documents: [], count: 0, total: 0 if total is 0
+    cursor.toArray (err, docs) ->
+      return next err if err
+      return res.json documents: docs, count: docs.length, total: total
 
 exports.post = (req, res, next) ->
   #
