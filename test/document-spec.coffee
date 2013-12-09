@@ -20,7 +20,7 @@ url = (id, type) -> '/' + (type or 'turer') + '/' + id + '?api_key=dnt'
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
     req.options(url(trip._id)).expect(200)
-      .expect('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE', done)
+      .expect('Access-Control-Allow-Methods', 'HEAD, GET, PUT, PATCH, DELETE', done)
 
 describe 'GET', ->
   it 'should reject invalid object id', (done) ->
@@ -87,6 +87,17 @@ describe 'GET', ->
       req.get(url(d._id)).end (err, res) ->
         assert.ifError(err)
         done() if ++count is limit
+
+describe 'HEAD', ->
+  it 'should only get http header for document resource', (done) ->
+    req.head(url(trip._id)).expect(200)
+      .expect('X-Cache-Hit', /^(ture|false)$/)
+      .expect('ETag', /^[0-9a-f]{32}$/)
+      .expect('Last-Modified', /^[a-zA-Z0-9 ,:]+$/)
+      .end (err, res) ->
+        assert.ifError(err)
+        assert.deepEqual(res.body, {})
+        done()
 
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->

@@ -19,9 +19,8 @@ beforeEach ->
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
-    req.options('/turer?api_key=dnt')
-      .expect(200)
-      .expect('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT', done)
+    req.options('/turer?api_key=dnt').expect(200)
+      .expect('Access-Control-Allow-Methods', 'HEAD, GET, POST, PATCH, PUT', done)
 
 describe 'GET', ->
   url = '/turer?api_key=dnt'
@@ -168,6 +167,18 @@ describe 'GET', ->
           assert.ifError(err)
           assert.equal res.body.total, c
           done()
+
+describe 'HEAD', ->
+  url = '/turer?api_key=dnt'
+
+  it 'should only get http header for collection resource', (done) ->
+    req.head(url).expect(200)
+      .expect('Count-Return', /^[0-9]+$/)
+      .expect('Count-Total', /^[0-9]+$/)
+      .end (err, res) ->
+        assert.ifError(err)
+        assert.deepEqual(res.body, {})
+        done()
 
 describe 'POST', ->
   gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret']

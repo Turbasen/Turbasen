@@ -39,14 +39,15 @@ app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_
 
 # Error Handler
 app.use (err, req, res, next) ->
-  status = err.status or 500
-  message = err.message or 'Unknown Error'
-  res.json status, message: message
+  res.status(err.status or 500)
 
   console.error err.message
   console.error err.stack
 
-app.use (req, res) -> res.json 404, message: "Resource not found"
+  return res.end() if req.method is 'HEAD'
+  return res.json message: err.message or 'Ukjent feil'
+
+app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
 
 apiKeys =
   dnt: 'DNT'
@@ -69,7 +70,7 @@ app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
   switch req.method
     when 'OPTIONS' then document.options req, res, next
-    when 'GET' then document.get req, res, next
+    when 'HEAD', 'GET' then document.get req, res, next
     when 'PUT' then document.put req, res, next
     when 'PATCH' then document.patch req, res, next
     when 'DELETE' then document.delete req, res, next
@@ -79,7 +80,7 @@ app.param 'collection', collection.param
 app.all '/:collection', (req, res, next) ->
   switch req.method
     when 'OPTIONS' then collection.options req, res, next
-    when 'GET' then collection.get req, res, next
+    when 'HEAD', 'GET' then collection.get req, res, next
     when 'POST' then collection.post req, res, next
     when 'PUT'  then collection.put req, res, next
     when 'PATCH' then collection.patch req, res, next
