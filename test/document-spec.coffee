@@ -88,6 +88,17 @@ describe 'GET', ->
         assert.ifError(err)
         done() if ++count is limit
 
+describe 'HEAD', ->
+  it 'should only get http header for document resource', (done) ->
+    req.head(url(trip._id)).expect(200)
+      .expect('X-Cache-Hit', /^(ture|false)$/)
+      .expect('ETag', /^[0-9a-f]{32}$/)
+      .expect('Last-Modified', /^[a-zA-Z0-9 ,:]+$/)
+      .end (err, res) ->
+        assert.ifError(err)
+        assert.deepEqual(res.body, {})
+        done()
+
 describe 'POST', ->
   it 'should not be an allowed method', (done) ->
     req.post(url(trip._id)).expect 405, done
