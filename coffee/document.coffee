@@ -10,15 +10,15 @@ exports.param = (req, res, next, id) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
-    return res.status(304).end() if req.get('If-None-Match') is doc.checksum
-    return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
-
     if doc.status is 'Slettet' or
     (doc.tilbyder isnt req.usr and
     (req.method not in ['HEAD', 'GET'] or doc.status isnt 'Offentlig'))
       res.status(404)
       return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
       return res.end()
+
+    return res.status(304).end() if req.get('If-None-Match') is doc.checksum
+    return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
 
     req.doc = doc
     req.doc._id = new ObjectID(id)
