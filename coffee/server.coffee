@@ -62,6 +62,7 @@ app.get '/objekttyper', (req, res, next) ->
 
 app.get '/system', system.info
 app.get '/system/gc', system.gc
+app.get '/CloudHealthCheck', system.check
 
 app.param 'objectid', document.param
 app.all '/:collection/:objectid', (req, res, next) ->
