@@ -15,7 +15,6 @@ exports.param = (req, res, next, id) ->
     return res.status(304).end() if req.get('If-None-Match') is doc.checksum
     return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
 
-    # @TODO what if PUT/PATCH
     res.set 'ETag', doc.checksum
     res.set 'Last-Modified', new Date(doc.endret).toUTCString()
     req.id = new ObjectID id
