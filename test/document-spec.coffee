@@ -51,6 +51,7 @@ describe 'GET', ->
 
   it 'should return document when status=Offentlig and tilbyder=TURAPP', (done) ->
     doc = data.getTrip('TURAPP', 'Offentlig')
+    delete doc.privat
     req.get(url(doc._id)).expect(200).end (err, res) ->
       assert.ifError(err)
       assert.deepEqual res.body, doc
