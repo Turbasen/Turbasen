@@ -26,8 +26,10 @@ exports.options = (req, res, next) ->
   res.send()
 
 exports.get = (req, res, next) ->
+  res.status(200)
+  res.end() if req.method is 'HEAD'
   req.col.findOne {_id: req.id}, (err, doc) ->
-    return res.json 200, doc if not err
+    return res.json doc if not err
     return next(err)
 
 exports.put = (req, res, next) ->
