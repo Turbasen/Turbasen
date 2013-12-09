@@ -16,9 +16,8 @@ exports.param = (req, res, next, id) ->
     # @TODO check rights for non public documents here
     return res.json 404, error: 'Document Not Found' if doc.status is 'Slettet'
 
-    res.set 'ETag', doc.checksum
-    res.set 'Last-Modified', new Date(doc.endret).toUTCString()
-    req.id = new ObjectID id
+    req.doc = doc
+    req.doc._id = new ObjectID(id)
 
     next()
 
@@ -27,9 +26,12 @@ exports.options = (req, res, next) ->
   res.send()
 
 exports.get = (req, res, next) ->
+  res.set 'ETag', req.doc.checksum
+  res.set 'Last-Modified', new Date(req.doc.endret).toUTCString()
   res.status(200)
+
   return res.end() if req.method is 'HEAD'
-  req.col.findOne {_id: req.id}, (err, doc) ->
+  req.col.findOne {_id: req.doc._id}, (err, doc) ->
     return res.json doc if not err
     return next(err)
 
