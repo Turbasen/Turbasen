@@ -40,7 +40,7 @@ exports.check = (req, res, next) ->
 
     res.json status, service if Object.keys(service).length is 2
 
-  req.cache.mongo.admin().serverStatus (err, info) ->
+  req.cache.mongo.command {dbStats:true}, (err, info) ->
     service.Mongo = {}
 
     if err
