@@ -23,12 +23,12 @@ exports.param = (req, res, next, id) ->
     next()
 
 exports.options = (req, res, next) ->
-  res.setHeader 'Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE'
+  res.setHeader 'Access-Control-Allow-Methods', 'HEAD, GET, PUT, PATCH, DELETE'
   res.send()
 
 exports.get = (req, res, next) ->
   res.status(200)
-  res.end() if req.method is 'HEAD'
+  return res.end() if req.method is 'HEAD'
   req.col.findOne {_id: req.id}, (err, doc) ->
     return res.json doc if not err
     return next(err)
