@@ -20,7 +20,7 @@ url = (id, type) -> '/' + (type or 'turer') + '/' + id + '?api_key=dnt'
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
     req.options(url(trip._id)).expect(200)
-      .expect('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE', done)
+      .expect('Access-Control-Allow-Methods', 'HEAD, GET, PUT, PATCH, DELETE', done)
 
 describe 'GET', ->
   it 'should reject invalid object id', (done) ->
