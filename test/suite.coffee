@@ -8,9 +8,9 @@ exports.app   = app = require './../coffee/server.coffee'
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
-  cache = require './../coffee/cache.coffee'
-  redis = cache.redis()
-  mongo = cache.mongo()
+  cache = app.get 'cache'
+  redis = cache.redis
+  mongo = cache.mongo
 
   redis.flushall()
   mongo.dropCollection 'turer'

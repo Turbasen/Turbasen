@@ -1,13 +1,13 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
-cache = require('./cache')
 
 exports.param = (req, res, next, col) ->
   if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
     return res.json 404, message: 'Objekttype ikke funnet'
 
-  req.col = col
+  req.type = col
+  req.col = req.cache.getCol col
   next()
 
 exports.options = (req, res, next) ->
@@ -34,7 +34,7 @@ exports.get = (req, res, next) ->
     skip: parseInt(req.query.skip, 10) or 0
     sort: 'endret'
 
-  cursor = cache.col(req.col).find(query, fields, options)
+  cursor = req.col.find(query, fields, options)
   cursor.count (err, total) ->
     return next err if err
     res.set 'Count-Return', Math.min(options.limit, total)
@@ -65,7 +65,7 @@ exports.post = (req, res, next) ->
   if not req.body.lisens
     req.body.lisens = 'CC BY-ND-NC 3.0 NO'
     warnings.push
-      resource: req.col
+      resource: req.type
       field: 'lisens'
       value: req.body.lisens
       code: 'missing_field'
@@ -73,14 +73,14 @@ exports.post = (req, res, next) ->
   if not req.body.status
     req.body.status = 'Kladd'
     warnings.push
-      resource: req.col
+      resource: req.type
       field: 'status'
       value: req.body.status
       code: 'missing_field'
 
-  cache.col(req.col).save req.body, {safe: true, w: 1}, (err) ->
+  req.col.save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    cache.set req.col, req.body._id, req.body, (err, data) ->
+    req.cache.set req.type, req.body._id, req.body, (err, data) ->
       return next(err) if err
       return res.json 201,
         document:

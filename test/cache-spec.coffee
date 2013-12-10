@@ -2,8 +2,8 @@
 
 request     = require 'supertest'
 assert      = require 'assert'
-data        = require './util/data'
-cache       = require '../coffee/cache.coffee'
+data        = require('./util/data')
+Cache       = require '../coffee/Cache.class.coffee'
 
 MongoClient = require('mongodb').MongoClient
 ObjectID    = require('mongodb').ObjectID
@@ -11,28 +11,24 @@ Collection  = require('mongodb').Collection
 
 redisify    = require('./util/fakeData.coffee').redisify
 
-trip = poi = mongo = redis = null
+trip = poi = mongo = cache = null
 
 before ->
-  mongo = cache.mongo()
-  redis = cache.redis()
+  mongo = module.parent.exports.app.get('cache').mongo
 
 beforeEach ->
-  cache._setCols([])
-
   trip  = data.get('turer')
   poi   = data.get('steder')
 
-  redis.flushall()
+  cache = new Cache mongo
+  cache.redis.flushall()
 
-describe '#mongo()', ->
-  it 'should get MongoDB instance', (done) ->
-    assert cache.mongo() instanceof require('mongodb').Db
-    done()
-
-describe '#redis()', ->
-  it 'should get Redis instance', (done) ->
-    assert cache.redis() instanceof require('redis').RedisClient
+describe 'new', ->
+  it 'should instanciate new Cache instance', (done) ->
+    assert cache instanceof Cache
+    assert cache.mongo instanceof require('mongodb').Db
+    assert cache.redis instanceof require('redis').RedisClient
+    assert.deepEqual cache.cols, []
     done()
 
 describe '#hash()', ->
@@ -68,7 +64,7 @@ describe '#getFilter()', ->
       bilder    : true
       grupper   : true
 
-    assert.deepEqual cache._getFilter(type), filter for type in types
+    assert.deepEqual cache.getFilter(type), filter for type in types
 
   it 'should return special filter for bilder', ->
     filter =
@@ -78,7 +74,7 @@ describe '#getFilter()', ->
       status    : true
       navn      : true
 
-    assert.deepEqual cache._getFilter('bilder'), filter
+    assert.deepEqual cache.getFilter('bilder'), filter
 
   it 'should return default filter for unknown types', ->
     types = ['foo', 'bar', 'test', 'foobar', 'admin']
@@ -91,15 +87,21 @@ describe '#getFilter()', ->
       bilder    : true
       grupper   : true
 
-    assert.deepEqual cache._getFilter(type), filter for type in types
+    assert.deepEqual cache.getFilter(type), filter for type in types
 
   it 'should return an empty object when told to prevent default', ->
     types = ['foo', 'bar', 'test', 'foobar', 'admin']
-    assert.deepEqual cache._getFilter(type, true), {} for type in types
+    assert.deepEqual cache.getFilter(type, true), {} for type in types
 
-describe '#_filter()', ->
-  it 'should filter data according to default data filters', ->
-    assert.deepEqual cache._filter('turer', trip),
+describe '#filterData()', ->
+  it 'should filter data according to filter for type', ->
+    doc = foo: 'foo', bar: {bar: 'bar'}, baz: [1, 2, 3]
+    cache.dataFields.test =
+      foo: true
+    assert.deepEqual cache.filterData('test', doc), foo: doc.foo
+
+  it 'should filter data according to predefined data filters', ->
+    assert.deepEqual cache.filterData('turer', trip),
       tilbyder   : trip.tilbyder
       endret     : trip.endret
       status     : trip.status
@@ -107,54 +109,47 @@ describe '#_filter()', ->
       bilder     : trip.bilder
       grupper    : trip.grupper
 
-  it 'should filter data according to special data filters', ->
-    assert.deepEqual cache._filter('bilder', trip),
-      tilbyder   : trip.tilbyder
-      endret     : trip.endret
-      status     : trip.status
-      navn       : trip.navn
-
-describe '#col()', ->
+describe '#getCol()', ->
   it 'should get new collections connection', ->
-    assert cache.col('test') instanceof Collection
+    assert cache.getCol('test') instanceof Collection
 
   it 'should save a reference to collection instance', ->
-    assert.equal Object.keys(cache._getCols()).length, 0
-    col = cache.col 'test'
-    assert.equal Object.keys(cache._getCols()).length, 1
-    assert cache._getCols()['test'] instanceof Collection
+    assert.equal Object.keys(cache.cols).length, 0
+    col = cache.getCol 'test'
+    assert.equal Object.keys(cache.cols).length, 1
+    assert cache.cols['test'] instanceof Collection
 
   it 'should retrive collection reference from cache', ->
-    cache.col 'test'
-    cache.col 'test'
-    assert.equal Object.keys(cache._getCols()).length, 1
+    cache.getCol 'test'
+    cache.getCol 'test'
+    assert.equal Object.keys(cache.cols).length, 1
 
-describe '#doc()', ->
+describe '#getDoc()', ->
   it 'should get existing document from database', (done) ->
-    cache.doc 'turer', trip._id, (err, doc) ->
+    cache.getDoc 'turer', trip._id, (err, doc) ->
       assert.ifError(err)
-      assert.deepEqual doc, cache._filter('turer', trip)
+      assert.deepEqual doc, cache.filterData('turer', trip)
       done()
 
   it 'should handle nonexisiting documents', (done) ->
-    cache.doc 'test', new ObjectID().toString(), (err, doc) ->
+    cache.getDoc 'test', new ObjectID().toString(), (err, doc) ->
       assert.ifError(err)
       assert.equal doc, null
       done()
 
 describe '#set()', ->
   it 'should set data for type and id', (done) ->
-    doc = cache._filter('turer', trip)
+    doc = cache.filterData('turer', trip)
     cache.set 'turer', trip._id, doc, (err, status) ->
       assert.ifError(err)
-      redis.hgetall "turer:#{trip._id}", (err, d) ->
+      cache.redis.hgetall "turer:#{trip._id}", (err, d) ->
         assert.ifError(err)
         assert.equal d[key], val for key, val of redisify(doc)
         done()
 
 describe '#get()', ->
   it 'should get document existing in redis cache', (done) ->
-    doc = cache._filter('turer', trip)
+    doc = cache.filterData('turer', trip)
     cache.set 'turer', trip._id, doc, (err) ->
       assert.ifError(err)
       cache.get 'turer', trip._id, (err, d, cacheHit) ->
@@ -167,7 +162,7 @@ describe '#get()', ->
     cache.get 'turer', trip._id, (err, d, cacheHit) ->
       assert.ifError(err)
       assert.equal cacheHit, false
-      for key, val of cache._filter('turer', trip)
+      for key, val of cache.filterData('turer', trip)
         assert.deepEqual d[key], val if val instanceof Array
         assert.equal d[key], val if not val instanceof Array
       done()
@@ -197,7 +192,7 @@ describe '#get()', ->
       assert.equal typeof d1.checksum, 'string'
       assert.equal cacheHit, false
 
-      redis.hgetall "turer:#{oid}", (err, d2) ->
+      cache.redis.hgetall "turer:#{oid}", (err, d2) ->
         assert.ifError(err)
         assert.equal d2.status, 'Slettet'
         assert.equal d2.endret, d1.endret
