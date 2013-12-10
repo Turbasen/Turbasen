@@ -10,8 +10,8 @@ req = cache = trip = poi = null
 
 before ->
   app = module.parent.exports.app
-  req = request(app)
-  cache = app.get 'cache'
+  req = request app
+  cache = require './../coffee/cache'
 
 beforeEach ->
   trip = data.get('turer')
@@ -149,7 +149,7 @@ describe 'GET', ->
         done()
 
   it 'should list items with given tag in first position', (done) ->
-    cache.getCol('turer').find({'tags.0': 'Sykkeltur'}).count (err, c) ->
+    cache.col('turer').find({'tags.0': 'Sykkeltur'}).count (err, c) ->
       assert.ifError(err)
       req.get(url + '&tag=Sykkeltur')
         .expect(200)
@@ -159,7 +159,7 @@ describe 'GET', ->
           done()
 
   it 'should list items with not given tag in first position', (done) ->
-    cache.getCol('turer').find({'tags.0': {$ne: 'Sykkeltur'}}).count (err, c) ->
+    cache.col('turer').find({'tags.0': {$ne: 'Sykkeltur'}}).count (err, c) ->
       assert.ifError(err)
       req.get(url + '&tag=!Sykkeltur')
         .expect(200)
@@ -193,7 +193,7 @@ describe 'POST', ->
       assert.equal typeof res.body.document._id, 'string'
 
       id = new ObjectID(res.body.document._id)
-      cache.getCol('turer').findOne _id: id, (err, d) ->
+      cache.col('turer').findOne _id: id, (err, d) ->
         assert.ifError(err)
         assert.equal typeof d, 'object'
         assert.deepEqual d[key], val for key, val of doc
@@ -205,7 +205,7 @@ describe 'POST', ->
       assert.ifError(err)
 
       id = new ObjectID(res.body.document._id)
-      cache.getCol('turer').findOne _id: id, (err, d) ->
+      cache.col('turer').findOne _id: id, (err, d) ->
         assert.ifError(err)
         assert.notEqual d.tilbyder, doc.tilbyder
         assert.notEqual d.endret, doc.endret
@@ -238,18 +238,18 @@ describe 'POST', ->
     req.post(url).send(doc).expect(201).end (err, res) ->
       assert.ifError(err)
 
-      cache.getCol('turer').findOne _id: new ObjectID(doc._id), (err, d) ->
+      cache.col('turer').findOne _id: new ObjectID(doc._id), (err, d) ->
         assert.ifError(err)
         assert.deepEqual d[key], val for key, val of doc when key not in ['_id', 'tilbyder', 'endret']
         done()
 
   it 'should add new documents to cache', (done) ->
-    doc = gen.gen()
+    doc = JSON.parse(JSON.stringify(gen.gen()))
     req.post(url).send(doc).expect(201).end (err, res) ->
       assert.ifError(err)
-      cache.get 'turer', res.body.document._id, (err, d) ->
-        # @TODO undefined values
-        assert.equal d[key], val for key,val of cache.filterData('turer', doc) when val
+      cache.redis().hgetall "turer:#{res.body.document._id}", (err, d) ->
+        assert.ifError(err)
+        assert.equal d[key], val for key,val of cache._filter('turer', doc) when val
         done()
 
   it 'should warn about missing lisens field', (done) ->
