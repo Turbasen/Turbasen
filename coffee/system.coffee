@@ -1,6 +1,7 @@
 "use strict"
 
 os = require 'os'
+cache = require './cache'
 
 exports.info = (req, res, next) ->
   return res.status(403).end() if req.usr isnt 'DNT'
@@ -27,7 +28,7 @@ exports.check = (req, res, next) ->
   status = 200
   service = {}
 
-  req.cache.redis.info (err, info) ->
+  cache.redis().info (err, info) ->
     service.Redis = {}
 
     if err
@@ -40,7 +41,7 @@ exports.check = (req, res, next) ->
 
     res.json status, service if Object.keys(service).length is 2
 
-  req.cache.mongo.command {dbStats:true}, (err, info) ->
+  cache.mongo().command {dbStats:true}, (err, info) ->
     service.Mongo = {}
 
     if err
