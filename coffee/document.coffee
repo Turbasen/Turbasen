@@ -6,7 +6,7 @@ exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   return next() if req.method is 'OPTIONS'
 
-  req.cache.get req.type, id, (err, doc, cacheHit) ->
+  req.cache.get req.col, id, (err, doc, cacheHit) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
@@ -37,7 +37,7 @@ exports.get = (req, res, next) ->
   fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
 
   return res.end() if req.method is 'HEAD'
-  req.col.findOne {_id: req.doc._id}, fields, (err, doc) ->
+  req.cache.getCol(req.col).findOne {_id: req.doc._id}, fields, (err, doc) ->
     return res.json doc if not err
     return next(err)
 
