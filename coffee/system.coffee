@@ -26,6 +26,13 @@ exports.check = (req, res, next) ->
 
   status = 200
   service = {}
+  serviceCount = 2
+  callbackCount = 0
+
+  ret = ->
+    return if ++callbackCount > 1
+    status = 500 if Object.keys(service).length isnt serviceCount
+    res.json status, service
 
   req.cache.redis.info (err, info) ->
     service.Redis = {}
@@ -38,7 +45,7 @@ exports.check = (req, res, next) ->
       service.Redis.status = 1
       service.Redis.message = info.toString().split("\r\n").sort()
 
-    res.json status, service if Object.keys(service).length is 2
+      ret() if Object.keys(service).length is serviceCount
 
   req.cache.mongo.command {dbStats:true}, (err, info) ->
     service.Mongo = {}
@@ -51,5 +58,7 @@ exports.check = (req, res, next) ->
       service.Mongo.status = 1
       service.Mongo.message = info
 
-    res.json status, service if Object.keys(service).length is 2
+    ret() if Object.keys(service).length is serviceCount
+
+    setTimeout ret, 2000
 
