@@ -33,7 +33,7 @@ curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
-nvm install 0.10.22
+nvm install 0.10.23
 #nvm install 0.11
 chown -R vagrant:vagrant /home/vagrant/.nvm
 export HOME=/home/root
