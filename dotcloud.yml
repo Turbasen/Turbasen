@@ -5,7 +5,7 @@ api:
     www: http
   process: node src/server.js --expose-gc --always-compact
   approot: .
-  node_version: v0.10.22
+  node_version: v0.10.23
 cache:
   type: redis
 
