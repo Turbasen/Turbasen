@@ -5,3 +5,6 @@ src/
 *.swp
 *.swo
 node_modules
+config/mongodb-auth.txt
+.dotcloud
+npm-debug.log
