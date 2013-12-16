@@ -10,4 +10,5 @@ Vagrantfile
 node_modules/
 src/
 test/
+utils/
 npm-debug.log
