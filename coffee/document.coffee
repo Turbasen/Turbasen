@@ -1,7 +1,7 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
-JSONStream = require 'JSONStream'
+stringify = require('JSONStream').stringify
 
 exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
@@ -42,7 +42,7 @@ exports.get = (req, res, next) ->
   req.cache.getCol(req.col)
     .find({_id: req.doc._id}, fields, {limit: 1})
     .stream()
-    .pipe(JSONStream.stringify('','',''))
+    .pipe(stringify('','',''))
     .pipe(res)
 
 exports.put = (req, res, next) ->
