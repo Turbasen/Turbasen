@@ -1,6 +1,7 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
+JSONStream = require 'JSONStream'
 
 exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
@@ -34,12 +35,15 @@ exports.get = (req, res, next) ->
   res.set 'Last-Modified', new Date(req.doc.endret).toUTCString()
   res.status(200)
 
-  fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
-
   return res.end() if req.method is 'HEAD'
-  req.cache.getCol(req.col).findOne {_id: req.doc._id}, fields, (err, doc) ->
-    return res.json doc if not err
-    return next(err)
+  res.set 'Content-Type', 'application/json; charset=utf-8'
+
+  fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
+  req.cache.getCol(req.col)
+    .find({_id: req.doc._id}, fields, {limit: 1})
+    .stream()
+    .pipe(JSONStream.stringify('','',''))
+    .pipe(res)
 
 exports.put = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
