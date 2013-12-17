@@ -10,7 +10,8 @@
     "mongodb": "~1",
     "express": "~3",
     "raven": "~0",
-    "redis": "~0"
+    "redis": "~0",
+    "JSONStream": "~0"
   },
   "devDependencies": {
     "supertest": "~0",
