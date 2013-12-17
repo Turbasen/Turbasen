@@ -15,8 +15,7 @@
   "devDependencies": {
     "supertest": "~0",
     "mocha": "~1",
-    "supervisor": "~0",
-    "moniker": "~0"
+    "supervisor": "~0"
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.coffee --nodejs",
