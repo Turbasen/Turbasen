@@ -1,6 +1,7 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
+stringify = require('JSONStream').stringify
 
 exports.param = (req, res, next, col) ->
   if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
@@ -40,9 +41,12 @@ exports.get = (req, res, next) ->
     res.set 'Count-Total', total
     return res.end() if req.method is 'HEAD'
     return res.json documents: [], count: 0, total: 0 if total is 0
-    cursor.toArray (err, docs) ->
-      return next err if err
-      return res.json documents: docs, count: docs.length, total: total
+    res.set 'Content-Type', 'application/json; charset=utf-8'
+
+    op = '{"documents":['
+    cl = '],"count":' + Math.min(options.limit, total) + ',"total":' + total + '}'
+
+    cursor.stream().pipe(stringify(op, ',', cl)).pipe(res)
 
 exports.post = (req, res, next) ->
   #
