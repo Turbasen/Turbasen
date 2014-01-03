@@ -168,6 +168,16 @@ describe 'GET', ->
           assert.equal res.body.total, c
           done()
 
+  it 'should list items connected with given group', (done) ->
+    cache.getCol('turer').find({grupper: '52c672252dc5138712808e01'}).count (err, c) ->
+      assert.ifError(err)
+      req.get(url + '&gruppe=52c672252dc5138712808e01')
+        .expect(200)
+        .end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.total, c
+          done()
+
 describe 'HEAD', ->
   url = '/turer?api_key=dnt'
 

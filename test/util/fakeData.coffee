@@ -57,6 +57,25 @@ Generator.prototype.genStatus = ->
   ]
   statuses[@rand(0, statuses.length-1)]
 
+Generator.prototype.genGroups = (len) ->
+  groups = [
+    '52c672252dc5138712808e01'
+    '52c672252dc5138712808e02'
+    '52c672252dc5138712808e03'
+    '52c672252dc5138712808e04'
+    '52c672252dc5138712808e05'
+    '52c672252dc5138712808e06'
+    '52c672252dc5138712808e07'
+    '52c672252dc5138712808e08'
+    '52c672252dc5138712808e09'
+    '52c672252dc5138712808e10'
+  ]
+  res = []
+  while res.length < len
+    rand = @rand(0, groups.length-1)
+    res.push groups[rand] if groups[rand] not in res
+  res
+
 Generator.prototype.genTags = ->
   res = []
   tags =
@@ -97,7 +116,7 @@ Generator.prototype.doc = ->
     navn    : @checksum(Date.now())
     tags    : @genTags()
     privat  : @genPrivat()
-    grupper : @genId(@rand(0,3), true)
+    grupper : @genGroups(@rand(0,3))
     bilder  : @genId(@rand(0,20), true)
 
   delete doc[key] for key of doc when key in @exclude
