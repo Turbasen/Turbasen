@@ -22,6 +22,9 @@ exports.get = (req, res, next) ->
     else
       query['tags.0'] = req.query.tag
 
+  if typeof req.query.gruppe is 'string' and req.query.gruppe isnt ''
+    query['grupper'] = req.query.gruppe
+
   if typeof req.query.after is 'string' and req.query.after isnt ''
     if not isNaN(req.query.after)
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
