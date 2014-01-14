@@ -19,6 +19,7 @@ Cache = (mongo, port, host, pass) ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
       bilder    : true
@@ -28,6 +29,7 @@ Cache = (mongo, port, host, pass) ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
 

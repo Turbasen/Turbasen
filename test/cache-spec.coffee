@@ -59,6 +59,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
       bilder    : true
@@ -71,6 +72,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
 
@@ -82,6 +84,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
       bilder    : true
@@ -104,6 +107,7 @@ describe '#filterData()', ->
     assert.deepEqual cache.filterData('turer', trip),
       tilbyder   : trip.tilbyder
       endret     : trip.endret
+      checksum   : trip.checksum
       status     : trip.status
       navn       : trip.navn
       bilder     : trip.bilder
