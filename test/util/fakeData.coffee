@@ -119,6 +119,8 @@ Generator.prototype.doc = ->
     grupper : @genGroups(@rand(0,3))
     bilder  : @genId(@rand(0,20), true)
 
+  doc.checksum = @checksum doc
+
   delete doc[key] for key of doc when key in @exclude
   delete doc[key] for key of doc when key not in @only if @only.length > 0
 

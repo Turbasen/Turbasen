@@ -31,27 +31,6 @@ describe 'new', ->
     assert.deepEqual cache.cols, []
     done()
 
-describe '#hash()', ->
-  it 'should hash simple objects', ->
-    assert.equal cache.hash({foo: 'bar'}), '9bb58f26192e4ba00f01e2e7b136bbd8'
-
-  it 'should add _id to data object if provided', ->
-    assert.equal cache.hash({foo: 'bar'}, 'foo'), cache.hash({_id: 'foo', foo: 'bar'})
-
-  it 'should hash complex objects', ->
-    obj =
-      string: '2012-10-15T01:57:11.005Z'
-      number: 234521
-      string_object: { foo: 'bar', bar: 'foo' }
-      array_object: { foo: [1,2,3], bar: [4,5,6]}
-      object_object: { foo: {foo: 'bar'}, bar: {foo: 'foo'} }
-      string_array: ['foo', 'bar', 'baz']
-      number_array: [1,2,3,4,5,6,7]
-      object_array: [{ foo: 'bar', bar: 'foo'},{ foo: 'bar', bar: 'foo'}]
-      array_array: [[1,2,3],[4,5,6]]
-
-    assert.equal cache.hash(obj), 'ebe90952ea8c0dae5c0bd275e22dc315'
-
 describe '#getFilter()', ->
   it 'should return default filter for certain data types', ->
     types = ['arrangement', 'grupper', 'områder', 'steder', 'turer']
@@ -59,6 +38,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
       bilder    : true
@@ -71,6 +51,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
 
@@ -82,6 +63,7 @@ describe '#getFilter()', ->
       _id       : false
       tilbyder  : true
       endret    : true
+      checksum  : true
       status    : true
       navn      : true
       bilder    : true
@@ -96,14 +78,14 @@ describe '#getFilter()', ->
 describe '#filterData()', ->
   it 'should filter data according to filter for type', ->
     doc = foo: 'foo', bar: {bar: 'bar'}, baz: [1, 2, 3]
-    cache.dataFields.test =
-      foo: true
+    cache.dataFields.test = foo: true
     assert.deepEqual cache.filterData('test', doc), foo: doc.foo
 
   it 'should filter data according to predefined data filters', ->
     assert.deepEqual cache.filterData('turer', trip),
       tilbyder   : trip.tilbyder
       endret     : trip.endret
+      checksum   : trip.checksum
       status     : trip.status
       navn       : trip.navn
       bilder     : trip.bilder
@@ -138,28 +120,54 @@ describe '#getDoc()', ->
       done()
 
 describe '#set()', ->
+  it 'should set arbitrary key and data in redis', (done) ->
+    doc = foo: 'bar', bar: 'foo'
+    cache.set 'foobar', doc, (err, data) ->
+      assert.ifError(err)
+      cache.redis.hgetall 'foobar', (err, d) ->
+        assert.ifError(err)
+        assert.equal d[key], val for key, val of redisify(doc)
+        done()
+
+describe '#get()', ->
+  it 'should get data for arbitrary key existing in redis', (done) ->
+    doc = foo: 'bar', bar: 'foo'
+    cache.set 'foobar', doc, (err, data) ->
+      assert.ifError(err)
+      cache.get 'foobar', (err, d) ->
+        assert.ifError(err)
+        assert.equal d[key], val for key, val of redisify(doc)
+        done()
+
+  it 'should fail gracefully for missing data in redis', (done) ->
+    cache.get 'barfoo', (err, d) ->
+      assert.ifError(err)
+      assert.equal d, null
+      done()
+
+describe '#setForType()', ->
   it 'should set data for type and id', (done) ->
     doc = cache.filterData('turer', trip)
-    cache.set 'turer', trip._id, doc, (err, status) ->
+    cache.setForType 'turer', trip._id, doc, (err, status) ->
       assert.ifError(err)
       cache.redis.hgetall "turer:#{trip._id}", (err, d) ->
         assert.ifError(err)
         assert.equal d[key], val for key, val of redisify(doc)
         done()
 
-describe '#get()', ->
+describe '#getForType()', ->
   it 'should get document existing in redis cache', (done) ->
     doc = cache.filterData('turer', trip)
-    cache.set 'turer', trip._id, doc, (err) ->
+    cache.setForType 'turer', trip._id, doc, (err) ->
       assert.ifError(err)
-      cache.get 'turer', trip._id, (err, d, cacheHit) ->
+      cache.getForType 'turer', trip._id, (err, d, cacheHit) ->
         assert.ifError(err)
         assert.equal cacheHit, true
         assert.equal d[key], val for key, val of redisify(doc)
         done()
 
   it 'should get document from database when not in cahce', (done) ->
-    cache.get 'turer', trip._id, (err, d, cacheHit) ->
+    cache.getForType 'turer', trip._id, (err, d, cacheHit) ->
       assert.ifError(err)
       assert.equal cacheHit, false
       for key, val of cache.filterData('turer', trip)
@@ -167,29 +175,20 @@ describe '#get()', ->
         assert.equal d[key], val if not val instanceof Array
       done()
 
-  it 'should compute checksum for data not in cache', (done) ->
-    cache.get 'turer', trip._id, (err, d, cacheHit) ->
+  it 'should return slettet for data not in database', (done) ->
+    cache.getForType 'test', new ObjectID().toString(), (err, d, cacheHit) ->
       assert.ifError(err)
-      assert.equal cacheHit, false
-      checksum = d.checksum
-      delete d.checksum
-      assert.equal checksum, cache.hash(d, trip._id)
-      done()
-
-  it 'should return null data for cache miss for unknown data type', (done) ->
-    cache.get 'test', new ObjectID(), (err, d, cacheHit) ->
-      assert.ifError(err)
-      assert.equal d, null
+      assert.deepEqual d, status: 'Slettet'
       assert.equal cacheHit, false
       done()
 
   it 'should cache missing document for known data types', (done) ->
     oid = new ObjectID().toString()
-    cache.get 'turer', oid, (err, d1, cacheHit) ->
+    cache.getForType 'turer', oid, (err, d1, cacheHit) ->
       assert.ifError(err)
       assert.equal d1.status, 'Slettet'
-      assert.equal typeof d1.endret, 'string'
-      assert.equal typeof d1.checksum, 'string'
+      assert.equal typeof d1.endret, 'undefined'
+      assert.equal typeof d1.checksum, 'undefined'
       assert.equal cacheHit, false
 
       cache.redis.hgetall "turer:#{oid}", (err, d2) ->
@@ -198,7 +197,7 @@ describe '#get()', ->
         assert.equal d2.endret, d1.endret
         assert.equal d2.checksum, d1.checksum
 
-        cache.get 'turer', oid, (err, d3, cacheHit) ->
+        cache.getForType 'turer', oid, (err, d3, cacheHit) ->
           assert.ifError(err)
           assert.equal d3.status, 'Slettet'
           assert.equal d3.endret, d1.endret

@@ -7,7 +7,7 @@ exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   return next() if req.method is 'OPTIONS'
 
-  req.cache.get req.col, id, (err, doc, cacheHit) ->
+  req.cache.getForType req.col, id, (err, doc, cacheHit) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
@@ -18,7 +18,12 @@ exports.param = (req, res, next, id) ->
       return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
       return res.end()
 
-    return res.status(304).end() if req.get('If-None-Match') is doc.checksum
+    # doc.checksum - Not all data in the database has a computed checksum -
+    # yet. This is becuase checksum computation was moved to data input layer
+    # instead of chache retrival layer. Data which has not been updated since
+    # 2013-01-14 will hence not have a computed checksum.
+
+    return res.status(304).end() if req.get('If-None-Match') is doc.checksum and doc.checksum
     return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
 
     req.doc = doc
@@ -31,7 +36,7 @@ exports.options = (req, res, next) ->
   res.send()
 
 exports.get = (req, res, next) ->
-  res.set 'ETag', req.doc.checksum
+  res.set 'ETag', req.doc.checksum if req.doc.checksum # @TODO(starefossen) checksum bug
   res.set 'Last-Modified', new Date(req.doc.endret).toUTCString()
   res.status(200)
 
