@@ -6,6 +6,11 @@ data =
   turer: generator.gen 100, type: 'turer', oid: true
   steder: generator.gen 100, type: 'steder', oid: true
 
+# the one without checksum
+delete data.turer[37].checksum
+data.turer[37].tilbyder = 'DNT'
+data.turer[37].status = 'Offentlig'
+
 turer = {}
 for doc,key in data.turer
   turer[doc.tilbyder] = {} if not turer[doc.tilbyder]

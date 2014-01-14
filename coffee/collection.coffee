@@ -1,6 +1,8 @@
 "use strict"
 
 ObjectID = require('mongodb').ObjectID
+stringify = require('JSONStream').stringify
+createHash = require('crypto').createHash
 
 exports.param = (req, res, next, col) ->
   if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
@@ -21,6 +23,9 @@ exports.get = (req, res, next) ->
     else
       query['tags.0'] = req.query.tag
 
+  if typeof req.query.gruppe is 'string' and req.query.gruppe isnt ''
+    query['grupper'] = req.query.gruppe
+
   if typeof req.query.after is 'string' and req.query.after isnt ''
     if not isNaN(req.query.after)
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
@@ -40,9 +45,12 @@ exports.get = (req, res, next) ->
     res.set 'Count-Total', total
     return res.end() if req.method is 'HEAD'
     return res.json documents: [], count: 0, total: 0 if total is 0
-    cursor.toArray (err, docs) ->
-      return next err if err
-      return res.json documents: docs, count: docs.length, total: total
+    res.set 'Content-Type', 'application/json; charset=utf-8'
+
+    op = '{"documents":['
+    cl = '],"count":' + Math.min(options.limit, total) + ',"total":' + total + '}'
+
+    cursor.stream().pipe(stringify(op, ',', cl)).pipe(res)
 
 exports.post = (req, res, next) ->
   #
@@ -77,9 +85,11 @@ exports.post = (req, res, next) ->
       value: req.body.status
       code: 'missing_field'
 
+  req.body.checksum = createHash('md5').update(JSON.stringify(req.body)).digest("hex")
+
   req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    req.cache.set req.col, req.body._id, req.body, (err, data) ->
+    req.cache.setForType req.col, req.body._id, req.body, (err, data) ->
       return next(err) if err
       return res.json 201,
         document:

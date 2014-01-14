@@ -10,13 +10,13 @@
     "mongodb": "~1",
     "express": "~3",
     "raven": "~0",
-    "redis": "~0"
+    "redis": "~0",
+    "JSONStream": "~0"
   },
   "devDependencies": {
     "supertest": "~0",
     "mocha": "~1",
-    "supervisor": "~0",
-    "moniker": "~0"
+    "supervisor": "~0"
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.coffee --nodejs",

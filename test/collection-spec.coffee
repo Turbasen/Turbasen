@@ -168,6 +168,16 @@ describe 'GET', ->
           assert.equal res.body.total, c
           done()
 
+  it 'should list items connected with given group', (done) ->
+    cache.getCol('turer').find({grupper: '52c672252dc5138712808e01'}).count (err, c) ->
+      assert.ifError(err)
+      req.get(url + '&gruppe=52c672252dc5138712808e01')
+        .expect(200)
+        .end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.total, c
+          done()
+
 describe 'HEAD', ->
   url = '/turer?api_key=dnt'
 
@@ -181,7 +191,7 @@ describe 'HEAD', ->
         done()
 
 describe 'POST', ->
-  gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret']
+  gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret', 'checksum']
   url = '/turer?api_key=dnt'
 
   it 'should insert single object in collection and return ObjectID', (done) ->
@@ -240,14 +250,15 @@ describe 'POST', ->
 
       cache.getCol('turer').findOne _id: new ObjectID(doc._id), (err, d) ->
         assert.ifError(err)
-        assert.deepEqual d[key], val for key, val of doc when key not in ['_id', 'tilbyder', 'endret']
+        ignore = ['_id', 'tilbyder', 'endret', 'checksum']
+        assert.deepEqual d[key], val for key, val of doc when key not in ignore
         done()
 
   it 'should add new documents to cache', (done) ->
     doc = gen.gen()
     req.post(url).send(doc).expect(201).end (err, res) ->
       assert.ifError(err)
-      cache.get 'turer', res.body.document._id, (err, d) ->
+      cache.getForType 'turer', res.body.document._id, (err, d) ->
         # @TODO undefined values
         assert.equal d[key], val for key,val of cache.filterData('turer', doc) when val
         done()
