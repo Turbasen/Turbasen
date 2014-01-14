@@ -31,27 +31,6 @@ describe 'new', ->
     assert.deepEqual cache.cols, []
     done()
 
-describe '#hash()', ->
-  it 'should hash simple objects', ->
-    assert.equal cache.hash({foo: 'bar'}), '9bb58f26192e4ba00f01e2e7b136bbd8'
-
-  it 'should add _id to data object if provided', ->
-    assert.equal cache.hash({foo: 'bar'}, 'foo'), cache.hash({_id: 'foo', foo: 'bar'})
-
-  it 'should hash complex objects', ->
-    obj =
-      string: '2012-10-15T01:57:11.005Z'
-      number: 234521
-      string_object: { foo: 'bar', bar: 'foo' }
-      array_object: { foo: [1,2,3], bar: [4,5,6]}
-      object_object: { foo: {foo: 'bar'}, bar: {foo: 'foo'} }
-      string_array: ['foo', 'bar', 'baz']
-      number_array: [1,2,3,4,5,6,7]
-      object_array: [{ foo: 'bar', bar: 'foo'},{ foo: 'bar', bar: 'foo'}]
-      array_array: [[1,2,3],[4,5,6]]
-
-    assert.equal cache.hash(obj), 'ebe90952ea8c0dae5c0bd275e22dc315'
-
 describe '#getFilter()', ->
   it 'should return default filter for certain data types', ->
     types = ['arrangement', 'grupper', 'områder', 'steder', 'turer']
