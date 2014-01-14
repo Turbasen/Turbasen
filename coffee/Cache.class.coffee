@@ -84,6 +84,9 @@ Cache.prototype.getCol = (col) ->
 #
 # Get document from database for type and id
 #
+# This method will automaticly filter object keys according to type in order
+# to prevent fetching of uncesserary data.
+#
 # @param type - {@code string) data type
 # @param id - {@code string} item id
 # @param cb - {@code function} callback function (err, data)
