@@ -124,6 +124,8 @@ Generator.prototype.doc = ->
 
   doc[key] = val for key, val of @static
 
+  doc.checksum = @checksum doc
+
   return doc
 
 Generator.prototype.gen = (n, opts) ->
