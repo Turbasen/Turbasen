@@ -191,7 +191,7 @@ describe 'HEAD', ->
         done()
 
 describe 'POST', ->
-  gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret']
+  gen = new Generator 'turer', exclude: ['_id', 'tilbyder', 'endret', 'checksum']
   url = '/turer?api_key=dnt'
 
   it 'should insert single object in collection and return ObjectID', (done) ->
@@ -250,7 +250,8 @@ describe 'POST', ->
 
       cache.getCol('turer').findOne _id: new ObjectID(doc._id), (err, d) ->
         assert.ifError(err)
-        assert.deepEqual d[key], val for key, val of doc when key not in ['_id', 'tilbyder', 'endret']
+        ignore = ['_id', 'tilbyder', 'endret', 'checksum']
+        assert.deepEqual d[key], val for key, val of doc when key not in ignore
         done()
 
   it 'should add new documents to cache', (done) ->
