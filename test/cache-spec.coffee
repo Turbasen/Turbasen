@@ -120,28 +120,54 @@ describe '#getDoc()', ->
       done()
 
 describe '#set()', ->
+  it 'should set arbitrary key and data in redis', (done) ->
+    doc = foo: 'bar', bar: 'foo'
+    cache.set 'foobar', doc, (err, data) ->
+      assert.ifError(err)
+      cache.redis.hgetall 'foobar', (err, d) ->
+        assert.ifError(err)
+        assert.equal d[key], val for key, val of redisify(doc)
+        done()
+
+describe '#get()', ->
+  it 'should get data for arbitrary key existing in redis', (done) ->
+    doc = foo: 'bar', bar: 'foo'
+    cache.set 'foobar', doc, (err, data) ->
+      assert.ifError(err)
+      cache.get 'foobar', (err, d) ->
+        assert.ifError(err)
+        assert.equal d[key], val for key, val of redisify(doc)
+        done()
+
+  it 'should fail gracefully for missing data in redis', (done) ->
+    cache.get 'barfoo', (err, d) ->
+      assert.ifError(err)
+      assert.equal d, null
+      done()
+
+describe '#setForType()', ->
   it 'should set data for type and id', (done) ->
     doc = cache.filterData('turer', trip)
-    cache.set 'turer', trip._id, doc, (err, status) ->
+    cache.setForType 'turer', trip._id, doc, (err, status) ->
       assert.ifError(err)
       cache.redis.hgetall "turer:#{trip._id}", (err, d) ->
         assert.ifError(err)
         assert.equal d[key], val for key, val of redisify(doc)
         done()
 
-describe '#get()', ->
+describe '#getForType()', ->
   it 'should get document existing in redis cache', (done) ->
     doc = cache.filterData('turer', trip)
-    cache.set 'turer', trip._id, doc, (err) ->
+    cache.setForType 'turer', trip._id, doc, (err) ->
       assert.ifError(err)
-      cache.get 'turer', trip._id, (err, d, cacheHit) ->
+      cache.getForType 'turer', trip._id, (err, d, cacheHit) ->
         assert.ifError(err)
         assert.equal cacheHit, true
         assert.equal d[key], val for key, val of redisify(doc)
         done()
 
   it 'should get document from database when not in cahce', (done) ->
-    cache.get 'turer', trip._id, (err, d, cacheHit) ->
+    cache.getForType 'turer', trip._id, (err, d, cacheHit) ->
       assert.ifError(err)
       assert.equal cacheHit, false
       for key, val of cache.filterData('turer', trip)
@@ -149,29 +175,20 @@ describe '#get()', ->
         assert.equal d[key], val if not val instanceof Array
       done()
 
-  it 'should compute checksum for data not in cache', (done) ->
-    cache.get 'turer', trip._id, (err, d, cacheHit) ->
+  it 'should return slettet for data not in database', (done) ->
+    cache.getForType 'test', new ObjectID().toString(), (err, d, cacheHit) ->
       assert.ifError(err)
-      assert.equal cacheHit, false
-      checksum = d.checksum
-      delete d.checksum
-      assert.equal checksum, cache.hash(d, trip._id)
-      done()
-
-  it 'should return null data for cache miss for unknown data type', (done) ->
-    cache.get 'test', new ObjectID(), (err, d, cacheHit) ->
-      assert.ifError(err)
-      assert.equal d, null
+      assert.deepEqual d, status: 'Slettet'
       assert.equal cacheHit, false
       done()
 
   it 'should cache missing document for known data types', (done) ->
     oid = new ObjectID().toString()
-    cache.get 'turer', oid, (err, d1, cacheHit) ->
+    cache.getForType 'turer', oid, (err, d1, cacheHit) ->
       assert.ifError(err)
       assert.equal d1.status, 'Slettet'
-      assert.equal typeof d1.endret, 'string'
-      assert.equal typeof d1.checksum, 'string'
+      assert.equal typeof d1.endret, 'undefined'
+      assert.equal typeof d1.checksum, 'undefined'
       assert.equal cacheHit, false
 
       cache.redis.hgetall "turer:#{oid}", (err, d2) ->
@@ -180,7 +197,7 @@ describe '#get()', ->
         assert.equal d2.endret, d1.endret
         assert.equal d2.checksum, d1.checksum
 
-        cache.get 'turer', oid, (err, d3, cacheHit) ->
+        cache.getForType 'turer', oid, (err, d3, cacheHit) ->
           assert.ifError(err)
           assert.equal d3.status, 'Slettet'
           assert.equal d3.endret, d1.endret

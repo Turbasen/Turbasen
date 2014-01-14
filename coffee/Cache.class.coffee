@@ -95,40 +95,60 @@ Cache.prototype.getDoc = (type, id, cb) ->
   @getCol(type).findOne {_id: new ObjectID(id)}, @getFilter(type), cb
 
 #
-# Store data in cache for data type and id
+# Store data in cache for key
 #
-# @param type - {@code string) data type
-# @param id - {@code string} item id
+# @param key - {@code string} cache key
 # @param data - {@code object} data to store
 # @param cb - {@code function} callback function (err, msg)
 #
-Cache.prototype.set = (type, id, data, cb) ->
-  if type in @dataTypes
-    data = @filterData type, data
-    data.checksum = @hash data, id
-  @redis.hmset "#{type}:#{id}", data, (err) -> cb(err, data)
+Cache.prototype.set = (key, data, cb) ->
+  @redis.hmset key, data, (err) -> cb(err, data)
+
+#
+# Get Data from cache for key
+#
+# @param key - {@code string} cache key
+# @param cb - {@code function} callback function (err, msg)
+#
+Cache.prototype.get = (key, cb) ->
+  @redis.hgetall key, cb
+
+#
+# Store data in cache for data type and id
+#
+# This function will automaticly remove object properties from input data in
+# order to match the data type cache preferences defined in @getFilter().
+#
+# @param type - {@code string) data type @param id - {@code string} item id
+# @param data - {@code object} data to store @param cb - {@code function}
+# callback function (err, msg)
+#
+Cache.prototype.setForType = (type, id, data, cb) ->
+  @set "#{type}:#{id}", @filterData(type, data), cb
 
 #
 # Get data from cache for type and id
 #
-# This function will return Arrays if data is retrived directly from the database.
-# Data from the redis cache will be comma seperated strings in stead of arrays.
+# This function will return Arrays if data is retrived directly from the
+# database.  Data from the redis cache will be comma seperated strings in
+# stead of arrays.
 #
-# @param type - {@code string) data type
-# @param id - {@code string} item id
+# @param type - {@code string) data type @param id - {@code string} item id
 # @param cb - {@code function} callback function (err, data, hit)
 #
-Cache.prototype.get = (type, id, cb) ->
-  @redis.hgetall "#{type}:#{id}", (err, data) =>
+Cache.prototype.getForType = (type, id, cb) ->
+  @get "#{type}:#{id}", (err, data) =>
     return cb null, data, true if data
-    return cb null, null, false if type not in @dataTypes
 
     @getDoc type, id, (err, data) =>
-      return cb err if err
+      return cb err, null, false if err
 
-      data = status: 'Slettet', endret: new Date().toISOString() if not data
+      data = status: 'Slettet' if not data
 
-      @set type, id, data, (err, data) =>
+      # We don't need to use @setForType() here since data is already formated
+      # when using @getDoc()
+
+      @set "#{type}:#{id}", data, (err, data) =>
         cb err, data, false
 
 module.exports = Cache
