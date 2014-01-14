@@ -2,6 +2,7 @@
 
 ObjectID = require('mongodb').ObjectID
 stringify = require('JSONStream').stringify
+createHash = require('crypto').createHash
 
 exports.param = (req, res, next, col) ->
   if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
@@ -83,6 +84,8 @@ exports.post = (req, res, next) ->
       field: 'status'
       value: req.body.status
       code: 'missing_field'
+
+  req.body.checksum = createHash('md5').update(JSON.stringify(req.body)).digest("hex")
 
   req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
