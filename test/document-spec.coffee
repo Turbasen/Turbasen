@@ -81,13 +81,26 @@ describe 'GET', ->
         done()
 
   it 'should return 403 when provided with current valid Etag', (done) ->
-    req.get('/turer/' + trip._id + '?api_key=dnt')
-      .expect(200)
-      .end (err, res) ->
+    req.get('/turer/' + trip._id + '?api_key=dnt').expect(200).end (err, res) ->
+      assert.ifError(err)
+      req.get('/turer/' + trip._id + '?api_key=dnt')
+        .set('if-none-match', res.header.etag)
+        .expect(304, done)
+
+  it 'should return documents without checksum', (done) ->
+    doc = data.get 'turer', false, 37
+    req.get("/turer/#{doc._id}?api_key=dnt").expect(200).end (err, res) ->
+      assert.ifError(err)
+      assert.deepEqual res.body, doc
+      done()
+
+  it 'should ignore etags for documents without checksum', (done) ->
+    doc = data.get 'turer', false, 37
+    req.get("/turer/#{doc._id}?api_key=dnt").set('if-none-match', 'foobar')
+      .expect(200).end (err, res) ->
         assert.ifError(err)
-        req.get('/turer/' + trip._id + '?api_key=dnt')
-          .set('if-none-match', res.header.etag)
-          .expect(304, done)
+        assert.deepEqual res.body, doc
+        done()
 
   it 'should return newly created document (with id)', (done) ->
     doc = _id: new ObjectID().toString(), name: 'kristian'
