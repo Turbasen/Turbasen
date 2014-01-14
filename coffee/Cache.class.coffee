@@ -2,7 +2,6 @@
 
 redisClient = require('redis').createClient
 ObjectID = require('mongodb').ObjectID
-crypto = require('crypto')
 
 Cache = (mongo, port, host, pass) ->
   @mongo = mongo
@@ -43,22 +42,6 @@ Cache = (mongo, port, host, pass) ->
   ]
 
   @
-
-#
-# Generate hash of object
-#
-# @param {@code object} data - data to generate checksum for
-# @param {@code string} algo - hash algorithm to use (default md5)
-#
-# @return {@code string} md5 checksum
-#
-Cache.prototype.hash = (data, id) ->
-  if id
-    copy = _id: id
-    copy[key] = val for key, val of data
-    data = copy
-
-  crypto.createHash('md5').update(JSON.stringify(data)).digest("hex")
 
 #
 # Get data filter for type
