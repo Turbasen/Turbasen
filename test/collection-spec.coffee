@@ -258,7 +258,7 @@ describe 'POST', ->
     doc = gen.gen()
     req.post(url).send(doc).expect(201).end (err, res) ->
       assert.ifError(err)
-      cache.get 'turer', res.body.document._id, (err, d) ->
+      cache.getForType 'turer', res.body.document._id, (err, d) ->
         # @TODO undefined values
         assert.equal d[key], val for key,val of cache.filterData('turer', doc) when val
         done()

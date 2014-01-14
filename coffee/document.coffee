@@ -7,7 +7,7 @@ exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   return next() if req.method is 'OPTIONS'
 
-  req.cache.get req.col, id, (err, doc, cacheHit) ->
+  req.cache.getForType req.col, id, (err, doc, cacheHit) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 

@@ -89,7 +89,7 @@ exports.post = (req, res, next) ->
 
   req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    req.cache.set req.col, req.body._id, req.body, (err, data) ->
+    req.cache.setForType req.col, req.body._id, req.body, (err, data) ->
       return next(err) if err
       return res.json 201,
         document:
