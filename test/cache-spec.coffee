@@ -99,8 +99,7 @@ describe '#getFilter()', ->
 describe '#filterData()', ->
   it 'should filter data according to filter for type', ->
     doc = foo: 'foo', bar: {bar: 'bar'}, baz: [1, 2, 3]
-    cache.dataFields.test =
-      foo: true
+    cache.dataFields.test = foo: true
     assert.deepEqual cache.filterData('test', doc), foo: doc.foo
 
   it 'should filter data according to predefined data filters', ->
