@@ -27,7 +27,7 @@ describe 'GET', ->
     req.get(url('abc123')).expect(400, done)
 
   it 'should return 404 for not existing document', (done) ->
-    req.get(url(new ObjectID())).expect(404).end (err, res) ->
+    req.get(url(new ObjectID().toString())).expect(404).end (err, res) ->
       assert.ifError(err)
       assert.equal res.body.error, 'Document Not Found'
       done()
