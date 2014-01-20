@@ -1,10 +1,21 @@
 "use strict"
 
-request = require 'supertest'
-assert  = require 'assert'
-data    = require './util/data.coffee'
+ObjectID  = require('mongodb').ObjectID
+request   = require 'supertest'
+assert    = require 'assert'
 
-exports.app   = app = require './../coffee/server.coffee'
+steder = require './data/steder.json'
+exports.app = app = require './../coffee/server.coffee'
+
+# For some reason NodeJS or Mocha caches the object array but still tries to run
+# the Object to ObjectID convertion. This results in new ObjectIDs for every run
+# > 0. new ObjectID(ObjectID) => new ObjectId()
+#
+if not (steder[0]._id instanceof ObjectID)
+  steder[key]._id = new ObjectID(val._id['$oid']) for val, key in steder
+
+exports.app = app = require './../coffee/server.coffee'
+exports.steder = JSON.parse(JSON.stringify(steder))
 
 before (done) -> app.once 'ready', done
 beforeEach (done) ->
@@ -13,14 +24,12 @@ beforeEach (done) ->
   mongo = cache.mongo
 
   redis.flushall()
-  mongo.dropCollection 'turer'
+  mongo.dropCollection 'test'
   mongo.dropCollection 'steder'
 
-  cnt = 2
-  for type in data.getTypes()
-    mongo.collection(type).insert data.get(type, true), {safe: true, w: 1}, (err, msg) ->
-      assert.ifError(err)
-      done() if --cnt is 0
+  mongo.collection('steder').insert steder, {safe: true, w: 1}, (err, msg) ->
+    assert.ifError(err)
+    done()
 
 describe 'Cache', ->
   require './cache-spec.coffee'
