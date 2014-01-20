@@ -2,6 +2,7 @@
 
 ObjectID = require('mongodb').ObjectID
 stringify = require('JSONStream').stringify
+createHash = require('crypto').createHash
 
 exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
@@ -51,8 +52,46 @@ exports.get = (req, res, next) ->
     .pipe(res)
 
 exports.put = (req, res, next) ->
-  res.json 501, message: 'HTTP method not implmented'
-  # 200, object
+  return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
+  return res.json 400, message: 'Body should be a JSON Hash' if req.body instanceof Array
+
+  warnings = []
+  errors   = []
+  message  = ''
+
+  req.body.tilbyder = req.usr
+  req.body.endret = new Date().toISOString()
+  req.body.checksum = createHash('md5').update(JSON.stringify(req.body)).digest('hex')
+
+  # @TODO(starefossen) use old value?
+  if not req.body.lisens
+    req.body.lisens = 'CC BY-ND-NC 3.0 NO'
+    warnings.push
+      resource: req.col
+      field: 'lisens'
+      value: req.body.lisens
+      code: 'missing_field'
+
+  # @TODO(starefossen) use old value?
+  if not req.body.status
+    req.body.status = 'Kladd'
+    warnings.push
+      resource: req.col
+      field: 'status'
+      value: req.body.status
+      code: 'missing_field'
+
+  req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
+    return next(err) if err
+    req.cache.setForType req.col, req.body._id, req.body, (err, data) ->
+      return next(err) if err
+      return res.json 200,
+        document:
+          _id: req.body._id
+        count: 1
+        message: message if message
+        warnings: warnings if warnings.length > 0
+        errors: errors if errors.length > 0
 
 exports.patch = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
