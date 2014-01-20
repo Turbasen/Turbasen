@@ -18,6 +18,9 @@ exports.param = (req, res, next, id) ->
       return res.json message: 'Objekt ikke funnet' if req.method isnt 'HEAD'
       return res.end()
 
+    if doc.tilbyder isnt req.usr and req.method not in ['GET', 'HEAD']
+      return res.json 403, message: 'Utilstrekkelige rettigheter'
+
     # doc.checksum - Not all data in the database has a computed checksum -
     # yet. This is becuase checksum computation was moved to data input layer
     # instead of chache retrival layer. Data which has not been updated since
