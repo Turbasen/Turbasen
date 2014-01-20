@@ -13,10 +13,9 @@ exports.param = (req, res, next, id) ->
     res.set 'X-Cache-Hit', cacheHit
 
     if doc.status is 'Slettet' or
-    (doc.tilbyder isnt req.usr and
-    (req.method not in ['HEAD', 'GET'] or doc.status isnt 'Offentlig'))
+    (doc.tilbyder isnt req.usr and doc.status isnt 'Offentlig')
       res.status(404)
-      return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
+      return res.json message: 'Objekt ikke funnet' if req.method isnt 'HEAD'
       return res.end()
 
     # doc.checksum - Not all data in the database has a computed checksum -
