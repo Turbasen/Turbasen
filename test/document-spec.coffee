@@ -27,7 +27,7 @@ describe 'GET', ->
   it 'should return 404 for not existing document', (done) ->
     req.get(url(new ObjectID().toString())).expect(404).end (err, res) ->
       assert.ifError(err)
-      assert.equal res.body.error, 'Document Not Found'
+      assert.equal res.body.message, 'Objekt ikke funnet'
       done()
 
   it 'should return 404 for status=Slettet', (done) ->
@@ -191,8 +191,78 @@ describe 'POST', ->
     req.post(url('52407fb375049e561500008f')).expect 405, done
 
 describe 'PUT', ->
-  it 'should not be implmented', (done) ->
-    req.put(url('52407fb375049e561500008f')).expect 501, done
+  it 'should return error for missing request body', (done) ->
+    req.put(url('52407fb375049e5615000218')).expect(400, done)
+
+  it 'should return error if request body is an array', (done) ->
+    req.put(url('52407fb375049e5615000218')).send(['foo']).expect(400, done)
+
+  it 'should update single object in collection', (done) ->
+    u = url('52407fb375049e56150001fd')
+    req.get(u).expect(200).end (err, res) ->
+      doc = res.body
+      doc.navn = 'Breidablik'
+      req.put(u).send(doc).expect(200).end (err, res) ->
+        req.get(u).expect(200).end (err, res) ->
+          ignore = ['tilbyder', 'endret', 'checksum']
+          assert.deepEqual val, doc[key] for val, key in res.body when key not in ignore
+          done()
+
+  it 'should override tilbyder, endret and checksum fields', (done) ->
+    u = url('52407fb375049e561500008c')
+    req.get(u).expect(200).end (err, res) ->
+      doc = res.body
+      doc.tilbyder = 'MINAPP'
+      doc.endret   = new Date().toISOString()
+      doc.checksum = '332dcf1830ec8e2c9bdc574b29515047'
+      doc.navn     = 'Fonnabu'
+      req.put(u).send(doc).expect(200).end (err, res) ->
+        req.get(u).expect(200).end (err, res) ->
+          ignore = ['tilbyder', 'endret', 'checksum']
+          assert.notEqual val, doc[key] for val, key in res.body when key in ignore
+          assert.deepEqual val, doc[key] for val, key in res.body when key not in ignore
+          done()
+
+  it 'should prevent unauthorized edits', (done) ->
+    u = url('52407fb375049e5615000034', true)
+    req.get(u).expect(200).end (err, res) ->
+      doc = res.body
+      doc.navn = 'Holmaskjer'
+      req.put(u).send(doc).expect(403).end (err, res) ->
+        assert.ifError(err)
+        req.get(u).expect(200).end (err, res) ->
+          assert.ifError(err)
+          assert.notEqual res.body.navn, doc.navn
+          done()
+
+  # @TODO(starefossen) this test can be better
+  it 'should cache document changes', (done) ->
+    u = url('52407fb375049e56150002b3')
+    req.get(u).expect(200).expect('x-cache-hit', 'false').end (err, res) ->
+      doc = res.body
+      doc.navn = 'Solrenningen'
+      req.put(u).send(doc).expect(200).end (err, res) ->
+        req.get(u).expect(200).expect('x-cache-hit', 'true', done)
+
+  it 'should warn about missing lisens and status fields', (done) ->
+    u = url('52407fb375049e561500047c')
+    req.get(u).expect(200).end (err, res) ->
+      doc = res.body
+      delete doc.lisens
+      delete doc.status
+      req.put(u).send(doc).expect(200).end (err, res) ->
+        assert.deepEqual res.body.warnings, [{
+          resource: 'steder'
+          field: 'lisens'
+          value: 'CC BY-ND-NC 3.0 NO'
+          code: 'missing_field'
+        }, {
+          resource: 'steder'
+          field: 'status'
+          value: 'Kladd'
+          code: 'missing_field'
+        }]
+        done()
 
 describe 'PATCH', ->
   it 'should not be implmented', (done) ->
