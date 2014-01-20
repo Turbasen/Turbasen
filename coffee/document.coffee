@@ -2,6 +2,7 @@
 
 ObjectID = require('mongodb').ObjectID
 stringify = require('JSONStream').stringify
+createHash = require('crypto').createHash
 
 exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
@@ -12,11 +13,13 @@ exports.param = (req, res, next, id) ->
     res.set 'X-Cache-Hit', cacheHit
 
     if doc.status is 'Slettet' or
-    (doc.tilbyder isnt req.usr and
-    (req.method not in ['HEAD', 'GET'] or doc.status isnt 'Offentlig'))
+    (doc.tilbyder isnt req.usr and doc.status isnt 'Offentlig')
       res.status(404)
-      return res.json error: 'Document Not Found' if req.method isnt 'HEAD'
+      return res.json message: 'Objekt ikke funnet' if req.method isnt 'HEAD'
       return res.end()
+
+    if doc.tilbyder isnt req.usr and req.method not in ['GET', 'HEAD']
+      return res.json 403, message: 'Utilstrekkelige rettigheter'
 
     # doc.checksum - Not all data in the database has a computed checksum -
     # yet. This is becuase checksum computation was moved to data input layer
@@ -51,8 +54,46 @@ exports.get = (req, res, next) ->
     .pipe(res)
 
 exports.put = (req, res, next) ->
-  res.json 501, message: 'HTTP method not implmented'
-  # 200, object
+  return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
+  return res.json 400, message: 'Body should be a JSON Hash' if req.body instanceof Array
+
+  warnings = []
+  errors   = []
+  message  = ''
+
+  req.body.tilbyder = req.usr
+  req.body.endret = new Date().toISOString()
+  req.body.checksum = createHash('md5').update(JSON.stringify(req.body)).digest('hex')
+
+  # @TODO(starefossen) use old value?
+  if not req.body.lisens
+    req.body.lisens = 'CC BY-ND-NC 3.0 NO'
+    warnings.push
+      resource: req.col
+      field: 'lisens'
+      value: req.body.lisens
+      code: 'missing_field'
+
+  # @TODO(starefossen) use old value?
+  if not req.body.status
+    req.body.status = 'Kladd'
+    warnings.push
+      resource: req.col
+      field: 'status'
+      value: req.body.status
+      code: 'missing_field'
+
+  req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
+    return next(err) if err
+    req.cache.setForType req.col, req.body._id, req.body, (err, data) ->
+      return next(err) if err
+      return res.json 200,
+        document:
+          _id: req.body._id
+        count: 1
+        message: message if message
+        warnings: warnings if warnings.length > 0
+        errors: errors if errors.length > 0
 
 exports.patch = (req, res, next) ->
   res.json 501, message: 'HTTP method not implmented'
