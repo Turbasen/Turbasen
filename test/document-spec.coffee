@@ -148,12 +148,12 @@ describe 'GET', ->
       assert.ifError(err)
       req.get(url(res.body.document._id)).expect(200).end (err, res) ->
         assert.ifError(err)
-        assert.deepEqual res.body[key], val for val, key in doc
+        assert.deepEqual res.body[key], val for key, val of doc
         done()
 
   it 'should return newly created document (with id)', (done) ->
     doc = JSON.parse(JSON.stringify(steder[51]))
-    doc._id = new ObjectID()
+    doc._id = new ObjectID().toString()
     delete doc.tilbyder
     delete doc.endret
     delete doc.checksum
@@ -163,7 +163,7 @@ describe 'GET', ->
       assert.equal res.body.document._id, doc._id
       req.get(url(doc._id)).expect(200).end (err, res) ->
         assert.ifError(err)
-        assert.deepEqual res.body[key], val for val, key in doc
+        assert.deepEqual res.body[key], val for key, val of doc
         done()
 
   it 'should handle rapid fire', (done) ->
@@ -205,7 +205,7 @@ describe 'PUT', ->
       req.put(u).send(doc).expect(200).end (err, res) ->
         req.get(u).expect(200).end (err, res) ->
           ignore = ['tilbyder', 'endret', 'checksum']
-          assert.deepEqual val, doc[key] for val, key in res.body when key not in ignore
+          assert.deepEqual val, doc[key] for key, val of res.body when key not in ignore
           done()
 
   it 'should override tilbyder, endret and checksum fields', (done) ->
@@ -219,8 +219,8 @@ describe 'PUT', ->
       req.put(u).send(doc).expect(200).end (err, res) ->
         req.get(u).expect(200).end (err, res) ->
           ignore = ['tilbyder', 'endret', 'checksum']
-          assert.notEqual val, doc[key] for val, key in res.body when key in ignore
-          assert.deepEqual val, doc[key] for val, key in res.body when key not in ignore
+          assert.notEqual val, doc[key] for key, val of res.body when key in ignore
+          assert.deepEqual val, doc[key] for key, val of res.body when key not in ignore
           done()
 
   it 'should prevent unauthorized edits', (done) ->

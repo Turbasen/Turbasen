@@ -61,6 +61,7 @@ exports.put = (req, res, next) ->
   errors   = []
   message  = ''
 
+  req.body._id = req.doc._id
   req.body.tilbyder = req.usr
   req.body.endret = new Date().toISOString()
   req.body.checksum = createHash('md5').update(JSON.stringify(req.body)).digest('hex')
