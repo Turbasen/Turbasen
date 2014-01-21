@@ -153,7 +153,7 @@ describe 'GET', ->
 
   it 'should return newly created document (with id)', (done) ->
     doc = JSON.parse(JSON.stringify(steder[51]))
-    doc._id = new ObjectID()
+    doc._id = new ObjectID().toString()
     delete doc.tilbyder
     delete doc.endret
     delete doc.checksum
