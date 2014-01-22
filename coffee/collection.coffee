@@ -31,6 +31,22 @@ exports.get = (req, res, next) ->
       req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
     query.endret = {$gte:req.query.after}
 
+  if typeof req.query.bbox is 'string' and req.query.bbox.split(',').length is 4
+    bbox = req.query.bbox.split(',')
+    bbox[i] = parseFloat(val) for val, i in bbox
+
+    query.geojson =
+      '$geoWithin':
+        '$geometry':
+          type: 'Polygon'
+          coordinates: [[
+            [bbox[0], bbox[1]]
+            [bbox[2], bbox[1]]
+            [bbox[2], bbox[3]]
+            [bbox[0], bbox[3]]
+            [bbox[0], bbox[1]]
+          ]]
+
   fields = endret: true, status: true, navn: true
 
   options =

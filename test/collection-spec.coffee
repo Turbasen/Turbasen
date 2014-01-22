@@ -174,6 +174,14 @@ describe 'GET', ->
         assert.equal res.body.total, 26
         done()
 
+  it 'should list items within bounding box', (done) ->
+    req.get(url + '&bbox=5.456085205078125,60.77559056838706,6.5224456787109375,61.03601470372404')
+      .expect(200)
+      .end (err, res) ->
+        assert.ifError(err)
+        assert.equal res.body.count, 7
+        done()
+
 describe 'HEAD', ->
   url = '/steder?api_key=dnt'
 
