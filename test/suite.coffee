@@ -27,9 +27,11 @@ beforeEach (done) ->
   mongo.dropCollection 'test'
   mongo.dropCollection 'steder'
 
-  mongo.collection('steder').insert steder, {safe: true, w: 1}, (err, msg) ->
+  mongo.collection('steder').ensureIndex geojson: '2dsphere', (err) ->
     assert.ifError(err)
-    done()
+    mongo.collection('steder').insert steder, {safe: true, w: 1}, (err, msg) ->
+      assert.ifError(err)
+      done()
 
 describe 'Cache', ->
   require './cache-spec.coffee'
