@@ -27,7 +27,17 @@ exports.param = (req, res, next, id) ->
     # 2013-01-14 will hence not have a computed checksum.
 
     return res.status(304).end() if req.get('If-None-Match') is doc.checksum and doc.checksum
-    return res.status(304).end() if req.get('If-Modified-Since') >= doc.endret
+    if not req.get('If-None-Match') and req.get('If-Modified-Since')
+
+      since = req.get 'If-Modified-Since'
+      if not isNaN since
+        since += '000' if since.length is 10
+        since = parseInt since
+
+      d1 = new Date(doc.endret).setMilliseconds(0) # HTTP-date's don't have milliseconds
+      d2 = new Date(since)
+
+      return res.status(304).end() if d2.toString() isnt 'Invalid Date' and d1 <= d2
 
     req.doc = doc
     req.doc._id = new ObjectID(id)

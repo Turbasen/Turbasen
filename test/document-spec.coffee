@@ -118,24 +118,35 @@ describe 'GET', ->
         assert.equal typeof res.body.checksum, 'undefined'
         done()
 
-  # Modified / endret
-  it 'should return 403 when provided with equal modified since date', (done) ->
-    req.get(url('52407fb375049e56150001bf'))
-      .set('if-modified-since', '2013-12-16T14:25:47.966Z')
-      .expect(304, done)
+  describe 'if-modified-since', ->
+    Date.prototype.toUnixTime = -> Math.floor(@getTime()/1000)
 
-  it 'should return 403 when provided with newer modified since date', (done) ->
-    req.get(url('52407fb375049e56150001bf'))
-      .set('if-modified-since', '2014-12-16T14:25:47.966Z')
-      .expect(304, done)
+    it 'should return 403 when provided with equal modified since date', (done) ->
+      d = new Date('2013-12-16T14:25:47.966Z')
+      end = -> done() if --count is 0
+      count = 5
+      for method in ['toString', 'toUTCString', 'toISOString', 'getTime', 'toUnixTime']
+        req.get(url('52407fb375049e56150001bf'))
+          .set('if-modified-since', d[method]())
+          .expect(304, end)
 
-  it 'should return document for outdated modified since date', (done) ->
-    req.get(url('52407fb375049e56150001bf'))
-      .set('if-modified-since', '2012-12-16T14:25:47.966Z')
-      .expect(200).end (err, res) ->
-        assert.ifError(err)
-        assert.equal res.body.navn, 'd119ff9ec3e34ae5194717b4f228c8bb'
-        done()
+    it 'should return 403 when provided with newer modified since date', (done) ->
+      d = new Date('2014-12-16T14:25:47.966Z')
+      end = -> done() if --count is 0
+      count = 5
+      for method in ['toString', 'toUTCString', 'toISOString', 'getTime', 'toUnixTime']
+        req.get(url('52407fb375049e56150001bf'))
+          .set('if-modified-since', d[method]())
+          .expect(304, end)
+
+    it 'should return document for outdated modified since date', (done) ->
+      d = new Date('2012-12-16T14:25:47.966Z')
+      end = -> done() if --count is 0
+      count = 5
+      for method in ['toString', 'toUTCString', 'toISOString', 'getTime', 'toUnixTime']
+        req.get(url('52407fb375049e56150001bf'))
+          .set('if-modified-since', d[method]())
+          .expect(200, end)
 
   it 'should return newly created document', (done) ->
     doc = JSON.parse(JSON.stringify(steder[51]))
