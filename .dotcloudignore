@@ -1,11 +1,11 @@
 .*swp
 .DS_Store
-.config/.ssh/
 .dotcloud/
 .dotcloudignore
 .git
 .gitignore
 .jshintrc
+.vagrant/
 README.md
 Vagrantfile
 node_modules/
