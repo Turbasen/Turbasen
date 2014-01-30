@@ -20,8 +20,8 @@
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.coffee --nodejs",
-    "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress -r coffee-script -w",
+    "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register -w",
     "postinstall": "rm -rf src/* && coffee -o src/ -c coffee/",
-    "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec -r coffee-script"
+    "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec --compilers coffee:coffee-script/register"
   }
 }
