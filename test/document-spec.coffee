@@ -39,7 +39,7 @@ describe 'GET', ->
       assert.equal res.body.tilbyder, 'DNT'
       assert.equal res.body.status, 'Offentlig'
       assert.equal res.body.navn, 'c818b09c3c51eb6f6f4ddc4c87a2a4f3'
-      assert.deepEqual res.body.privat, secret: '21122df6e414ac844a6e80de1faf4871'
+      assert.deepEqual res.body.privat.secret, '21122df6e414ac844a6e80de1faf4871'
       done()
 
   it 'should return document when status=Kladd and tilbyder=DNT for DNT', (done) ->
@@ -48,7 +48,7 @@ describe 'GET', ->
       assert.equal res.body.tilbyder, 'DNT'
       assert.equal res.body.status, 'Kladd'
       assert.equal res.body.navn, '30f832f2a56d8ccf2e6356e0556d545f'
-      assert.deepEqual res.body.privat, secret: '481d53830054097e48833a810827fc09'
+      assert.deepEqual res.body.privat.secret, '481d53830054097e48833a810827fc09'
       done()
 
   it 'should return document when status=Privat and tilbyder=DNT for DNT', (done) ->
@@ -57,7 +57,7 @@ describe 'GET', ->
       assert.equal res.body.tilbyder, 'DNT'
       assert.equal res.body.status, 'Privat'
       assert.equal res.body.navn, '46793be9a59a0582d6c12376b4abb145'
-      assert.deepEqual res.body.privat, secret: '4b65e2c69472621d4b33dd0e0bd66205'
+      assert.deepEqual res.body.privat.secret, '4b65e2c69472621d4b33dd0e0bd66205'
       done()
 
   it 'should return document when status=Offentlig and tilbyder=DNT for not DNT', (done) ->
