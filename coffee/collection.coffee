@@ -55,7 +55,7 @@ exports.get = (req, res, next) ->
       query.tilbyder = req.usr
       query[key] = val
 
-  fields = endret: true, status: true, navn: true
+  fields = tilbyder: true, endret: true, status: true, navn: true
 
   options =
     limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)

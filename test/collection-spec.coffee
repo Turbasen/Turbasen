@@ -60,8 +60,9 @@ describe 'GET', ->
         assert.ifError(err)
 
         for doc in res.body.documents
-          assert.equal Object.keys(doc).length, 4
+          assert.equal Object.keys(doc).length, 5
           assert.equal typeof doc._id, 'string'
+          assert.equal typeof doc.tilbyder, 'string'
           assert.equal typeof doc.endret, 'string'
           assert.equal typeof doc.status, 'string'
           assert.equal typeof doc.navn, 'string'
