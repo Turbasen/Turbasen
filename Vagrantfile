@@ -42,7 +42,8 @@ export HOME=/home/root
 echo "Installing NPM packages..."
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 PATH=$PATH:/vagrant/node_modules/.bin
-cd /vagrant && rm -rf node_modules && npm install
+cd /vagrant && rm -rf node_modules
+[ -f package.json ] && npm install
 
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
