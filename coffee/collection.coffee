@@ -55,6 +55,9 @@ exports.get = (req, res, next) ->
       query.tilbyder = req.usr
       query[key] = val
 
+  # Limit queries to own documents or public documents ie. status = 'Offentlig'
+  query['$or'] = [{status: 'Offentlig'}, {tilbyder: req.usr}] if not query.tilbyder
+
   fields = tilbyder: true, endret: true, status: true, navn: true
 
   options =
