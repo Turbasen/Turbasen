@@ -33,7 +33,7 @@ curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
-nvm install 0.10.23
+nvm install 0.10
 #nvm install 0.11
 chown -R vagrant:vagrant /home/vagrant/.nvm
 export HOME=/home/root
@@ -42,7 +42,8 @@ export HOME=/home/root
 echo "Installing NPM packages..."
 echo "PATH=$PATH:/vagrant/node_modules/.bin" >> /home/vagrant/.bashrc
 PATH=$PATH:/vagrant/node_modules/.bin
-cd /vagrant && rm -rf node_modules && npm install
+cd /vagrant && rm -rf node_modules
+[ -f package.json ] && npm install
 
 echo "cd /vagrant" >> /home/vagrant/.bashrc
 
