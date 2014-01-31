@@ -60,8 +60,9 @@ describe 'GET', ->
         assert.ifError(err)
 
         for doc in res.body.documents
-          assert.equal Object.keys(doc).length, 4
+          assert.equal Object.keys(doc).length, 5
           assert.equal typeof doc._id, 'string'
+          assert.equal typeof doc.tilbyder, 'string'
           assert.equal typeof doc.endret, 'string'
           assert.equal typeof doc.status, 'string'
           assert.equal typeof doc.navn, 'string'
@@ -174,13 +175,38 @@ describe 'GET', ->
         assert.equal res.body.total, 26
         done()
 
-  it 'should list items within bounding box', (done) ->
-    req.get(url + '&bbox=5.456085205078125,60.77559056838706,6.5224456787109375,61.03601470372404')
-      .expect(200)
-      .end (err, res) ->
-        assert.ifError(err)
-        assert.equal res.body.count, 7
-        done()
+  describe 'param bbox', ->
+    it 'should list items within bounding box', (done) ->
+      req.get(url + '&bbox=5.456085205078125,60.77559056838706,6.5224456787109375,61.03601470372404')
+        .expect(200)
+        .end (err, res) ->
+          assert.ifError(err)
+          assert.equal res.body.count, 7
+          done()
+
+  describe 'param privat.*', ->
+    it 'should filter on private string attribute', (done) ->
+      req.get(url + '&privat.secret=0905c600ca377ac51438fa4f7e403d8d')
+        .expect 200
+        .expect 'Count-Total', '1'
+        .end (err, res) ->
+          assert.ifError err
+          assert.equal res.body.documents[0].navn, '0bd623dc1855b1f4f564d7bae362cd11'
+          done()
+
+    it 'should filter on private integer attribute', (done) ->
+      req.get(url + '&privat.opprettet_av.id=1234')
+        .expect 200
+        .expect 'Count-Total', '19', done
+
+    it 'should only get own documents', (done) ->
+      req.get(url + '&privat.opprettet_av.id=https://openid.provider.com/user/abcd123')
+        .expect 200
+        .expect 'Count-Total', '21'
+        .end (err, res) ->
+          assert.ifError err
+          assert.equal doc.tilbyder, 'DNT' for doc in res.body.documents
+          done()
 
 describe 'HEAD', ->
   url = '/steder?api_key=dnt'

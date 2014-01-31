@@ -47,7 +47,18 @@ exports.get = (req, res, next) ->
             [bbox[0], bbox[1]]
           ]]
 
-  fields = endret: true, status: true, navn: true
+  # @TODO(starefossen) limit number of private fields
+  # @TODO(starefossen) limit depth of private field
+  for key, val of req.query when key.substr(0,7) is 'privat.'
+    if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
+      val = parseFloat(val) if not isNaN val # @TODO(starefossen) is this acceptable?
+      query.tilbyder = req.usr
+      query[key] = val
+
+  # Limit queries to own documents or public documents ie. status = 'Offentlig'
+  query['$or'] = [{status: 'Offentlig'}, {tilbyder: req.usr}] if not query.tilbyder
+
+  fields = tilbyder: true, endret: true, status: true, navn: true
 
   options =
     limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
