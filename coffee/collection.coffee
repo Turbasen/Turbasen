@@ -47,6 +47,14 @@ exports.get = (req, res, next) ->
             [bbox[0], bbox[1]]
           ]]
 
+  # @TODO(starefossen) limit number of private fields
+  # @TODO(starefossen) limit depth of private field
+  for key, val of req.query when key.substr(0,7) is 'privat.'
+    if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
+      val = parseFloat(val) if not isNaN val # @TODO(starefossen) is this acceptable?
+      query.tilbyder = req.usr
+      query[key] = val
+
   fields = endret: true, status: true, navn: true
 
   options =
