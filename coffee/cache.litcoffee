@@ -5,7 +5,7 @@
     ObjectID = require('mongodb').ObjectID
 
 
-## #getFilter(`String` type, `boolean` preventDefault)
+## getFilter()
 
 Get data filter for object type.
 
@@ -48,7 +48,7 @@ Returns an empty `Object` (`{}`) if the `preventDefault` parameter is set to
       return dataFields.default
 
 
-## #filterData(`String` type, `Object` data)
+## filterData()
 
 Filter data for given type.
 
@@ -72,7 +72,7 @@ accepted object properties for the given object type.
       return res
 
 
-## #getDoc(`String` type, `String` id, `function` cb)
+## getDoc()
 
 Get a document from MongoDB for given object type and object id.
 
@@ -96,7 +96,7 @@ prevent fetching of uncesserary data.
       mongo[type].findOne {_id: new ObjectID(id)}, getFilter(type), cb
 
 
-## #set(`String` key, `Object` data, `function` cb)
+## set()
 
 Store data object in Redis for a given cache key.
 
@@ -117,7 +117,7 @@ Store data object in Redis for a given cache key.
       redis.hmset key, data, (err) -> cb(err, data)
 
 
-## #get(`String` key, `function` cb)
+## get()
 
 Retrive data from cache for given a cache key.
 
@@ -137,7 +137,7 @@ Retrive data from cache for given a cache key.
       redis.hgetall key, cb
 
 
-## #setForType(`String` type, `String` id, `Object` data, `function` cb)
+## setForType()
 
 Store data in Redis for given object type and object id.
 
@@ -162,7 +162,7 @@ to match the object type cache preferences as defined in [#getFilter()](#getFilt
       set "#{type}:#{id}", filterData(type, data), cb
 
 
-## #getForType(`String` type, `String` id, `function` cb)
+## getForType()
 
 Get data from Redis for object type and object id.
 
