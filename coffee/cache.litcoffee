@@ -19,8 +19,8 @@ Get data filter for object type.
 Returns a `String` key - `boolean` value `Object` where each key represent a
 document field. The value determines if they field should be included or not.
 
-Returns an empty `Object` (`{}`) if the `preventDefault` parameter is set to
-`true` and no filter was found for the given `type`.
+Returns an empty `Object` if the `preventDefault` parameter is set to `true` and
+no filter was found for the given `type`.
 
     getFilter = (type, preventDefault) ->
 
@@ -64,7 +64,7 @@ accepted object properties for the given object type.
 
 ### Todo
 
-* [] Handle undefined values.
+* [ ] Handle undefined values.
 
     filterData = (type, data) ->
       res = {}
@@ -210,5 +210,4 @@ Expose the functions we want to be public by exporting them.
       get       : get
       setForType: setForType
       getForType: getForType
-
 
