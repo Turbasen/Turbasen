@@ -135,7 +135,7 @@ No return value or `undefined`.
 Store data in Redis for given object type and object id.
 
 This function will automaticly remove object properties from input data in order
-to match the object type cache preferences as defined in [#getFilter()](#getFilter).
+to match the object type cache preferences as defined in [#getfilter()](#getFilter).
 
 ### Params
 
