@@ -1,6 +1,5 @@
     "use strict"
 
-    redis    = require './db/redis'
     mongo    = require './db/mongo'
     ObjectID = require('mongodb').ObjectID
 
@@ -92,7 +91,7 @@ No return value or `undefined`.
 
 
     getDoc = (type, id, cb) ->
-      mongo[type].findOne {_id: new ObjectID(id)}, getFilter(type), cb
+      require('./db/mongo')[type].findOne {_id: new ObjectID(id)}, getFilter(type), cb
 
 
 ## set()
@@ -111,7 +110,7 @@ No return value or `undefined`.
 
 
     set = (key, data, cb) ->
-      redis.hmset key, data, (err) -> cb(err, data)
+      require('./db/redis').hmset key, data, (err) -> cb(err, data)
 
 
 ## get()
@@ -129,7 +128,7 @@ No return value or `undefined`.
 
 
     get = (key, cb) ->
-      redis.hgetall key, cb
+      require('./db/redis').hgetall key, cb
 
 
 ## setForType()
