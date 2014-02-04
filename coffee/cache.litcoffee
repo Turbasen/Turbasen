@@ -1,9 +1,5 @@
     "use strict"
 
-    mongo    = require './db/mongo'
-    ObjectID = require('mongodb').ObjectID
-
-
 ## getFilter()
 
 Get data filter for object type.
@@ -91,6 +87,7 @@ No return value or `undefined`.
 
 
     getDoc = (type, id, cb) ->
+      ObjectID = require('mongodb').ObjectID
       require('./db/mongo')[type].findOne {_id: new ObjectID(id)}, getFilter(type), cb
 
 
