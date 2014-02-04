@@ -53,10 +53,9 @@ no filter was found for the given `type`.
 
 Filter data for given type.
 
-### Todo
+### ToDo
 
 * Handle undefined values.
-
 
 ### Params
 
