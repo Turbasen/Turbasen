@@ -1,3 +1,5 @@
+We only use strict JavaScript in this shop.
+
     "use strict"
 
 ## getFilter()
