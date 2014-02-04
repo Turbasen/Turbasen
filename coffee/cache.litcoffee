@@ -22,6 +22,7 @@ document field. The value determines if they field should be included or not.
 Returns an empty `Object` if the `preventDefault` parameter is set to `true` and
 no filter was found for the given `type`.
 
+
     getFilter = (type, preventDefault) ->
 
       dataFields =
@@ -66,6 +67,7 @@ accepted object properties for the given object type.
 
 * [ ] Handle undefined values.
 
+
     filterData = (type, data) ->
       res = {}
       res[key] = data[key] for key,val of getFilter(type) when val is true and data[key]
@@ -92,6 +94,7 @@ prevent fetching of uncesserary data.
 * `Error` err - error object if lookup failed; otherwise `null`.
 * `Object` doc - filtered document if found; otherwise `null`.
 
+
     getDoc = (type, id, cb) ->
       mongo[type].findOne {_id: new ObjectID(id)}, getFilter(type), cb
 
@@ -113,6 +116,7 @@ Store data object in Redis for a given cache key.
 * `Error` err - error object if Redis write failed; otherwise `null`.
 * `Object` data - the original data as it was stored in Redis.
 
+
     set = (key, data, cb) ->
       redis.hmset key, data, (err) -> cb(err, data)
 
@@ -132,6 +136,7 @@ Retrive data from cache for given a cache key.
 
 * `Error` err -  error object if Redis lookup failed, otherwise `null`.
 * `Object` data - data retrieved from Redis if found; otherwise `null`.
+
 
     get = (key, cb) ->
       redis.hgetall key, cb
@@ -158,6 +163,7 @@ to match the object type cache preferences as defined in [#getFilter()](#getFilt
 * `Error` err - error object if Redis failed; otherwise `null`.
 * `Object` data - the filtered data object as it was stored in Redis.
 
+
     setForType = (type, id, data, cb) ->
       set "#{type}:#{id}", filterData(type, data), cb
 
@@ -183,6 +189,7 @@ strings.
 * `Error` err - error object if Redis failed; otherwise `null`.
 * `Object` data - the data object returned from Redis or Mongodb.
 
+
     getForType = (type, id, cb) ->
       get "#{type}:#{id}", (err, data) ->
         return cb null, data, true if data
@@ -198,9 +205,11 @@ strings.
           set "#{type}:#{id}", data, (err, data) ->
             cb err, data, false
 
+
 ## Export
 
 Expose the functions we want to be public by exporting them.
+
 
     module.exports =
       getFilter : getFilter
