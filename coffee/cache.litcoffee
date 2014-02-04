@@ -53,6 +53,11 @@ no filter was found for the given `type`.
 
 Filter data for given type.
 
+### Todo
+
+* [ ] Handle undefined values (@starefossen)
+
+
 ### Params
 
 * `String` type - object type to filter data for.
@@ -62,11 +67,6 @@ Filter data for given type.
 
 Returns an `Object` with a subset of the original object containing only the
 accepted object properties for the given object type.
-
-### Todo
-
-* [ ] Handle undefined values.
-
 
     filterData = (type, data) ->
       res = {}
@@ -85,14 +85,11 @@ prevent fetching of uncesserary data.
 
 * `String` type - object type to get document for.
 * `String` id - object id for document.
-* `function` cb - callback function.
+* `function` cb - callback function (`Error` err, `Object` doc).
 
-### Callback
+### Return
 
-#### Params
-
-* `Error` err - error object if lookup failed; otherwise `null`.
-* `Object` doc - filtered document if found; otherwise `null`.
+No return value or `undefined`.
 
 
     getDoc = (type, id, cb) ->
@@ -107,14 +104,11 @@ Store data object in Redis for a given cache key.
 
 * `String` key - cache key to store data for.
 * `Object` data - data to store for cache key.
-* `function` cb - callback function.
+* `function` cb - callback function (`Error` err, `Object` data).
 
-### Callback
+### Return
 
-#### Params
-
-* `Error` err - error object if Redis write failed; otherwise `null`.
-* `Object` data - the original data as it was stored in Redis.
+No return value or `undefined`.
 
 
     set = (key, data, cb) ->
@@ -128,14 +122,11 @@ Retrive data from cache for given a cache key.
 ### Params
 
 * `String` key - cache key to get data for.
-* `function` cb - callback function
+* `function` cb - callback function (`Error` err, `Object` data).
 
-### Callback
+### Return
 
-#### Params
-
-* `Error` err -  error object if Redis lookup failed, otherwise `null`.
-* `Object` data - data retrieved from Redis if found; otherwise `null`.
+No return value or `undefined`.
 
 
     get = (key, cb) ->
@@ -154,14 +145,11 @@ to match the object type cache preferences as defined in [#getFilter()](#getFilt
 * `String` type - object type to set cache data for.
 * `String` id - object id to set cache data for.
 * `Object` data - data store in cache for type and id.
-* `function` cb - callback function.
+* `function` cb - callback function (`Error` err, `Object` data).
 
-### Callback
+### Return
 
-#### Params
-
-* `Error` err - error object if Redis failed; otherwise `null`.
-* `Object` data - the filtered data object as it was stored in Redis.
+No return value or `undefined`.
 
 
     setForType = (type, id, data, cb) ->
@@ -180,14 +168,11 @@ strings.
 
 * `String` type - object type to get cache data for.
 * `String` id - object id to get cache data for.
-* `function` cb - callback function.
+* `function` cb - callback function (`Error` err, `Object` data).
 
-### Callback
+### Return
 
-#### Params
-
-* `Error` err - error object if Redis failed; otherwise `null`.
-* `Object` data - the data object returned from Redis or Mongodb.
+No return value or `undefined`.
 
 
     getForType = (type, id, cb) ->
