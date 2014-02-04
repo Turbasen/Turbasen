@@ -85,7 +85,7 @@ prevent fetching of uncesserary data.
 
 ### Return
 
-No return value or `undefined`.
+Returns `undefined`.
 
 
     getDoc = (type, id, cb) ->
@@ -105,7 +105,7 @@ Store data object in Redis for a given cache key.
 
 ### Return
 
-No return value or `undefined`.
+Returns `undefined`.
 
 
     set = (key, data, cb) ->
@@ -123,7 +123,7 @@ Retrive data from cache for given a cache key.
 
 ### Return
 
-No return value or `undefined`.
+Returns `undefined`.
 
 
     get = (key, cb) ->
@@ -146,7 +146,7 @@ to match the object type cache preferences as defined in [#getfilter()](#getFilt
 
 ### Return
 
-No return value or `undefined`.
+Returns `undefined`.
 
 
     setForType = (type, id, data, cb) ->
@@ -169,7 +169,7 @@ strings.
 
 ### Return
 
-No return value or `undefined`.
+Returns `undefined`.
 
 
     getForType = (type, id, cb) ->
