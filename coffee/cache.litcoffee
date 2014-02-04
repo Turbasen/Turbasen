@@ -197,11 +197,11 @@ Expose the functions we want to be public by exporting them.
 
 
     module.exports =
-      getFilter : getFilter
-      filterData: filterData
-      getDoc    : getDoc
       set       : set
       get       : get
+      getDoc    : getDoc
       setForType: setForType
+      getFilter : getFilter
+      filterData: filterData
       getForType: getForType
 
