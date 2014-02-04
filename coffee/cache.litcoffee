@@ -55,7 +55,7 @@ Filter data for given type.
 
 ### Todo
 
-* [ ] Handle undefined values (@starefossen)
+* Handle undefined values.
 
 
 ### Params
