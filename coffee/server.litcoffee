@@ -60,8 +60,9 @@ requests shall not contain any body – this applies for errors as well.
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'
 
-This the not found handler. If no route for the request is found, it ends up
-here.
+This the fmous 404 Not Found handler. If no route configuration for the request
+is found, it ends up here. We don't do much fancy about it – just a standard
+error message and HTTP status code.
 
     app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
 
