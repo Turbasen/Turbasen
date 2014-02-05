@@ -7,7 +7,11 @@
     collection  = require './collection'
     document    = require './document'
 
+## Init
+
     app = express()
+
+## Authentication
 
 This routine is called for all request to the API. It is reponsible for
 authenticating the user by validating the `api\_key`. It then sets some request
@@ -29,7 +33,7 @@ blocking the user if the quota is full.
 
       next()
 
-Now configure the Express server so it is ready to run.
+## Configuration
 
     app.use(express.favicon())
     app.use(express.logger(':date :remote-addr - :method :url :status :res[content-length] - :response-time ms')) if not process.env.SILENT
@@ -42,6 +46,8 @@ Now configure the Express server so it is ready to run.
     app.set 'port', process.env.PORT_WWW or 8080
     app.use(app.router)
     app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_DNS
+
+## Error handling
 
 This is the error handler. All errors passed to `next` or exceptions ends up
 here. We set the status code to `500` if it is not already defined in the
@@ -65,6 +71,8 @@ is found, it ends up here. We don't do much fancy about it – just a standard
 error message and HTTP status code.
 
     app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
+
+## API keys
 
 This is the dirty part. Here are all the keys to the kingdom. These will be
 moved to the database and retrieved when the server starts. Just need to find
@@ -132,6 +140,8 @@ Hsssssj!!! Don't tell anyone aboyt the secret system API endpoint!
         when 'PATCH' then document.patch req, res, next
         when 'DELETE' then document.delete req, res, next
         else res.json 405, message: 'HTTP method not supported'
+
+## Start
 
 Ok, so if the server is running in stand-alone mode i.e. there is not
 `module.parent` then continue with starting the databse and listening to a port.
