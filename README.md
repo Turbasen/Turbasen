@@ -25,7 +25,6 @@ The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
 ```bash
 vagrant up
 vagrant ssh
-
 ```
 
 ## License
