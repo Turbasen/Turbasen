@@ -9,6 +9,15 @@ API for Nasjonal Turbase [![Build Status](https://drone.io/github.com/Turistfore
  * [Data licenses](http://documentation.nasjonalturbase.no/lisenser.html)
  * [Attribution](http://documentation.nasjonalturbase.no/navngiving.html)
 
+## The stack
+
+The API is a RESTfull API with JSON as it's only supported input/output format.
+The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
+[Literate](http://coffeescript.org/#literate)
+[CoffeeScript](http://coffeescript.org). It reads and writes to a
+[MongoDB](http://www.mongodb.org) database and caches ifemeral data in
+[Redis](http://redis.io).
+
 ## Developing
 
 ### Running locally
