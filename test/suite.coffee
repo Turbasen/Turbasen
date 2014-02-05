@@ -78,7 +78,7 @@ describe 'ntb.api', ->
         .expect(200)
         .end (err, res) ->
           assert.ifError(err)
-          assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
+          assert.deepEqual res.body, ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
           done()
   describe '/:system', ->
     require './system-spec.coffee'

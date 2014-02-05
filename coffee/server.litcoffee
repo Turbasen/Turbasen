@@ -106,7 +106,7 @@ Hsssssj!!! Don't tell anyone aboyt the secret system API endpoint!
 ## GET /objekttyper
 
     app.get '/objekttyper', (req, res, next) ->
-      res.json 200, ['turer', 'steder', 'områder', 'grupper', 'aktiviteter', 'bilder']
+      res.json 200, ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
 
 ## ALL /{collection}
 
