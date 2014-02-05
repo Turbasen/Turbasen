@@ -20,6 +20,14 @@ The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
 
 ## Developing
 
+### Environment Varaibles
+
+* `NODE_ENV`
+* `PORT_WWW`
+* `MONGO_URI`
+* `DOTCLOUD_CACHE_REDIS_HOST`
+* `DOTCLOUD_CACHE_REDIS_PORT`
+
 ### Install using Vagrant
 
 ```bash
