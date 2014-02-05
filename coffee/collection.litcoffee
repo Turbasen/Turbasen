@@ -69,11 +69,18 @@
 
 ### ?privat.`String`=`String`
 
- * @TODO(starefossen) limit number of private fields
- * @TODO(starefossen) limit depth of private field
+This allows the user to filter documents based on private document properties.
+This will autumaticly limit returned documents to those owned by the current
+user.
 
-`NB` This secution is itterating over all the url queries and hence should
-take the queries above into concideration so we don't need to do double work.
+#### ToDo
+
+ * Limit number of private fields?
+ * Limit depth of private fields?
+
+`NB` This section is looping through all of the url query parameters and hence
+should take the queries from above sections into concideration so we don't need
+to do double amount of work.
 
       for key, val of req.query when key.substr(0,7) is 'privat.'
         if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
@@ -81,8 +88,8 @@ take the queries above into concideration so we don't need to do double work.
           query.tilbyder = req.usr
           query[key] = val
 
-Limit queries to own documents or public documents i.e. status = 'Offentlig'
-if not tilbyder query is not set.
+Limit queries to own documents or public documents i.e. where `doc.status` is
+`Offentlig` if not `query.tilbyder` is set.
 
       query['$or'] = [{status: 'Offentlig'}, {tilbyder: req.usr}] if not query.tilbyder
 
