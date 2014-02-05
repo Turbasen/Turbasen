@@ -27,6 +27,12 @@ vagrant up
 vagrant ssh
 ```
 
+### Testing
+
+```
+npm test
+```
+
 ## License
 
 > The MIT License (MIT)
