@@ -11,7 +11,7 @@
 
     app = express()
 
-## Authentication
+### Authentication
 
 This routine is called for all request to the API. It is reponsible for
 authenticating the user by validating the `api\_key`. It then sets some request
@@ -33,7 +33,7 @@ blocking the user if the quota is full.
 
       next()
 
-## Configuration
+### Configuration
 
     app.use(express.favicon())
     app.use(express.logger(':date :remote-addr - :method :url :status :res[content-length] - :response-time ms')) if not process.env.SILENT
@@ -47,7 +47,7 @@ blocking the user if the quota is full.
     app.use(app.router)
     app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_DNS
 
-## Error handling
+### Error handling
 
 This is the error handler. All errors passed to `next` or exceptions ends up
 here. We set the status code to `500` if it is not already defined in the
@@ -72,7 +72,7 @@ error message and HTTP status code.
 
     app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
 
-## API keys
+### API keys
 
 This is the dirty part. Here are all the keys to the kingdom. These will be
 moved to the database and retrieved when the server starts. Just need to find
