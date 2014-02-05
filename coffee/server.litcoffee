@@ -98,7 +98,7 @@ the time to do it.
 
 ## GET /system
 
-Hsssssj!!! Don't tell anyone aboyt the secret system API endpoint!
+Hsssssj!!! Don't tell anyone about the secret system API endpoint!
 
     app.get '/system', system.info
 
