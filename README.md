@@ -1,4 +1,4 @@
-API for Nasjonal Turbase
+API for Nasjonal Turbase [![Build Status](https://drone.io/github.com/Turistforeningen/nasjonalturbase/status.png)](https://drone.io/github.com/Turistforeningen/nasjonalturbase/latest)
 ========================
 
 ## Resources
