@@ -3,14 +3,11 @@
 express     = require 'express'
 raven       = require 'raven'
 
-MongoClient = require('mongodb').MongoClient
-Cache       = require('./Cache.class')
-
 system      = require './system'
 collection  = require './collection'
 document    = require './document'
 
-app = module.exports = express()
+app = express()
 
 # API key
 app.use '/', (req, res, next) ->
@@ -92,18 +89,14 @@ app.all '/:collection', (req, res, next) ->
     when 'PATCH' then collection.patch req, res, next
     else res.json 405, message: 'HTTP method not supported'
 
-MongoClient.connect process.env.MONGO_URI, (err, db) ->
-  return err if err
+if not module.parent
+  require('./db/redis')
+  require('./db/mongo').once 'ready', ->
+    console 'Database is open...'
 
-  redisPort = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
-  redisHost = process.env.DOTCLOUD_CACHE_REDIS_HOST or 'localhost'
-  redisPass = process.env.DOTCLOUD_CACHE_REDIS_PASSWORD or null
+    app.listen app.get('port'), ->
+      console.log "Server is listening on port #{app.get('port')}"
 
-  app.set 'cache', new Cache db, redisPort, redisHost, redisPass
-
-  if not module.parent
-    app.listen app.get 'port'
-    console.log "Server is listening on port #{app.get('port')}"
-  else
-    app.emit 'ready'
+else
+  module.exports = app
 

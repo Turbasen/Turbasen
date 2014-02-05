@@ -1,14 +1,17 @@
 "use strict"
 
-ObjectID = require('mongodb').ObjectID
-stringify = require('JSONStream').stringify
-createHash = require('crypto').createHash
+ObjectID    = require('mongodb').ObjectID
+stringify   = require('JSONStream').stringify
+createHash  = require('crypto').createHash
+
+mongo       = require './db/mongo'
+cache       = require './cache'
 
 exports.param = (req, res, next, id) ->
   return res.json 400, error: 'Ugyldig ObjectID' if not /^[a-f0-9]{24}$/.test id
   return next() if req.method is 'OPTIONS'
 
-  req.cache.getForType req.col, id, (err, doc, cacheHit) ->
+  cache.getForType req.type, id, (err, doc, cacheHit) ->
     return next err if err
     res.set 'X-Cache-Hit', cacheHit
 
@@ -57,8 +60,7 @@ exports.get = (req, res, next) ->
   res.set 'Content-Type', 'application/json; charset=utf-8'
 
   fields = if req.doc.tilbyder is req.usr then {} else {privat: false}
-  req.cache.getCol(req.col)
-    .find({_id: req.doc._id}, fields, {limit: 1})
+  req.db.col.find({_id: req.doc._id}, fields, {limit: 1})
     .stream()
     .pipe(stringify('','',''))
     .pipe(res)
@@ -80,7 +82,7 @@ exports.put = (req, res, next) ->
   if not req.body.lisens
     req.body.lisens = 'CC BY-ND-NC 3.0 NO'
     warnings.push
-      resource: req.col
+      resource: req.type
       field: 'lisens'
       value: req.body.lisens
       code: 'missing_field'
@@ -89,14 +91,14 @@ exports.put = (req, res, next) ->
   if not req.body.status
     req.body.status = 'Kladd'
     warnings.push
-      resource: req.col
+      resource: req.type
       field: 'status'
       value: req.body.status
       code: 'missing_field'
 
-  req.cache.getCol(req.col).save req.body, {safe: true, w: 1}, (err) ->
+  req.db.col.save req.body, {safe: true, w: 1}, (err) ->
     return next(err) if err
-    req.cache.setForType req.col, req.body._id, req.body, (err, data) ->
+    cache.setForType req.type, req.body._id, req.body, (err, data) ->
       return next(err) if err
       return res.json 200,
         document:

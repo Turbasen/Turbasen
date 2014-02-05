@@ -4,8 +4,11 @@ ObjectID  = require('mongodb').ObjectID
 request   = require 'supertest'
 assert    = require 'assert'
 
-steder = require './data/steder.json'
-exports.app = app = require './../coffee/server.coffee'
+mongo     = require './../coffee/db/mongo'
+redis     = require './../coffee/db/redis'
+app       = require './../coffee/server'
+
+steder    = require './data/steder.json'
 
 # For some reason NodeJS or Mocha caches the object array but still tries to run
 # the Object to ObjectID convertion. This results in new ObjectIDs for every run
@@ -14,22 +17,17 @@ exports.app = app = require './../coffee/server.coffee'
 if not (steder[0]._id instanceof ObjectID)
   steder[key]._id = new ObjectID(val._id['$oid']) for val, key in steder
 
-exports.app = app = require './../coffee/server.coffee'
 exports.steder = JSON.parse(JSON.stringify(steder))
 
-before (done) -> app.once 'ready', done
+before (done) -> mongo.once 'ready', done
 beforeEach (done) ->
-  cache = app.get 'cache'
-  redis = cache.redis
-  mongo = cache.mongo
-
   redis.flushall()
-  mongo.dropCollection 'test'
-  mongo.dropCollection 'steder'
+  mongo.db.dropCollection 'test'
+  mongo.db.dropCollection 'steder'
 
-  mongo.collection('steder').ensureIndex geojson: '2dsphere', (err) ->
+  mongo.steder.ensureIndex geojson: '2dsphere', (err) ->
     assert.ifError(err)
-    mongo.collection('steder').insert steder, {safe: true, w: 1}, (err, msg) ->
+    mongo.steder.insert steder, {safe: true, w: 1}, (err, msg) ->
       assert.ifError(err)
       done()
 

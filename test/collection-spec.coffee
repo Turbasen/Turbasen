@@ -4,13 +4,15 @@ ObjectID  = require('mongodb').ObjectID
 request   = require 'supertest'
 assert    = require 'assert'
 
-req = cache = steder = null
+mongo     = require '../coffee/db/mongo'
+redis     = require '../coffee/db/redis'
+cache     = require '../coffee/cache'
+
+req = steder = null
 
 before ->
-  app     = module.parent.exports.app
   steder  = module.parent.exports.steder
-  req     = request(app)
-  cache   = app.get 'cache'
+  req     = request(require('../coffee/server'))
 
 describe 'OPTIONS', ->
   it 'should return allowed http methods', (done) ->
@@ -240,7 +242,7 @@ describe 'POST', ->
       assert.equal typeof res.body.document._id, 'string'
 
       id = new ObjectID(res.body.document._id)
-      cache.getCol('steder').findOne _id: id, (err, d) ->
+      mongo.steder.findOne _id: id, (err, d) ->
         assert.ifError(err)
         assert.equal typeof d, 'object'
         assert.deepEqual d[key], val for key, val of doc
@@ -255,7 +257,7 @@ describe 'POST', ->
       assert.ifError(err)
 
       doc._id = new ObjectID(res.body.document._id)
-      cache.getCol('steder').findOne _id: doc._id, (err, d) ->
+      mongo.steder.findOne _id: doc._id, (err, d) ->
         assert.ifError(err)
 
         ignore = ['tilbyder', 'endret', 'checksum']
@@ -293,7 +295,7 @@ describe 'POST', ->
     req.post(url).send(doc).expect(201).end (err, res) ->
       assert.ifError(err)
 
-      cache.getCol('steder').findOne _id: new ObjectID(doc._id), (err, d) ->
+      mongo.steder.findOne _id: new ObjectID(doc._id), (err, d) ->
         assert.ifError(err)
         ignore = ['_id', 'tilbyder', 'endret', 'checksum']
         assert.deepEqual d[key], val for key, val of doc when key not in ignore

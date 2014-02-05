@@ -3,11 +3,10 @@
 request   = require 'supertest'
 assert    = require 'assert'
 
-app = req = null
+req = null
 
 before ->
-  app = module.parent.exports.app
-  req = request(app)
+  req = request(require('../coffee/server'))
 
 describe '/CloudHealthCheck', ->
   it 'should return status for MongoDB and Redis', (done) ->
