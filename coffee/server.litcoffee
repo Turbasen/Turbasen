@@ -149,7 +149,7 @@ Ok, so if the server is running in stand-alone mode i.e. there is not
     if not module.parent
       require('./db/redis')
       require('./db/mongo').once 'ready', ->
-        console 'Database is open...'
+        console.log 'Database is open...'
 
         app.listen app.get('port'), ->
           console.log "Server is listening on port #{app.get('port')}"
