@@ -1,15 +1,18 @@
 "use strict"
 
+ObjectID  = require('mongodb').ObjectID
 request   = require 'supertest'
 assert    = require 'assert'
-ObjectID  = require('mongodb').ObjectID
+
+mongo     = require '../coffee/db/mongo'
+redis     = require '../coffee/db/redis'
+cache     = require '../coffee/cache'
 
 req = steder = null
 
 before ->
-  app = module.parent.exports.app
-  steder = module.parent.exports.steder
-  req = request(app)
+  steder  = module.parent.exports.steder
+  req     = request(require('../coffee/server'))
 
 url = (id, other) ->
   key = if other then '30ad3a3a1d2c7c63102e09e6fe4bb253' else 'dnt'
