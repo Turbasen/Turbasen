@@ -20,11 +20,20 @@ The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
 
 ## Developing
 
-### Running locally
+### Install using Vagrant
 
 ```bash
 vagrant up
 vagrant ssh
+```
+
+### Install manually
+
+`NB` this assumes that you already have Node, MongoDB and Redis running locally
+on your machine.
+
+```bash
+npm install
 ```
 
 ### Testing
