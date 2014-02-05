@@ -31,7 +31,7 @@ describe 'GET', ->
         done()
 
   it 'should grant access for the 6 known collections', (done) ->
-    cols = ['turer', 'steder', 'områder', 'grupper', 'bilder', 'aktiviteter']
+    cols = ['turer', 'steder', 'områder', 'grupper', 'bilder', 'arrangementer']
     count = cols.length
 
     for col in cols

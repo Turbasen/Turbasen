@@ -5,7 +5,7 @@ stringify = require('JSONStream').stringify
 createHash = require('crypto').createHash
 
 exports.param = (req, res, next, col) ->
-  if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'aktiviteter']
+  if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'arrangementer']
     return res.json 404, message: 'Objekttype ikke funnet'
 
   req.col = col
