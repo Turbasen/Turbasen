@@ -9,6 +9,16 @@ API for Nasjonal Turbase
  * [Data licenses](http://documentation.nasjonalturbase.no/lisenser.html)
  * [Attribution](http://documentation.nasjonalturbase.no/navngiving.html)
 
+## Developing
+
+### Running locally
+
+```bash
+vagrant up
+vagrant ssh
+
+```
+
 ## License
 
 > The MIT License (MIT)
