@@ -124,7 +124,26 @@
 
 ## DELETE /{collection}/{documentId}
 
+Delete the given document from Nasjonal Turbase. All user editable document
+properties are delete and `doc.status` is set to `Slettet`.
+
+`NB` There is a bug with the caching that prevents some fields from being
+removed from the cahce. This must be handled.
+
     exports.delete = (req, res, next) ->
-      res.json 501, message: 'HTTP method not implmented'
-      # 204
+
+      doc =
+        _id       : req.doc._id
+        tilbyder  : req.doc.tilbyder
+        endret    : new Date().toISOString()
+        checksum  : null
+        status    : 'Slettet'
+
+      doc.checksum = createHash('md5').update(JSON.stringify(req.body)).digest('hex')
+
+      req.db.col.save doc, {safe: true, w: 1}, (err) ->
+        return next(err) if err
+        cache.setForType req.type, doc._id, doc, (err, data) ->
+          return next(err) if err
+          return res.status(204).end()
 

@@ -283,6 +283,28 @@ describe 'PATCH', ->
     req.patch(url('52407fb375049e561500008f')).expect 501, done
 
 describe 'DELETE', ->
-  it 'should not be implmented', (done) ->
-    req.del(url('52407fb375049e561500008f')).expect 501, done
+  it 'should delete existing document through API', (done) ->
+    req.del(url('52407fb375049e561500008f')).expect 204, done
+
+  it 'should update document in database', (done) ->
+    req.del(url('52407fb375049e561500008f')).end (err, res) ->
+      assert.ifError err
+      mongo.steder.findOne {_id: new ObjectID('52407fb375049e561500008f')}, (err, doc) ->
+        assert.ifError err
+
+        assert.deepEqual Object.keys(doc), ['_id', 'tilbyder', 'endret', 'checksum', 'status']
+        assert.equal doc.status, 'Slettet'
+
+        done()
+
+  it 'should update document in cache', (done) ->
+    req.del(url('52407fb375049e561500008f')).end (err, res) ->
+      assert.ifError err
+      redis.hgetall "steder:52407fb375049e561500008f", (err, doc) ->
+        assert.ifError err
+
+        assert.equal doc.status, 'Slettet'
+
+        done()
+
 
