@@ -109,7 +109,7 @@ Limit queries to own documents or public documents i.e. where `doc.status` is
 Only project a few fields to since lists are mostly used intermediate before
 fetching the entire document.
 
-      fields = tilbyder: true, endret: true, status: true, navn: true
+      fields = tilbyder: true, endret: true, status: true, navn: true, tags: true
 
 Set up MongoDB options.
 
