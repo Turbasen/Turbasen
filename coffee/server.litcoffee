@@ -44,7 +44,10 @@ blocking the user if the quota is full.
     app.enable('verbose errors')
     app.set 'port', process.env.PORT_WWW or 8080
     app.use(app.router)
-    app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_DNS
+
+    if process.env.SENTRY_DNS
+      app.use raven.middleware.express process.env.SENTRY_DNS
+      raven.patchGlobal process.env.SENTRY_DNS
 
 ### Error handling
 
