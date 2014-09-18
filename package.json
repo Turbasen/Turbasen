@@ -9,7 +9,7 @@
     "coffee-script": "~1",
     "mongodb": "~1",
     "express": "~3",
-    "raven": "~0",
+    "raven": "~0.6",
     "redis": "~0",
     "JSONStream": "~0",
     "joi": "~4"
