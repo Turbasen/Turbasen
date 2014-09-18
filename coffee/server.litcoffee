@@ -39,7 +39,6 @@ blocking the user if the quota is full.
     app.use(express.logger(':date :remote-addr - :method :url :status :res[content-length] - :response-time ms')) if not process.env.SILENT
     app.set('json spaces', 0) if app.get('env') isnt 'testing'
     app.use(express.compress())
-    app.use(express.methodOverride())
     app.use(express.json())
     app.disable('x-powered-by')
     app.enable('verbose errors')
