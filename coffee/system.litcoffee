@@ -1,7 +1,3 @@
-We only use strict JavaScript and so should you!
-
-    "use strict"
-
     os = require 'os'
     redis = require './db/redis'
     mongo = require './db/mongo'

@@ -1,5 +1,3 @@
-"use strict"
-
 EventEmitter = require('events').EventEmitter
 MongoClient = require('mongodb').MongoClient
 inherits = require('util').inherits

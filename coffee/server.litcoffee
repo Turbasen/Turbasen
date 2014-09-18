@@ -1,5 +1,3 @@
-    "use strict"
-
     express     = require 'express'
     raven       = require 'raven'
 
