@@ -1,12 +1,7 @@
-"use strict"
-
 request   = require 'supertest'
 assert    = require 'assert'
 
-req = null
-
-before ->
-  req = request(require('../coffee/server'))
+req = req = request require '../../coffee/server'
 
 describe '/CloudHealthCheck', ->
   it 'should return status for MongoDB and Redis', (done) ->
