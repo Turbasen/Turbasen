@@ -82,7 +82,7 @@ the time to do it.
 
     apiKeys =
       dnt: 'DNT'
-      nrk: 'DNT'
+      nrk: 'NRK'
 
       '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
       'b523ceb5e16fb92b2a999676a87698d1': 'Pingdom'
