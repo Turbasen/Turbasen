@@ -5,6 +5,7 @@
 .git
 .gitignore
 .jshintrc
+.vim.custom
 .vagrant/
 README.md
 Vagrantfile
