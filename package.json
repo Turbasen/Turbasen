@@ -11,7 +11,8 @@
     "express": "~3",
     "raven": "~0",
     "redis": "~0",
-    "JSONStream": "~0"
+    "JSONStream": "~0",
+    "joi": "~4"
   },
   "devDependencies": {
     "supertest": "~0",
