@@ -50,9 +50,17 @@
 ### ?after=`Mixed`
 
       if typeof req.query.after is 'string' and req.query.after isnt ''
-        if not isNaN(req.query.after)
-          req.query.after = new Date(parseInt(req.query.after, 10)).toISOString()
-        query.endret = {$gte:req.query.after}
+        time = req.query.after
+
+        if not isNaN time
+          # Make unix timestamp into milliseconds
+          time = time + '000' if (time + '').length is 10
+          time = parseInt time
+
+        time = new Date time
+
+        if time.toString() isnt 'Invalid Date'
+          query.endret = $gte: time.toISOString()
 
 ### ?bbox=`min_lng`,`min_lat`,`max_lng`,`max_lat`
 
