@@ -23,7 +23,7 @@
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.litcoffee",
     "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register -w",
-    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/",
+    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/; [ -d .git/hooks/ ] && cp config/git-hooks/pre-commit .git/hooks/.",
     "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec --compilers coffee:coffee-script/register"
   }
 }
