@@ -127,21 +127,19 @@ Hsssssj!!! Don't tell anyone about the secret system API endpoint!
         when 'OPTIONS' then collection.options req, res, next
         when 'HEAD', 'GET' then collection.get req, res, next
         when 'POST' then collection.post req, res, next
-        when 'PUT'  then collection.put req, res, next
-        when 'PATCH' then collection.patch req, res, next
-        else res.json 405, message: 'HTTP method not supported'
+        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## ALL /{collection}/{objectid}
 
     app.param 'objectid', document.param
-    app.all '/:collection/:objectid', (req, res, next) ->
+    app.options '/:collection/:ojectid', document.options
+    app.all '/:collection/:objectid', document.all, (req, res, next) ->
       switch req.method
-        when 'OPTIONS' then document.options req, res, next
         when 'HEAD', 'GET' then document.get req, res, next
         when 'PUT' then document.put req, res, next
         when 'PATCH' then document.patch req, res, next
         when 'DELETE' then document.delete req, res, next
-        else res.json 405, message: 'HTTP method not supported'
+        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## Start
 
