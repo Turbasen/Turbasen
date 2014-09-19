@@ -1,3 +1,4 @@
+    sentry   = require './db/sentry'
     Document = require './model/Document'
 
     # stringify   = require('JSONStream').stringify
@@ -89,6 +90,9 @@
       req.doc[method] req.body, (err, warn, data) ->
         if err
           return next(err) if err.name isnt 'ValidationError'
+
+          sentry.captureDocumentError req, err
+
           return res.json 422,
             document: req.body
             message: 'Validation Failed'

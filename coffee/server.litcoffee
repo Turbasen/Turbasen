@@ -1,5 +1,6 @@
-    express     = require 'express'
     raven       = require 'raven'
+    sentry      = require './db/sentry'
+    express     = require 'express'
 
     system      = require './system'
     collection  = require './collection'
@@ -39,20 +40,19 @@ blocking the user if the quota is full.
     app.use(express.compress())
     app.use(express.json())
     app.disable('x-powered-by')
-    app.enable('verbose errors')
     app.set 'port', process.env.PORT_WWW or 8080
     app.use(app.router)
 
-    if process.env.SENTRY_DNS
-      app.use raven.middleware.express process.env.SENTRY_DNS
-      raven.patchGlobal process.env.SENTRY_DNS
-
 ### Error handling
 
-This is the error handler. All errors passed to `next` or exceptions ends up
-here. We set the status code to `500` if it is not already defined in the
-`Error` object. We then print the error mesage and stack trace to the console
-for debug purposes.
+Before handling the error ours self make sure that it is propperly logged in
+Sentry by using the express/connect middleware.
+
+    app.use raven.middleware.express sentry
+
+All errors passed to `next` or exceptions ends up here. We set the status code
+to `500` if it is not already defined in the `Error` object. We then print the
+error mesage and stack trace to the console for debug purposes.
 
 Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
