@@ -17,11 +17,26 @@ validate = (schemaType, dataType) ->
 
   assert.strictEqual null, j.error
 
-for schemaType in ['required', 'optional', 'type']
-  do (schemaType) ->
-    describe "#{schemaType}", ->
-      for dataType of data
-        do (dataType) ->
-          it "should validate #{dataType}", ->
-            validate schemaType, dataType
+describe 'required', ->
+  for dataType of data
+    do (dataType) ->
+      it "should validate test #{dataType}", ->
+        validate 'required', dataType
+
+describe 'optional', ->
+  it 'should allow ampty tag array', ->
+    j = joi.validate tags: [], schema.optional, allowUnknown: true
+
+    assert.strictEqual j.error, null
+
+  for dataType of data
+    do (dataType) ->
+      it "should validate test #{dataType}", ->
+        validate 'optional', dataType
+
+describe 'type specific', ->
+  for dataType of data
+    do (dataType) ->
+      it "should validate test #{dataType}", ->
+        validate 'type', dataType
 
