@@ -6,7 +6,7 @@ data =
   grupper : require '../../data/gruppe.json'
   bilder  : require '../../data/bilde.json'
   turer   : require '../../data/tur.json'
-  områder : require '../../data/område.json'
+  områder : require '../../data/omrade.json'
   steder  : require '../../data/sted.json'
 
 validate = (schemaType, dataType) ->
