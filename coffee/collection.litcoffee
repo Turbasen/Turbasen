@@ -4,6 +4,7 @@
 
     Document    = require './model/Document'
 
+    sentry      = require './db/sentry'
     mongo       = require './db/mongo'
 
 ## PARAM {collection}
@@ -153,6 +154,9 @@ Stream documents user in order to prevent loading them into memory.
         @insert req.body, (err, warn, data) ->
           if err
             return next(err) if err.name isnt 'ValidationError'
+
+            sentry.captureDocumentError req, err
+
             return res.json 422,
               document: req.body
               message: 'Validation Failed'
