@@ -1,6 +1,5 @@
     ObjectID    = require('mongodb').ObjectID
     stringify   = require('JSONStream').stringify
-    createHash  = require('crypto').createHash
 
     Document    = require './model/Document'
 
