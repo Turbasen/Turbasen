@@ -1,5 +1,3 @@
-    "use strict"
-
     express     = require 'express'
     raven       = require 'raven'
 
@@ -39,13 +37,15 @@ blocking the user if the quota is full.
     app.use(express.logger(':date :remote-addr - :method :url :status :res[content-length] - :response-time ms')) if not process.env.SILENT
     app.set('json spaces', 0) if app.get('env') isnt 'testing'
     app.use(express.compress())
-    app.use(express.methodOverride())
     app.use(express.json())
     app.disable('x-powered-by')
     app.enable('verbose errors')
     app.set 'port', process.env.PORT_WWW or 8080
     app.use(app.router)
-    app.use(raven.middleware.express(process.env.SENTRY_DNS)) if process.env.SENTRY_DNS
+
+    if process.env.SENTRY_DNS
+      app.use raven.middleware.express process.env.SENTRY_DNS
+      raven.patchGlobal process.env.SENTRY_DNS
 
 ### Error handling
 
@@ -80,7 +80,7 @@ the time to do it.
 
     apiKeys =
       dnt: 'DNT'
-      nrk: 'DNT'
+      nrk: 'NRK'
 
       '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
       'b523ceb5e16fb92b2a999676a87698d1': 'Pingdom'
@@ -125,21 +125,19 @@ Hsssssj!!! Don't tell anyone about the secret system API endpoint!
         when 'OPTIONS' then collection.options req, res, next
         when 'HEAD', 'GET' then collection.get req, res, next
         when 'POST' then collection.post req, res, next
-        when 'PUT'  then collection.put req, res, next
-        when 'PATCH' then collection.patch req, res, next
-        else res.json 405, message: 'HTTP method not supported'
+        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## ALL /{collection}/{objectid}
 
     app.param 'objectid', document.param
-    app.all '/:collection/:objectid', (req, res, next) ->
+    app.options '/:collection/:ojectid', document.options
+    app.all '/:collection/:objectid', document.all, (req, res, next) ->
       switch req.method
-        when 'OPTIONS' then document.options req, res, next
         when 'HEAD', 'GET' then document.get req, res, next
         when 'PUT' then document.put req, res, next
         when 'PATCH' then document.patch req, res, next
         when 'DELETE' then document.delete req, res, next
-        else res.json 405, message: 'HTTP method not supported'
+        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## Start
 

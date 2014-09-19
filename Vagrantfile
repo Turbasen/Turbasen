@@ -8,12 +8,39 @@ $script = <<SCRIPT
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
 apt-get update
-apt-get install -y build-essential python-setuptools git curl mongodb-10gen redis-server
+apt-get install -y build-essential python-setuptools git curl mongodb-10gen=2.4.5 tcl8.5
 easy_install pip && pip install setuptools --no-use-wheel --upgrade && pip install dotcloud
 
-# Start redis and mongodb
-echo "Starting database services..."
-service mongodb start
+# Make build directory
+mkdir ~/build; cd ~/build
+
+# Build and install Redis
+echo "Installing Redis..."
+wget http://redis.googlecode.com/files/redis-2.4.11.tar.gz
+tar xzvf redis-2.4.11.tar.gz
+cd ~/build/redis-2.4.11/
+make
+make install
+make test
+
+sed -i 's|daemonize no|daemonize yes|g' redis.conf
+sed -i 's|# bind 127.0.0.1|bind 127.0.0.1|g' redis.conf
+sed -i 's|dir ./|dir /var/lib/redis|g' redis.conf
+mkdir /etc/redis
+mv redis.conf /etc/redis/redis.conf
+
+wget https://gist.githubusercontent.com/lsbardel/257298/raw/d48b84d89289df39eaddc53f1e9a918f776b3074/redis-server-for-init.d-startup
+sed -i 's|DAEMON=/usr/bin/redis-server|DAEMON=/usr/local/bin/redis-server|g' redis-server-for-init.d-startup
+mv redis-server-for-init.d-startup /etc/init.d/redis-server
+chmod +x /etc/init.d/redis-server
+
+useradd redis
+mkdir -p /var/lib/redis
+mkdir -p /var/log/redis
+chown redis.redis /var/lib/redis
+chown redis.redis /var/log/redis
+
+update-rc.d redis-server defaults
 service redis-server start
 
 # Vagratnt Environment Varaibles
@@ -29,7 +56,7 @@ echo "\n\n" >> /home/vagrant/.bashrc
 # NodeJS via NVM
 echo "Installing NVM..."
 export HOME=/home/vagrant
-curl https://raw.github.com/creationix/nvm/master/install.sh | sh
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | sh
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8

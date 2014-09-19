@@ -1,5 +1,3 @@
-"use strict"
-
 createClient = require('redis').createClient
 
 port = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
