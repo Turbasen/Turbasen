@@ -126,28 +126,28 @@ describe 'GET', ->
         .end done
 
   describe '?after', ->
+    documentCount = (count, res) ->
+      assert.equal res.body.count, count
+
+    documentAfter = (after, res) ->
+      for doc in res.body.documents
+        assert doc.endret >= after, "#{doc.endret} >= #{after}"
+      return
+
     it 'should return documents changed after UTZ datestamp', (done) ->
       date = '2014-06-01T17:42:39.766Z'
       req.get "/turer?after=#{date}&api_key=dnt"
         .expect 200
-        .expect (res) ->
-          assert.equal res.statusCode, 200
-          assert.equal res.body.count, 10
-          assert doc.endret >= date, "#{doc.endret} >= #{date}" for doc in res.body.documents
-          return
+        .expect documentCount.bind(undefined, 10)
+        .expect documentAfter.bind(undefined, date)
         .end done
 
-    it 'should return documents changed after unix timestamp', (done) ->
+    it 'should return documents changed after millis from 1.1.1970', (done) ->
       date = new Date '2014-06-01T17:42:39.766Z'
-      req.get "/turer?after=#{Math.floor date.getTime() / 1000}&api_key=dnt"
+      req.get "/turer?after=#{date.getTime()}&api_key=dnt"
         .expect 200
-        .expect (res) ->
-          assert.equal res.statusCode, 200
-          assert.equal res.body.count, 10
-
-          date = date.toISOString()
-          assert doc.endret >= date, "#{doc.endret} >= #{date}" for doc in res.body.documents
-          return
+        .expect documentCount.bind(undefined, 10)
+        .expect documentAfter.bind(undefined, date.toISOString())
         .end done
 
   describe '?bbox', ->

@@ -43,7 +43,7 @@ it 'should reindex all documents in collection', (done) ->
     done()
 
 it 'should get documents updated since', (done) ->
-  req.get "/steder?tag=Hytte&skip=0&after=1387204002&api_key=dnt"
+  req.get "/steder?tag=Hytte&skip=0&after=1387204002123&api_key=dnt"
     .expect 200
     .end (err, res) ->
       assert.ifError err
@@ -51,7 +51,7 @@ it 'should get documents updated since', (done) ->
       done()
 
 it 'should get no documents updated since', (done) ->
-  req.get "/steder?tag=Hytte&skip=0&after=1488404002&api_key=dnt"
+  req.get "/steder?tag=Hytte&skip=0&after=1488404002123&api_key=dnt"
     .expect 200
     .end (err, res) ->
       assert.ifError err
