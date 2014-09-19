@@ -15,7 +15,7 @@ for FILE in `git diff-index --name-status --cached $against -- | cut -c3-` ; do
   fi
 
   # Check for console.log()
-  if grep -q 'console.log' "$FILE" && [ "$FILE" != 'server.litcoffee' ]
+  if grep -q 'console.log' "$FILE" && [ "$FILE" != 'coffee/server.litcoffee' ]
   then
     echo 'ERROR:' $FILE 'can not use console.log()'
     exit 1
