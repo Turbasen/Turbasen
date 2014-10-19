@@ -101,21 +101,23 @@ queried.
           navn: true
           tags: true
 
-      for key, val of req.query when key.substr(0,7) is 'privat.'
-        if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
-          val = parseFloat(val) if not isNaN val # @TODO(starefossen) is this acceptable?
-          query.tilbyder = req.usr
-          query[key] = val
+### Sort
 
-Limit queries to own documents or public documents i.e. where `doc.status` is
-`Offentlig` if not `query.tilbyder` is set.
+Limit sort to ascending or descending on `endret` and `navn` since they are
+indexed, non-indexed fields could be slower.
 
-      query['$or'] = [{status: 'Offentlig'}, {tilbyder: req.usr}] if not query.tilbyder
+      if typeof req.query.sort is 'string' and req.query.sort
+        sort = switch req.query.sort
+          when 'endret' then [['endret', 1]]
+          when '-endret' then [['endret', -1]]
+          when 'navn' then [['navn', 1]]
+          when '-navn' then [['navn', -1]]
+          else 'endret'
 
-Only project a few fields to since lists are mostly used intermediate before
-fetching the entire document.
+Only apply default sort if there are no geospatial queries.
 
-      fields = tilbyder: true, endret: true, status: true, navn: true, tags: true
+      else
+        sort = 'endret' if not req.db.query.geojson
 
 Set up MongoDB options.
 
