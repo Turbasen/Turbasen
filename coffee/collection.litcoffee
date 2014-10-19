@@ -69,14 +69,14 @@ Prevent private documents for other API user from being returned when quering
       for key, val of req.query
         switch key
           when 'status'
-            req.db.query.tilbyder = req.user if val not in ['Offentlig', 'Slettet']
+            req.db.query.tilbyder = req.usr if val not in ['Offentlig', 'Slettet']
             break
           when 'tilbyder'
-            req.db.query.status = 'Offentlig' if val isnt req.user
+            req.db.query.status = 'Offentlig' if val isnt req.usr
             break
           else
             if key.substr(0,6) is 'privat'
-              req.db.query.tilbyder = req.user
+              req.db.query.tilbyder = req.usr
               break
 
 Apply default access control unless `status` or `tilbyder` fields are already
