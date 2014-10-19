@@ -39,7 +39,7 @@
         return res.json 404, message: 'Objekttype ikke funnet'
 
       req.type = col
-      req.db   = col: mongo[col]
+      req.db   = col: mongo[col], query: {}
 
       next()
 
@@ -58,59 +58,32 @@
 ## GET /{collection}
 
     exports.get = (req, res, next) ->
-      query = {}
 
-### ?tag=`String`
+### Query
 
-      if typeof req.query.tag is 'string' and req.query.tag isnt ''
-        if req.query.tag.charAt(0) is '!' and req.query.tag.length > 1
-          query['tags.0'] = $ne: req.query.tag.substr(1)
-        else
-          query['tags.0'] = req.query.tag
+      req.db.query = qs.parse req.query
 
-### ?grupper=`String`
+Prevent private documents for other API user from being returned when quering
+`tilbyder` and `status` fields.
 
-      if typeof req.query.gruppe is 'string' and req.query.gruppe isnt ''
-        query['grupper'] = req.query.gruppe
+      for key, val of req.query
+        switch key
+          when 'status'
+            req.db.query.tilbyder = req.user if val not in ['Offentlig', 'Slettet']
+            break
+          when 'tilbyder'
+            req.db.query.status = 'Offentlig' if val isnt req.user
+            break
+          else
+            if key.substr(0,6) is 'privat'
+              req.db.query.tilbyder = req.user
+              break
 
-### ?after=`Mixed`
+Apply default access control unless `status` or `tilbyder` fields are already
+queried.
 
-      if typeof req.query.after is 'string' and req.query.after isnt ''
-        time = req.query.after
-
-        if not isNaN time
-          # Make unix timestamp into milliseconds
-          time = time + '000' if (time + '').length is 10
-          time = parseInt time
-
-        time = new Date time
-
-        if time.toString() isnt 'Invalid Date'
-          query.endret = $gte: time.toISOString()
-
-### ?bbox=`min_lng`,`min_lat`,`max_lng`,`max_lat`
-
-      if typeof req.query.bbox is 'string' and req.query.bbox.split(',').length is 4
-        bbox = req.query.bbox.split(',')
-        bbox[i] = parseFloat(val) for val, i in bbox
-
-        query.geojson =
-          '$geoWithin':
-            '$geometry':
-              type: 'Polygon'
-              coordinates: [[
-                [bbox[0], bbox[1]]
-                [bbox[2], bbox[1]]
-                [bbox[2], bbox[3]]
-                [bbox[0], bbox[3]]
-                [bbox[0], bbox[1]]
-              ]]
-
-### ?privat.`String`=`String`
-
-This allows the user to filter documents based on private document properties.
-This will autumaticly limit returned documents to those owned by the current
-user.
+      if not req.db.query.tilbyder or req.db.query.status
+        req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.usr}]
 
 #### ToDo
 
