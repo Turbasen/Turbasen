@@ -119,16 +119,16 @@ Only apply default sort if there are no geospatial queries.
       else
         sort = 'endret' if not req.db.query.geojson
 
-Set up MongoDB options.
+### Execute
 
       options =
         limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
         skip: parseInt(req.query.skip, 10) or 0
-        sort: 'endret'
+        sort: sort
 
 Retrive matching documents from MongoDB.
 
-      cursor = req.db.col.find(query, fields, options)
+      cursor = req.db.col.find(req.db.query, fields, options)
       cursor.count (err, total) ->
         return next err if err
         res.set 'Count-Return', Math.min(options.limit, total)
