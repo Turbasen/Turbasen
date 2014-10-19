@@ -94,84 +94,223 @@ describe 'GET', ->
           assert.equal res.body.documents.length, 0
         .end done
 
-  describe '?tag', ->
-    it 'should return documents matching tag', (done) ->
-      req.get '/turer?tag=Skitur&api_key=dnt'
+  describe '?sort', ->
+    it 'should default to ascending last modified sort', (done) ->
+      req.get '/steder?api_key=dnt'
         .expect 200
         .expect (res) ->
-          assert.equal res.body.count, 2
-          assert.equal sted.tags[0], 'Skitur' for sted in res.body.documents
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret >= res.body.documents[i-1].endret
           return
         .end done
 
-    it 'should return documents not matching tag', (done) ->
-      req.get '/turer?tag=!Fottur&api_key=dnt'
+    it 'should sort ascending on endret', (done) ->
+      req.get '/steder?sort=endret&api_key=dnt'
         .expect 200
         .expect (res) ->
-          assert.equal res.body.count, 2
-          assert.notEqual tur.tags[0], 'Fottur' for tur in res.body.documents
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret >= res.body.documents[i-1].endret
           return
         .end done
 
-  describe '?gruppe', ->
-    it 'should filter based on gruppe', (done) ->
-      gruppe = '52407f3c4ec4a1381500025d'
-      req.get "/steder?gruppe=#{gruppe}&api_key=dnt"
+    it 'should sort decreasing on endret', (done) ->
+      req.get '/steder?sort=-endret&api_key=dnt'
         .expect 200
         .expect (res) ->
-          assert.equal res.body.count, 20
-          assert.equal res.body.total, 26
-          #assert gruppe in doc.grupper for doc in res.body.documents
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret <= res.body.documents[i-1].endret
           return
         .end done
 
-  describe '?after', ->
-    documentCount = (count, res) ->
-      assert.equal res.body.count, count
+    it 'should sort ascending on navn', (done) ->
+      req.get '/steder?sort=navn&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.navn >= res.body.documents[i-1].navn
+          return
+        .end done
 
-    documentAfter = (after, res) ->
+    it 'should sort decreasing on navn', (done) ->
+      req.get '/steder?sort=-navn&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.navn <= res.body.documents[i-1].navn
+          return
+        .end done
+
+  describe '?fields', ->
+    documentFields = (fields, res) ->
       for doc in res.body.documents
-        assert doc.endret >= after, "#{doc.endret} >= #{after}"
+        assert key in fields for key in Object.keys(doc)
       return
 
-    it 'should return documents changed after UTZ datestamp', (done) ->
-      date = '2014-06-01T17:42:39.766Z'
-      req.get "/turer?after=#{date}&api_key=dnt"
+    it 'should return default fields', (done) ->
+      req.get '/steder?api_key=dnt'
         .expect 200
-        .expect documentCount.bind(undefined, 10)
-        .expect documentAfter.bind(undefined, date)
+        .expect documentFields.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags'
+        ]
         .end done
 
-    it 'should return documents changed after millis from 1.1.1970', (done) ->
-      date = new Date '2014-06-01T17:42:39.766Z'
-      req.get "/turer?after=#{date.getTime()}&api_key=dnt"
+    it 'should return chosen fields only', (done) ->
+      req.get '/steder?fields=navn,geojson&api_key=dnt'
         .expect 200
-        .expect documentCount.bind(undefined, 10)
-        .expect documentAfter.bind(undefined, date.toISOString())
+        .expect documentFields.bind undefined, ['_id', 'navn', 'geojson']
         .end done
 
-  describe '?bbox', ->
-    it 'should return documents within bbox', (done) ->
-      coords = '5.3633880615234375,60.777937176256515,6.52862548828125,61.044326483979894'
-      req.get "/steder?bbox=#{coords}&api_key=dnt"
+    it 'should not return any private fields', (done) ->
+      req.get '/steder?fields=navn,privat.secret,privat&api_key=dnt'
         .expect 200
-        .expect (res) ->
-          assert.equal res.statusCode, 200
-          assert.equal res.body.count, 7
-          # assert geometry for doc in res.body.documents
+        .expect documentFields.bind undefined, ['_id', 'navn']
+        .end done
+
+  describe 'Queries', ->
+    describe 'Basic Operators', ->
+      it 'field should exist', (done) ->
+        req.get '/turer?bilder=&fields=bilder&api_key=dnt'
+          .expect 200
+          .expect (res) ->
+            for doc in res.body.documents
+              assert.notEqual typeof doc.bilder, 'undefined'
+            return
+          .end done
+
+      it 'field should not exist', (done) ->
+        req.get '/steder?bilder=!&fields=bilder&api_key=dnt'
+          .expect 200
+          .expect (res) ->
+            for doc in res.body.documents
+              assert.equal typeof res.bilder, 'undefined'
+            return
+          .end done
+
+      it 'field should equal string', (done) ->
+        req.get '/turer?tags.0=Skitur&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 2
+          .expect (res) ->
+            assert.equal sted.tags[0], 'Skitur' for sted in res.body.documents
+            return
+          .end done
+
+      it 'field should equal number', (done) ->
+        req.get '/steder?privat.opprettet_av.id=3456&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 17
+          .end done
+
+      it 'field should not equal string', (done) ->
+        req.get '/turer?tags.0=!Fottur&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 2
+          .expect (res) ->
+            assert.notEqual tur.tags[0], 'Fottur' for tur in res.body.documents
+            return
+          .end done
+
+      it 'field should not equal number', (done) ->
+        req.get '/steder?privat.opprettet_av.id=!3456&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 103
+          .end done
+
+      it 'field should start with string', (done) ->
+        req.get '/steder?navn=^b&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 10
+          .end done
+
+      it 'field should end with string', (done) ->
+        req.get '/steder?navn=$0&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 9
+          .end done
+
+      it 'field should contain string', (done) ->
+        req.get '/steder?navn=~033&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 3
+          .end done
+
+      it 'field should be greater than', (done) ->
+        req.get '/steder?privat.opprettet_av.id=>1234&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 37
+          .end done
+
+      it 'field should be less than', (done) ->
+        req.get '/steder?privat.opprettet_av.id=<3456&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 19
+          .end done
+
+    describe 'Custom Operators', ->
+      describe '?after', ->
+        documentCount = (count, res) ->
+          assert.equal res.body.count, count
+
+        documentAfter = (after, res) ->
+          for doc in res.body.documents
+            assert doc.endret >= after, "#{doc.endret} >= #{after}"
           return
-        .end done
 
-  describe '?privat.', ->
-    it 'should return documents matching private property', (done) ->
-      req.get '/steder?privat.opprettet_av.id=3456&api_key=dnt'
-        .expect 200
-        .expect (res) ->
-          assert.equal res.statusCode, 200
-          assert.equal res.body.count, 17
-          # assert.equal doc.privat.opprettet_av.id, 3456 for doc in res.body.documents
-          return
-        done()
+        it 'should return documents changed after UTZ datestamp', (done) ->
+          date = '2014-06-01T17:42:39.766Z'
+          req.get "/turer?after=#{date}&api_key=dnt"
+            .expect 200
+            .expect documentCount.bind(undefined, 10)
+            .expect documentAfter.bind(undefined, date)
+            .end done
+
+        it 'should return documents changed after millis from 1.1.1970', (done) ->
+          date = new Date '2014-06-01T17:42:39.766Z'
+          req.get "/turer?after=#{date.getTime()}&api_key=dnt"
+            .expect 200
+            .expect documentCount.bind(undefined, 10)
+            .expect documentAfter.bind(undefined, date.toISOString())
+            .end done
+
+      describe '?bbox', ->
+        it 'should return documents within bbox', (done) ->
+          coords = '5.3633880615234375,60.777937176256515,6.52862548828125,61.044326483979894'
+          req.get "/steder?bbox=#{coords}&api_key=dnt"
+            .expect 200
+            .expect 'count-total', 7
+            .expect (res) ->
+              # @TODO assert geometry for doc in res.body.documents
+              return
+            .end done
+
+      describe '?near', ->
+        it 'should return documents near coordinate', (done) ->
+          coords = '6.22051,60.96570'
+          req.get "/steder?near=#{coords}&api_key=dnt"
+            .expect 200
+            .expect (res) ->
+              assert.equal res.body.documents[0]._id, '52407fb375049e5615000460'
+          .end done
+
+    describe 'Leggacy Fields', ->
+      it '?tag should query on tags.0', (done) ->
+        req.get '/turer?tag=Fottur&api_key=dnt'
+          .expect 200
+          .expect 'count-total', 25
+          .expect (res) ->
+            assert.equal sted.tags[0], 'Fottur' for sted in res.body.documents
+            return
+          .end done
+
+      it '?gruppe should query on grupper', (done) ->
+        gruppe = '52407f3c4ec4a1381500025d'
+        req.get "/steder?gruppe=#{gruppe}&fields=grupper&api_key=dnt"
+          .expect 200
+          .expect 'count-total', 26
+          .expect (res) ->
+            assert gruppe in doc.grupper for doc in res.body.documents
+            return
+          .end done
 
 describe 'POST', ->
   url = '/turer?api_key=dnt'

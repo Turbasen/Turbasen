@@ -1,10 +1,36 @@
-    ObjectID    = require('mongodb').ObjectID
-    stringify   = require('JSONStream').stringify
-
+    MongoQS     = require 'mongo-querystring'
     Document    = require './model/Document'
+    stringify   = require('JSONStream').stringify
 
     sentry      = require './db/sentry'
     mongo       = require './db/mongo'
+
+    collections = [
+      'turer'
+      'steder'
+      'grupper'
+      'områder'
+      'bilder'
+      'arrangementer'
+    ]
+
+    qs = new MongoQS
+      alias:
+        tag: 'tags.0'
+        gruppe: 'grupper'
+        endret: 'after'
+      ignore:
+        api_key     : true # other use
+        order       : true # reserved
+        sort        : true # other use
+        limit       : true # other use
+        skip        : true # other use
+        fields      : true # other use
+        _id         : true # use API endpoint
+      custom:
+        bbox: 'geojson'
+        near: 'geojson'
+        after: 'endret'
 
 ## PARAM {collection}
 
@@ -13,7 +39,7 @@
         return res.json 404, message: 'Objekttype ikke funnet'
 
       req.type = col
-      req.db   = col: mongo[col]
+      req.db   = col: mongo[col], query: {}
 
       next()
 
@@ -32,95 +58,77 @@
 ## GET /{collection}
 
     exports.get = (req, res, next) ->
-      query = {}
 
-### ?tag=`String`
+### Query
 
-      if typeof req.query.tag is 'string' and req.query.tag isnt ''
-        if req.query.tag.charAt(0) is '!' and req.query.tag.length > 1
-          query['tags.0'] = $ne: req.query.tag.substr(1)
-        else
-          query['tags.0'] = req.query.tag
+      req.db.query = qs.parse req.query
 
-### ?grupper=`String`
+Prevent private documents for other API user from being returned when quering
+`tilbyder` and `status` fields.
 
-      if typeof req.query.gruppe is 'string' and req.query.gruppe isnt ''
-        query['grupper'] = req.query.gruppe
+      for key, val of req.query
+        switch key
+          when 'status'
+            req.db.query.tilbyder = req.usr if val not in ['Offentlig', 'Slettet']
+            break
+          when 'tilbyder'
+            req.db.query.status = 'Offentlig' if val isnt req.usr
+            break
+          else
+            if key.substr(0,6) is 'privat'
+              req.db.query.tilbyder = req.usr
+              break
 
-### ?after=`Mixed`
+Apply default access control unless `status` or `tilbyder` fields are already
+queried.
 
-      if typeof req.query.after is 'string' and req.query.after isnt ''
-        time = req.query.after
+      if not req.db.query.tilbyder or req.db.query.status
+        req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.usr}]
 
-        if not isNaN time
-          # Make unix timestamp into milliseconds
-          time = time + '000' if (time + '').length is 10
-          time = parseInt time
+### Fields
 
-        time = new Date time
+      if typeof req.query.fields is 'string' and req.query.fields
+        fields = {}
+        for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
+          fields[field] = true
 
-        if time.toString() isnt 'Invalid Date'
-          query.endret = $gte: time.toISOString()
+      else
+        fields =
+          tilbyder: true
+          endret: true
+          status: true
+          lisens: true
+          navn: true
+          tags: true
 
-### ?bbox=`min_lng`,`min_lat`,`max_lng`,`max_lat`
+### Sort
 
-      if typeof req.query.bbox is 'string' and req.query.bbox.split(',').length is 4
-        bbox = req.query.bbox.split(',')
-        bbox[i] = parseFloat(val) for val, i in bbox
+Limit sort to ascending or descending on `endret` and `navn` since they are
+indexed, non-indexed fields could be slower.
 
-        query.geojson =
-          '$geoWithin':
-            '$geometry':
-              type: 'Polygon'
-              coordinates: [[
-                [bbox[0], bbox[1]]
-                [bbox[2], bbox[1]]
-                [bbox[2], bbox[3]]
-                [bbox[0], bbox[3]]
-                [bbox[0], bbox[1]]
-              ]]
+      if typeof req.query.sort is 'string' and req.query.sort
+        sort = switch req.query.sort
+          when 'endret' then [['endret', 1]]
+          when '-endret' then [['endret', -1]]
+          when 'navn' then [['navn', 1]]
+          when '-navn' then [['navn', -1]]
+          else 'endret'
 
-### ?privat.`String`=`String`
+Only apply default sort if there are no geospatial queries.
 
-This allows the user to filter documents based on private document properties.
-This will autumaticly limit returned documents to those owned by the current
-user.
+      else
+        sort = 'endret' if not req.db.query.geojson
 
-#### ToDo
-
- * Limit number of private fields?
- * Limit depth of private fields?
-
-`NB` This section is looping through all of the url query parameters and hence
-should take the queries from above sections into concideration so we don't need
-to do double amount of work.
-
-      for key, val of req.query when key.substr(0,7) is 'privat.'
-        if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
-          val = parseFloat(val) if not isNaN val # @TODO(starefossen) is this acceptable?
-          query.tilbyder = req.usr
-          query[key] = val
-
-Limit queries to own documents or public documents i.e. where `doc.status` is
-`Offentlig` if not `query.tilbyder` is set.
-
-      query['$or'] = [{status: 'Offentlig'}, {tilbyder: req.usr}] if not query.tilbyder
-
-Only project a few fields to since lists are mostly used intermediate before
-fetching the entire document.
-
-      fields = tilbyder: true, endret: true, status: true, navn: true, tags: true
-
-Set up MongoDB options.
+### Execute
 
       options =
         limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
         skip: parseInt(req.query.skip, 10) or 0
-        sort: 'endret'
+        sort: sort
 
 Retrive matching documents from MongoDB.
 
-      cursor = req.db.col.find(query, fields, options)
+      cursor = req.db.col.find(req.db.query, fields, options)
       cursor.count (err, total) ->
         return next err if err
         res.set 'Count-Return', Math.min(options.limit, total)
