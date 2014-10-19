@@ -85,14 +85,21 @@ queried.
       if not req.db.query.tilbyder or req.db.query.status
         req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.usr}]
 
-#### ToDo
+### Fields
 
- * Limit number of private fields?
- * Limit depth of private fields?
+      if typeof req.query.fields is 'string' and req.query.fields
+        fields = {}
+        for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
+          fields[field] = true
 
-`NB` This section is looping through all of the url query parameters and hence
-should take the queries from above sections into concideration so we don't need
-to do double amount of work.
+      else
+        fields =
+          tilbyder: true
+          endret: true
+          status: true
+          lisens: true
+          navn: true
+          tags: true
 
       for key, val of req.query when key.substr(0,7) is 'privat.'
         if /^[a-zæøåA-ZÆØÅ0-9_.]+$/.test key
