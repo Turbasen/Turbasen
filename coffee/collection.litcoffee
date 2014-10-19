@@ -1,7 +1,6 @@
-    ObjectID    = require('mongodb').ObjectID
-    stringify   = require('JSONStream').stringify
-
+    MongoQS     = require 'mongo-querystring'
     Document    = require './model/Document'
+    stringify   = require('JSONStream').stringify
 
     sentry      = require './db/sentry'
     mongo       = require './db/mongo'
