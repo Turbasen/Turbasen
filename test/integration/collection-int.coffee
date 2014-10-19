@@ -94,6 +94,78 @@ describe 'GET', ->
           assert.equal res.body.documents.length, 0
         .end done
 
+  describe '?sort', ->
+    it 'should default to ascending last modified sort', (done) ->
+      req.get '/steder?api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret >= res.body.documents[i-1].endret
+          return
+        .end done
+
+    it 'should sort ascending on endret', (done) ->
+      req.get '/steder?sort=endret&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret >= res.body.documents[i-1].endret
+          return
+        .end done
+
+    it 'should sort decreasing on endret', (done) ->
+      req.get '/steder?sort=-endret&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.endret <= res.body.documents[i-1].endret
+          return
+        .end done
+
+    it 'should sort ascending on navn', (done) ->
+      req.get '/steder?sort=navn&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.navn >= res.body.documents[i-1].navn
+          return
+        .end done
+
+    it 'should sort decreasing on navn', (done) ->
+      req.get '/steder?sort=-navn&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc.navn <= res.body.documents[i-1].navn
+          return
+        .end done
+
+  describe '?fields', ->
+    documentFields = (fields, res) ->
+      for doc in res.body.documents
+        assert key in fields for key in Object.keys(doc)
+      return
+
+    it 'should return default fields', (done) ->
+      req.get '/steder?api_key=dnt'
+        .expect 200
+        .expect documentFields.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags'
+        ]
+        .end done
+
+    it 'should return chosen fields only', (done) ->
+      req.get '/steder?fields=navn,geojson&api_key=dnt'
+        .expect 200
+        .expect documentFields.bind undefined, ['_id', 'navn', 'geojson']
+        .end done
+
+    it 'should not return any private fields', (done) ->
+      req.get '/steder?fields=navn,privat.secret,privat&api_key=dnt'
+        .expect 200
+        .expect documentFields.bind undefined, ['_id', 'navn']
+        .end done
+
   describe '?tag', ->
     it 'should return documents matching tag', (done) ->
       req.get '/turer?tag=Skitur&api_key=dnt'
@@ -158,9 +230,20 @@ describe 'GET', ->
         .expect (res) ->
           assert.equal res.statusCode, 200
           assert.equal res.body.count, 7
-          # assert geometry for doc in res.body.documents
+          # @TODO assert geometry for doc in res.body.documents
           return
         .end done
+
+  describe '?near', ->
+    it 'should return documents near coordinate', (done) ->
+      coords = '6.22051,60.96570'
+      req.get "/steder?near=#{coords}&api_key=dnt"
+        .expect 200
+        .expect (res) ->
+          assert.equal res.statusCode, 200
+          assert.equal res.body.count, 20
+          assert.equal res.body.documents[0]._id, '52407fb375049e5615000460'
+      .end done
 
   describe '?privat.', ->
     it 'should return documents matching private property', (done) ->
@@ -169,7 +252,7 @@ describe 'GET', ->
         .expect (res) ->
           assert.equal res.statusCode, 200
           assert.equal res.body.count, 17
-          # assert.equal doc.privat.opprettet_av.id, 3456 for doc in res.body.documents
+          # @TODO assert doc.privat.opprettet_av.id for doc in res.body.documents
           return
         done()
 
