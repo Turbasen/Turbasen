@@ -5,6 +5,33 @@
     sentry      = require './db/sentry'
     mongo       = require './db/mongo'
 
+    collections = [
+      'turer'
+      'steder'
+      'grupper'
+      'områder'
+      'bilder'
+      'arrangementer'
+    ]
+
+    qs = new MongoQS
+      alias:
+        tag: 'tags.0'
+        gruppe: 'grupper'
+        endret: 'after'
+      ignore:
+        api_key     : true # other use
+        order       : true # reserved
+        sort        : true # other use
+        limit       : true # other use
+        skip        : true # other use
+        fields      : true # other use
+        _id         : true # use API endpoint
+      custom:
+        bbox: 'geojson'
+        near: 'geojson'
+        after: 'endret'
+
 ## PARAM {collection}
 
     exports.param = (req, res, next, col) ->
