@@ -1,5 +1,3 @@
-    async = require 'async'
-
     redis = require './db/redis'
     mongo = require './db/mongo'
 
@@ -13,11 +11,17 @@ Since this is publicly available endpoint, no data is returned, only a `System
 OK` message if everything is fine. Errors are logged.
 
     exports.check = (req, res, next) ->
-      async.parallel
-        Mongo: mongo.db.command.bind mongo.db, dbStats: true
-        Redis: redis.info.bind redis
+      cnt = 0
+      ret = (err, info) ->
+        return if cnt > 2
 
-      , (err, result) ->
-        return next err if err
-        return res.json 200, message: 'System OK'
+        if err
+          cnt = Math.Infinity
+          next err
+
+        else if ++cnt is 2
+          res.json 200, message: 'System OK'
+
+      mongo.db.command dbStats: true, ret
+      redis.info ret
 
