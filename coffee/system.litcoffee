@@ -2,32 +2,6 @@
     redis = require './db/redis'
     mongo = require './db/mongo'
 
-## info()
-
-This function retrives various operating system information such as `uptime`,
-`load`, and `memory` and outputs it to the user as JSON.
-
-    exports.info = (req, res, next) ->
-      return res.status(403).end() if req.usr isnt 'DNT'
-
-      res.json 200,
-        app:
-          uptime: process.uptime()
-          memory: process.memoryUsage()
-        os:
-          uptime: os.uptime()
-          loadavg: os.loadavg()
-          totalmem: os.totalmem()
-          freemem: os.freemem()
-
-## gc()
-
-    exports.gc = (req, res, next) ->
-      return res.status(403).end() if req.usr isnt 'DNT'
-
-      global.gc() if typeof global.gc is 'function'
-      res.end()
-
 ## check()
 
 This is the system check function. It retrives the current status from Redis

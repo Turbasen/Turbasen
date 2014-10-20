@@ -80,12 +80,6 @@ error message and HTTP status code.
     app.get '/', (req, res) ->
       res.json message: 'Here be dragons'
 
-## GET /system
-
-Hsssssj!!! Don't tell anyone about the secret system API endpoint!
-
-    app.get '/system', system.info
-
 ## GET /CloudHealthCheck
 
 > So...You’re seeing the dotCloud active health check looking to make sure that
