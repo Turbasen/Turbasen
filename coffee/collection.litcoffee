@@ -35,13 +35,24 @@
 ## PARAM {collection}
 
     exports.param = (req, res, next, col) ->
-      if col not in ['turer', 'steder', 'grupper', 'områder', 'bilder', 'arrangementer']
-        return res.json 404, message: 'Objekttype ikke funnet'
+      if col not in collections
+        return res.json 404, message: "Type #{col} not found"
 
       req.type = col
       req.db   = col: mongo[col], query: {}
 
       next()
+
+    exports.paramCol2 = (req, res, next, col2) ->
+      if col not in collections
+        return res.json 404, message: "Type #{col2} not found"
+
+      req.type      = col2
+      req.db.col    = mongo[col2]
+      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.usr}]
+
+      next()
+
 
 ## OPTIONS /{collection}
 
@@ -87,19 +98,24 @@ queried.
 
 ### Fields
 
+Always return `lisens` and `tilbyder` fields for propper attribution. Document
+ObjectID is always returned by MongoDB.
+
+      fields = lisens: true, tilbyder: true
+
+Parse user specified fields to be returned.
+
       if typeof req.query.fields is 'string' and req.query.fields
-        fields = {}
         for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
           fields[field] = true
 
+Default fields if unless specified by the user.
+
       else
-        fields =
-          tilbyder: true
-          endret: true
-          status: true
-          lisens: true
-          navn: true
-          tags: true
+        fields.endret = true
+        fields.status = true
+        fields.navn = true
+        fields.tags = true
 
 ### Sort
 

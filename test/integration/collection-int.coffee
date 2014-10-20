@@ -143,7 +143,7 @@ describe 'GET', ->
   describe '?fields', ->
     documentFields = (fields, res) ->
       for doc in res.body.documents
-        assert key in fields for key in Object.keys(doc)
+        assert key in Object.keys(doc) for key in fields
       return
 
     it 'should return default fields', (done) ->
@@ -154,7 +154,13 @@ describe 'GET', ->
         ]
         .end done
 
-    it 'should return chosen fields only', (done) ->
+    it 'should always return tilbyder and lisens', (done) ->
+      req.get '/steder?fields=navn&api_key=dnt'
+        .expect 200
+        .expect documentFields.bind undefined, ['tilbyder', 'lisens']
+        .end done
+
+    it 'should return chosen fields', (done) ->
       req.get '/steder?fields=navn,geojson&api_key=dnt'
         .expect 200
         .expect documentFields.bind undefined, ['_id', 'navn', 'geojson']
