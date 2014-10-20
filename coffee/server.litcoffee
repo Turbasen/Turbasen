@@ -23,6 +23,7 @@ In future versions of the API this routine will also check the request quota and
 blocking the user if the quota is full.
 
     app.use '/', (req, res, next) ->
+      return next() if req.originalUrl.substr(0, 17) is '/CloudHealthCheck'
       return res.json 403, message: 'API key missing' if not req.query.api_key
 
       auth.check req.query.api_key, (err, user) ->
