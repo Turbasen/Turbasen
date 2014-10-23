@@ -1,0 +1,42 @@
+[
+  {
+    "_id": {"$oid": "54476fb67794bc3b0e4caab9"},
+    "modified": "2014-10-22T08:49:15.624Z",
+    "provider": "DNT",
+    "info": {
+      "name": "Den Norske Turistforening"
+    },
+    "contact": {
+      "name": "Trine Turbo",
+      "email": "trine@norge.no",
+      "phone": "44455666"
+    },
+    "keys": [
+      {
+        "key": "dnt",
+        "limit": 1000
+      }, {
+        "key": "abc",
+        "limit": 500
+      }
+    ]
+  },{
+    "_id": {"$oid": "54476fff7794bc3b0e4caaba"},
+    "modified": "2014-10-22T08:51:26.088Z",
+    "provider": "NRK",
+    "info": {
+      "name": "Norsk rikskringkasting"
+    },
+    "contact": {
+      "name": "Ole Olsen",
+      "email": "ole@norge.no",
+      "phone": "33344555"
+    },
+    "keys": [
+      {
+        "key": "nrk",
+        "limit": 1000
+      }
+    ]
+  }
+]
