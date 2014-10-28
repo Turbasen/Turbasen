@@ -12,6 +12,7 @@ These fields are required for all objects.
       endret: joi.string()
       checksum: joi.string()
       lisens: joi.string().valid([
+        'Privat' # @TODO This is just temporarily
         'CC BY 3.0 NO'
         'CC BY-SA 3.0 NO'
         'CC BY-ND 3.0 NO'
