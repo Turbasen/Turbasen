@@ -19,20 +19,19 @@ authenticating the user by validating the `api\_key`. It then sets some request
 session variables so they become accessible throughout the entire system during
 the rquest.
 
-In future versions of the API this routine will also check the request quota and
-blocking the user if the quota is full.
-
     app.use '/', (req, res, next) ->
       return next() if req.originalUrl.substr(0, 17) is '/CloudHealthCheck'
-      return res.json 403, message: 'API key missing' if not req.query.api_key
 
       auth.check req.query.api_key, (err, user) ->
-        delete req.query.api_key
+        if user
+          res.set 'X-RateLimit-Limit', user.limit
+          res.set 'X-RateLimit-Remaining', user.remaining
+          res.set 'X-RateLimit-Reset', user.reset
+
+        req.user = user
 
         return next err if err
-        return res.json 401, message: 'API key invalid' if not user
 
-        req.usr = user
         next()
 
 ### Configuration
