@@ -49,7 +49,7 @@
 
       req.type      = col2
       req.db.col    = mongo[col2]
-      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.usr}]
+      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
 
       next()
 
@@ -80,21 +80,21 @@ Prevent private documents for other API user from being returned when quering
       for key, val of req.query
         switch key
           when 'status'
-            req.db.query.tilbyder = req.usr if val not in ['Offentlig', 'Slettet']
+            req.db.query.tilbyder = req.user.tilbyder if val not in ['Offentlig', 'Slettet']
             break
           when 'tilbyder'
-            req.db.query.status = 'Offentlig' if val isnt req.usr
+            req.db.query.status = 'Offentlig' if val isnt req.user.tilbyder
             break
           else
             if key.substr(0,6) is 'privat'
-              req.db.query.tilbyder = req.usr
+              req.db.query.tilbyder = req.user.tilbyder
               break
 
 Apply default access control unless `status` or `tilbyder` fields are already
 queried.
 
       if not req.db.query.tilbyder or req.db.query.status
-        req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.usr}]
+        req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
 
 ### Fields
 
@@ -171,7 +171,7 @@ Stream documents user in order to prevent loading them into memory.
       return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
       return res.json 422, message: 'Body should be a JSON Hash' if req.body instanceof Array
 
-      req.body.tilbyder = req.usr
+      req.body.tilbyder = req.user.tilbyder
 
       new Document(req.type, null).once('error', next).once 'ready', ->
         @insert req.body, (err, warn, data) ->
