@@ -26,7 +26,7 @@ describe 'getUser()', ->
       # @TODO this is hard-coded
       redis.ttl "api.users:#{key}", (err, ttl) ->
         assert.ifError err
-        assert.equal ttl, 1 * 60 * 60
+        assert ttl <= 1 * 60 * 60, "#{ttl} <= #{1 * 60 * 60}"
         done()
 
   it 'should cache non-existing user for 24 hours', (done) ->
@@ -37,7 +37,7 @@ describe 'getUser()', ->
       # @TODO this is hard-coded
       redis.ttl "api.users:#{key}", (err, ttl) ->
         assert.ifError err
-        assert.equal ttl, 24 * 60 * 60
+        assert ttl <= 24 * 60 * 60, "#{ttl} <= #{24 * 60 * 60}"
         done()
 
   it 'should return cached user for known API key', (done) ->
