@@ -11,15 +11,16 @@
       "email": "trine@norge.no",
       "phone": "44455666"
     },
-    "keys": [
-      {
-        "key": "dnt",
+    "keys": {
+      "dnt": {
+        "app": "app1",
         "limit": 1000
-      }, {
-        "key": "abc",
+      },
+      "abc": {
+        "app": "app2",
         "limit": 500
       }
-    ]
+    }
   },{
     "_id": {"$oid": "54476fff7794bc3b0e4caaba"},
     "modified": "2014-10-22T08:51:26.088Z",
@@ -32,11 +33,11 @@
       "email": "ole@norge.no",
       "phone": "33344555"
     },
-    "keys": [
-      {
-        "key": "nrk",
+    "keys": {
+      "nrk": {
+        "app": "app3",
         "limit": 1000
       }
-    ]
+    }
   }
 ]
