@@ -60,10 +60,11 @@ Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
-      res.status(err.status or 500)
+      res.status err.status or 500
 
-      console.error err.message
-      console.error err.stack
+      if res.status >= 500
+        console.error err.message
+        console.error err.stack
 
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'
