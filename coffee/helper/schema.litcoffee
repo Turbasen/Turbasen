@@ -13,12 +13,6 @@ These fields are required for all objects.
       checksum: joi.string()
       lisens: joi.string().valid([
         'Privat' # @TODO This is just temporarily
-        'CC BY 3.0 NO'
-        'CC BY-SA 3.0 NO'
-        'CC BY-ND 3.0 NO'
-        'CC BY-NC 3.0 NO'
-        'CC BY-NC-SA 3.0 NO'
-        'CC BY-NC-ND 3.0 NO'
         'CC BY 4.0'
         'CC BY-SA 4.0'
         'CC BY-ND 4.0'
