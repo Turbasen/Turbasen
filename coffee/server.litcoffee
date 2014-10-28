@@ -19,20 +19,19 @@ authenticating the user by validating the `api\_key`. It then sets some request
 session variables so they become accessible throughout the entire system during
 the rquest.
 
-In future versions of the API this routine will also check the request quota and
-blocking the user if the quota is full.
-
     app.use '/', (req, res, next) ->
       return next() if req.originalUrl.substr(0, 17) is '/CloudHealthCheck'
-      return res.json 403, message: 'API key missing' if not req.query.api_key
 
       auth.check req.query.api_key, (err, user) ->
-        delete req.query.api_key
+        if user
+          res.set 'X-RateLimit-Limit', user.limit
+          res.set 'X-RateLimit-Remaining', user.remaining
+          res.set 'X-RateLimit-Reset', user.reset
+
+        req.user = user
 
         return next err if err
-        return res.json 401, message: 'API key invalid' if not user
 
-        req.usr = user
         next()
 
 ### Configuration
@@ -61,10 +60,11 @@ Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
-      res.status(err.status or 500)
+      res.status err.status or 500
 
-      console.error err.message
-      console.error err.stack
+      if res.status >= 500
+        console.error err.message
+        console.error err.stack
 
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'

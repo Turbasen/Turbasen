@@ -1,24 +1,107 @@
     mongo   = require '../db/mongo'
     redis   = require '../db/redis'
 
-This is the dirty part. Here are all the keys to the kingdom. These will be
-moved to the database and retrieved when the server starts. Just need to find
-the time to do it.
+## check()
 
-    keys =
-      dnt: 'DNT'
-      nrk: 'NRK'
+Check if API key is a valid API user and check rate limit quota.
 
-      '30ad3a3a1d2c7c63102e09e6fe4bb253': 'TurApp'
-      'b523ceb5e16fb92b2a999676a87698d1': 'Pingdom'
+### Params
 
-      '4c802ac2315ab24db9c992cc6eea0278': 'DNT' # ETA
-      'de2986ac75c5af9d7f92a26f37dc1b77': 'DNT' # sherpa2.api
-      '5dd5a39057cb479c3c4bce7f9eae5e6c': 'DNT' # dev.ut.no
-      '146bbe01b477e9e07e85e0ddd3f5095a': 'DNT' # beta.ut.no
-      'e6fa27292ffbcc689c49179c47bc708e': 'DNT' # prod.ut.no
+* `string` key - API key
+* `function` cb - callback function (`Error` err, `object` user)
+
+### Return
+
+Returns `undefined`
 
     exports.check = (key, cb) ->
-      process.nextTick ->
-        cb null, keys[key]
+      exports.getUser key, (err, user) ->
+        return cb err if err
+
+        if not user.tilbyder
+          err = new Error 'Bad credentials'
+          err.status = 401
+          return cb err
+
+        if user.remaining < 1
+          err = new Error 'API rate limit exceeded'
+          err.status = 403
+          return cb err, user
+
+        return cb null, exports.chargeUser key, user
+
+## chargeUser()
+
+Update user rate limit quota.
+
+### Params
+
+* `string` key - API key
+* `object` user - API user
+
+### Return
+
+Returns an updated API user `object`.
+
+    exports.chargeUser = (key, user) ->
+      user.remaining--
+      redis.hincrby "api.users:#{key}", 'remaining', -1
+
+      return user
+
+## getUser()
+
+Get API user for API key, either from cache or from database.
+
+### Params
+
+* `string` key - API key
+* `function` cb - callback function (`Error` err, `object` user)
+
+### Return
+
+Returns `undefined`.
+
+    exports.getUser = (key, cb) ->
+      return cb null, remaining: 0 if not key
+
+First; check if API user exists in Redis cache.
+
+      redis.hgetall "api.users:#{key}", (err, user) ->
+        return cb err if err
+        return cb null, user if user
+
+Fallback; get API user from MongoDB database.
+
+        query = {}
+        query["keys.#{key}"] = $exists: true
+
+        mongo['api.users'].findOne query, (err, doc) ->
+          return cb err if err
+
+Add existing user and rate limit information to Redis cache. Set cache expire
+time to 1 hour.
+
+          if doc
+            expire = Math.floor (new Date().getTime() + 3600000) / 1000
+            user =
+              tilbyder  : doc.provider
+              limit     : doc.keys[key].limit
+              remaining : doc.keys[key].limit
+              reset     : expire
+
+Add non-existing user to Redis cache with `0` remaining rate limit. Set cache
+expire time to 24 hours.
+
+          else
+            expire = Math.floor (new Date().getTime() + 86400000) / 1000
+            user = remaining: 0
+
+Add user to Redis cache and apply expire time before returning the user
+object.
+
+          redis.hmset "api.users:#{key}", user
+          redis.expireat "api.users:#{key}", expire
+
+          cb null, user
 

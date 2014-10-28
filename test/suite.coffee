@@ -5,6 +5,7 @@ mongo     = require './../coffee/db/mongo'
 redis     = require './../coffee/db/redis'
 
 data =
+  api: users: require './data/api.users.json'
   steder: require './data/steder.json'
   turer: require './data/turer.json'
 
@@ -13,6 +14,8 @@ data =
 # > 0. new ObjectID(ObjectID) => new ObjectId()
 
 if not (data['steder'][0]._id instanceof ObjectID)
+  for val, key in data.api.users
+    data.api.users[key]._id = new ObjectID(val._id['$oid'])
   data.steder[key]._id = new ObjectID(val._id['$oid']) for val, key in data.steder
   data.turer[key]._id = new ObjectID(val._id['$oid']) for val, key in data.turer
 
@@ -21,7 +24,12 @@ exports.turer = JSON.parse JSON.stringify data.turer
 
 # Wait for the MongoDB connection to become ready before spinning of any tests.
 
-before (done) -> mongo.once 'ready', done
+before (done) ->
+  mongo.once 'ready', ->
+    mongo.db.collection('api.users').drop()
+    mongo.db.collection('api.users').insert data.api.users, (err) ->
+      throw err if err
+      done()
 
 # Flush cache- and persistand data from Redis and MongoDB.
 

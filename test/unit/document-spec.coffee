@@ -28,7 +28,7 @@ beforeEach (done) ->
     method: 'GET'
     headers: {}
     get: (header) -> @headers[header]
-    usr: 'DNT'
+    user: tilbyder: 'DNT'
     type: 'steder'
     isOwner: true
 
@@ -77,7 +77,7 @@ describe '#param()', ->
 
   it 'should set isOwner to false if current user isnt owner', (done) ->
     delete req.isOwner
-    req.usr = 'OTHER'
+    req.user.tilbyder = 'OTHER'
     next = (err) ->
       assert.ifError err
       assert.equal req.isOwner, false
@@ -94,7 +94,7 @@ describe '#param()', ->
     document.param req, res, assert.fail, '53b86e20970e053231a591aa'
 
   it 'should return 404 if document is not accessible for user', (done) ->
-    req.usr = 'OTHER'
+    req.user.tilbyder = 'OTHER'
     res.status = (code) -> assert.equal code, 404; @
     res.json = (body) ->
       assert.equal req.doc.exists(), true
@@ -338,7 +338,7 @@ describe '#put()', ->
   it 'should override data.tilbyder', (done) ->
     res.json = (code, body) -> done()
     req.doc.replace = (body, cb) ->
-      assert.equal body.tilbyder, req.usr
+      assert.equal body.tilbyder, req.user.tilbyder
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
 
     document.put req, res, assert.ifError
@@ -379,7 +379,7 @@ describe '#put()', ->
       assert.deepEqual body,
         document:
           foo: 'bar'
-          tilbyder: req.usr
+          tilbyder: req.user.tilbyder
           checksum: 'foo'
           endret: '2013-01-01T01:01:01.010Z'
         message: undefined

@@ -10,7 +10,7 @@
       return next() if req.method is 'OPTIONS'
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
-        req.isOwner = @exists() and req.usr is @get 'tilbyder'
+        req.isOwner = @exists() and req.user.tilbyder is @get 'tilbyder'
 
         if not @exists() or (@get('status') isnt 'Offentlig' and not req.isOwner)
           return res.status(404).json message: 'Not Found' if req.method isnt 'HEAD'
@@ -84,7 +84,7 @@
       return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
       return res.json 400, message: 'Body should be a JSON Hash' if req.body instanceof Array
 
-      req.body.tilbyder = req.usr
+      req.body.tilbyder = req.user.tilbyder
 
       method = (if req.method is 'PUT' then 'replace' else 'update')
       req.doc[method] req.body, (err, warn, data) ->

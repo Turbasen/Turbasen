@@ -9,7 +9,7 @@ Mongo = (uri) ->
     throw err if err
     @db = database
 
-    for col in ['arrangementer', 'bilder', 'grupper', 'områder', 'turer', 'steder']
+    for col in ['arrangementer', 'bilder', 'grupper', 'områder', 'turer', 'steder', 'api.users']
       @[col] = @db.collection col
 
     @emit 'ready'

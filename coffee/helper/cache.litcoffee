@@ -1,4 +1,3 @@
-
 ## getFilter()
 
 Get data filter to use in caching.
