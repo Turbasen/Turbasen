@@ -16,10 +16,11 @@
     "joi": "~4"
   },
   "devDependencies": {
-    "supertest": "~0",
+    "async": "~0",
+    "concat-stream": "~1",
     "mocha": "~2",
-    "supervisor": "~0",
-    "async": "~0"
+    "supertest": "~0",
+    "supervisor": "~0"
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.litcoffee",
