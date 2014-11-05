@@ -7,7 +7,7 @@
   "main": "src/nasjonalturbase.api.js",
   "dependencies": {
     "coffee-script": "~1",
-    "mongodb": "~1",
+    "mongodb": "~2.0",
     "mongo-querystring": "~0",
     "express": "~3",
     "raven": "~0.6",
@@ -16,10 +16,11 @@
     "joi": "~4"
   },
   "devDependencies": {
+    "async": "~0",
+    "concat-stream": "~1",
+    "mocha": "~2",
     "supertest": "~0",
-    "mocha": "~1",
-    "supervisor": "~0",
-    "async": "~0"
+    "supervisor": "~0"
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.litcoffee",

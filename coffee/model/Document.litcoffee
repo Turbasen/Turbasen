@@ -195,9 +195,12 @@ Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
 Returns `undefined`.
 
     Doc.prototype.getFull = (filter, cb) ->
-      return cb new Error('Document doesnt exists') if not @exists()
-
-      @db.findOne _id: @id, filter, cb
+      if not cb
+        throw new Error('Document doesnt exists') if not @exists()
+        return @db.find _id: @id, filter, limit: 1
+      else
+        return cb new Error('Document doesnt exists') if not @exists()
+        @db.findOne _id: @id, filter, cb
 
 
 ## Doc.insert
@@ -220,7 +223,7 @@ Returns `undefined`.
       parse.docInsert @type, data, (err, warn, data) =>
         return cb err if err
 
-        @db.save data, w: 1, (err) =>
+        @db.insertOne data, w: 1, (err) =>
           return cb err if err
 
           @id   = new ObjectID(data._id)
@@ -250,7 +253,7 @@ Returns `undefined`.
       parse.docReplace @type, data, (err, warn, data) =>
         return cb err if err
 
-        @db.update _id: @id, data, w: 1, (err) =>
+        @db.replaceOne _id: @id, data, w: 1, (err) =>
           return cb err if err
 
           @data = cache.filterData @type, data
@@ -281,7 +284,7 @@ Returns `undefined`.
       parse.docPatch @type, query, (err, warn, query) =>
         return cb err if err
 
-        @db.update _id: @id, query, w: 1, (err) =>
+        @db.updateOne _id: @id, query, w: 1, (err) =>
           return cb err if err
 
           @getFull {}, (err, doc) =>
@@ -310,7 +313,7 @@ Returns `undefined`.
       return cb new Error('Document doesnt exists') if not @exists()
 
       @data = status: 'Slettet'
-      @db.update _id: @id, @data, w: 1, (err) =>
+      @db.replaceOne _id: @id, @data, w: 1, (err) =>
         return cb err if err
 
         redis.del "#{@type}:#{@id.toString()}"

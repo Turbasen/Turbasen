@@ -137,28 +137,41 @@ Only apply default sort if there are no geospatial queries.
 
 ### Execute
 
+Set limit, skip and, sort options for documents to be returned.
+
       options =
         limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
 
-Retrive matching documents from MongoDB.
-
       cursor = req.db.col.find(req.db.query, fields, options)
-      cursor.count (err, total) ->
-        return next err if err
-        res.set 'Count-Return', Math.min(options.limit, total)
-        res.set 'Count-Total', total
-        return res.send 204 if req.method is 'HEAD'
-        return res.json documents: [], count: 0, total: 0 if total is 0
-        res.set 'Content-Type', 'application/json; charset=utf-8'
 
-Calculate number of rows returned since we don't know that in advanced (due to
-the nature of streaming).
+Count number of matching documents in MongoDB database.
+
+      cursor.count false, (err, total) ->
+        return next err if err
+
+Calculate the total number of documents that will eventually be returned (not
+the total number of matching documents) since we don't know that in advanced
+(due to the nature of streaming).
 
         count = Math.min(options.limit, Math.max(total - options.skip, 0))
 
-Stream documents user in order to prevent loading them into memory.
+Set `Count-Return` and `Count-Total` headers so that one can use a `HEAD` query
+to look up the number of matched documents for a query without the documents
+them selves. This may be useful for statistics purposes.
+
+        res.set 'Count-Return', count
+        res.set 'Count-Total', total
+
+Return to the user if this is a `HEAD` query or there are no matching documents.
+
+        return res.send 204 if req.method is 'HEAD'
+        return res.json documents: [], count: 0, total: 0 if total is 0
+
+Stream matching documents in order to prevent loading them into memory.
+
+        res.set 'Content-Type', 'application/json; charset=utf-8'
 
         op = '{"documents":['
         cl = '],"count":' + count + ',"total":' + total + '}'
