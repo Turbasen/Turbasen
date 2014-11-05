@@ -1,6 +1,6 @@
-"use strict"
+ObjectID      = require('mongodb').ObjectID
+ConcatStream  = require 'concat-stream'
 
-ObjectID  = require('mongodb').ObjectID
 assert    = require 'assert'
 
 mongo     = require '../../coffee/db/mongo'
@@ -256,37 +256,40 @@ describe '#get()', ->
 
     document.get req, res, -> assert false, 'next() called'
 
-  it 'should handle doc.getFull() error', (done) ->
-    req.doc.getFull = (filter, cb) ->
-      cb new Error 'getFull failed'
-
-    document.get req, res, (err) ->
-      /getFull failed/.test err
+  it 'should not catch throw doc.getFull() error', (done) ->
+    req.doc = new Document(req.type, '52407fb375049e5615000000')
+    req.doc.once 'ready', ->
+      assert.throws -> document.get req, res
+      , /Document doesnt exists/
       done()
 
   it 'should return doc data with private data for owner', (done) ->
-    req.doc.getFull = (filter, cb) ->
-      assert.deepEqual filter, {}
-      cb null, foo: 'bar', privat: bar: 'foo'
+    res = new ConcatStream (data) ->
+      json = JSON.parse data
 
-    res.json = (code, body) ->
-      assert.equal code, 200
-      assert.deepEqual body, foo: 'bar', privat: bar: 'foo'
+      assert.equal typeof json, 'object'
+      assert.equal typeof json.privat, 'object'
+
       done()
+
+    res.set = (key, val) ->
+      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
 
     document.get req, res, assert.ifError
 
   it 'should return doc data with no privat data for non owner', (done) ->
     req.isOwner = false
 
-    req.doc.getFull = (filter, cb) ->
-      assert.deepEqual filter, privat: false
-      cb null, foo: 'bar'
+    res = new ConcatStream (data) ->
+      json = JSON.parse data
 
-    res.json = (code, body) ->
-      assert.equal code, 200
-      assert.deepEqual body, foo: 'bar'
+      assert.equal typeof json, 'object'
+      assert.equal typeof json.privat, 'undefined'
+
       done()
+
+    res.set = (key, val) ->
+      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
 
     document.get req, res, assert.ifError
 

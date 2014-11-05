@@ -1,7 +1,7 @@
     sentry   = require './db/sentry'
     Document = require './model/Document'
 
-    # stringify   = require('JSONStream').stringify
+    stringify= require('JSONStream').stringify
 
 ## param()
 
@@ -66,15 +66,12 @@
 
     exports.head = exports.get = (req, res, next) ->
       return res.send 200 if req.method is 'HEAD'
-      req.doc.getFull (if req.isOwner then {} else privat: false), (err, data) ->
-        return next err if err
-        return res.json 200, data
 
-      #res.set 'Content-Type', 'application/json; charset=utf-8'
-      #req.db.col.find({_id: req.doc.getId()}, fields, {limit: 1})
-      #  .stream()
-      #  .pipe(stringify('','',''))
-      #  .pipe(res)
+      res.set 'Content-Type', 'application/json; charset=utf-8'
+      req.doc.getFull if req.isOwner then {} else privat: false
+        .stream()
+        .pipe stringify '', '', ''
+        .pipe res
 
 
 ## patch()
