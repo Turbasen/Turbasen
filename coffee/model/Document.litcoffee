@@ -195,9 +195,12 @@ Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
 Returns `undefined`.
 
     Doc.prototype.getFull = (filter, cb) ->
-      return cb new Error('Document doesnt exists') if not @exists()
-
-      @db.findOne _id: @id, filter, cb
+      if not cb
+        throw new Error('Document doesnt exists') if not @exists()
+        return @db.find _id: @id, filter, limit: 1
+      else
+        return cb new Error('Document doesnt exists') if not @exists()
+        @db.findOne _id: @id, filter, cb
 
 
 ## Doc.insert

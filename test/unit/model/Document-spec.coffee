@@ -1,6 +1,7 @@
 request     = require 'supertest'
 assert      = require 'assert'
 async       = require 'async'
+
 ObjectID    = require('mongodb').ObjectID
 Collection  = require('mongodb').Collection
 
@@ -160,6 +161,11 @@ describe 'New', ->
         assert.equal d, undefined
         done()
 
+    it 'should throw error for non existing document and no callback', ->
+      assert.throws ->
+        doc.getFull {}
+      , /Document doesnt exists/
+
   describe '#insert()', ->
     it 'should insert new document without _id in database', (done) ->
       d = JSON.parse JSON.stringify steder[39]
@@ -285,6 +291,11 @@ describe 'Existing', ->
         assert.ifError err
         assert.equal Object.keys(mongoData).length, 3 # this includes doc._id
         done()
+
+    it 'should return a cursor object if no callback is specified', ->
+      cursor = doc.getFull {}
+      assert cursor.stream instanceof Function
+      assert cursor.toArray instanceof Function
 
     # it 'should aggregate db get statistics'
 
