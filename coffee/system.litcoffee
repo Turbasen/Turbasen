@@ -20,6 +20,7 @@ OK` message if everything is fine. Errors are logged.
           next err
 
         else if ++cnt is 2
+          res.send 200 if req.method is 'HEAD'
           res.json 200, message: 'System OK'
 
       mongo.db.command dbStats: true, ret
