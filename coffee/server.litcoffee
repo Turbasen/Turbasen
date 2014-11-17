@@ -88,7 +88,7 @@ error message and HTTP status code.
 
 [1] [dotCloud](http://docs.dotcloud.com/tutorials/more/cloud-health-check/)
 
-    app.get '/CloudHealthCheck', system.check
+    app.all '/CloudHealthCheck', system.check
 
 ## GET /objekttyper
 
