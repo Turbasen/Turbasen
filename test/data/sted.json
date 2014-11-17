@@ -1,0 +1,71 @@
+{
+  "_id": "530b3c87dbd6386e051cd738",
+  "tilbyder": "DNT",
+  "endret": "2013-12-16T13:58:43.742Z",
+  "checksum": "9a539190a36a5ef3cf2057247206171bb712d277",
+  "lisens": "CC BY 4.0",
+  "navngiving": "<a href=\"http://example.com/\">Mitt Sted</a> av <a href=\"http://example.com/\">Eksempeltilbyder</a>. Tilgjengelig under <a rel=\"license\" href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0 lisens</a>.",
+  "status": "Offentlig",
+  "navn": "Mitt Sted",
+  "navn_alt": ["Alt0", "Alt1", "Alt3"],
+  "ssr_id": 1234,
+  "geojson": {
+    "type": "Point",
+    "coordinates": [10.0, 60.0]
+  },
+  "områder": ["530b4183dbd6386e051cd739", "530b4184dbd6386e051cd73a"],
+  "kommune": "Kommune0",
+  "fylke": "Fylke0",
+  "beskrivelse": "Dette er en beskrivelse av truls turlag",
+  "adkomst": {
+    "sommer": "Adkomst sommer",
+    "vinter": "Adkomst vinter"
+  },
+  "tilrettelagt_for": ["Voksen", "Barn"],
+  "failiteter": {
+    "foo": "bar",
+    "bar": "foo"
+  },
+  "lenker": [
+    {
+      "tittel": "Lenke 0",
+      "url": "http://example.com/0"
+    },
+    {
+      "tittel": "Lenke 1",
+      "url": "http://example.com/1"
+    },
+    {
+      "tittel": "Lenke 2",
+      "url": "http://example.com/2"
+    }
+  ],
+  "byggeår": 1990,
+  "betjeningsgrad": "Selvbetjent",
+  "tags": [
+    "Hytte",
+    "DNT"
+  ],
+  "privat": {
+    "foo": "bar",
+    "bar": {
+      "foo": "bar"
+    }
+  },
+  "grupper": ["530b439cdbd6386e051cd73c", "530b439cdbd6386e051cd73d"],
+  "bilder": [
+    "530b439ddbd6386e051cd73e",
+    "530b439ddbd6386e051cd73f",
+    "530b49c4fa6eeb06069115f3",
+    "530b49c5fa6eeb06069115f4",
+    "530b49c6fa6eeb06069115f5"
+  ],
+  "steder": ["530b439fdbd6386e051cd742", "530b43a0dbd6386e051cd743"],
+  "url": "http://example.com/foo",
+  "kart": "Mitt kart",
+  "turkart": [
+    "Kart 0",
+    "Kart 1"
+  ]
+}
+

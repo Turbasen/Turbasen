@@ -1,135 +1,75 @@
-API for Nasjonal Turbase
+API for Nasjonal Turbase [![Build Status](https://drone.io/github.com/Turistforeningen/nasjonalturbase/status.png)](https://drone.io/github.com/Turistforeningen/nasjonalturbase/latest)
 ========================
 
-## Resurser
+## Resources
 
-* Turer
-* Steder
-* Områder
-* Bilder
-* Grupper
-* Aktiviteter (kommer)
+ * [Website](http://documentation.nasjonalturbase.no)
+ * [API docs](http://documentation.nasjonalturbase.no/api.html)
+ * [Technical docs](https://turistforeningen.atlassian.net/wiki/display/dnt/Nasjonal+Turbase)
+ * [Data licenses](http://documentation.nasjonalturbase.no/lisenser.html)
+ * [Attribution](http://documentation.nasjonalturbase.no/navngiving.html)
 
-### Turer
+## The stack
 
-#### List ut turer
+The API is a RESTfull API with JSON as it's only supported input/output format.
+The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
+[Literate](http://coffeescript.org/#literate)
+[CoffeeScript](http://coffeescript.org). It reads and writes to a
+[MongoDB](http://www.mongodb.org) database and caches ifemeral data in
+[Redis](http://redis.io).
 
-`curl "dev.nasjonalturbase.no/turer?api_key=abc123"`
+## Developing
 
-```json
-{
-  "documents":[
-    {
-      "_id":"524081f9b8cb77df150006b9",
-      "endret":"2010-07-07T08:14:43.000Z",
-      "navn":"Fra Røros til Femundsmarka på sykkel"
-    },
-    {
-      "_id":"524081f9b8cb77df150006f2",
-      "endret":"2010-10-28T09:35:17.000Z",
-      "navn":
-"Padletur rundt Selja ved Stadlandet"
-    },
-    {...}
-  ]
-}
+### Environment Varaibles
+
+* `NODE_ENV`
+* `PORT_WWW`
+* `MONGO_URI`
+* `DOTCLOUD_CACHE_REDIS_HOST`
+* `DOTCLOUD_CACHE_REDIS_PORT`
+
+### Install using Vagrant
+
+```bash
+vagrant up
+vagrant ssh
 ```
 
-#### Hent en tur
+### Install manually
 
-`curl "dev.nasjonalturbase.no/turer/524081f9b8cb77df150006b9?api_key=abc123"`
+`NB` this assumes that you already have Node, MongoDB and Redis running locally
+on your machine.
 
-```json
-{
-  "_id":"524081f9b8cb77df150006b9",
-  "tilbyder":"DNT",
-  "opprettet":"2010-07-07T08:14:43.000Z",
-  "endret":"2010-07-07T08:14:43.000Z",
-  "lisens":"CC BY-NC-ND 3.0 NO",
-  "navngivning":"Turen er levert via <a href=\"http://ut.no\">UT.no</a> og lisensiert under <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/no\">CC BY-NC-ND 3.0</a>",
-  "status":"Offentlig",
-  "navn":"Fra Røros til Femundsmarka på sykkel",
-  ...
-}
+```bash
+npm install
 ```
 
-### Steder
+### Testing
 
-#### List ut steder
-
-`curl "dev.nasjonalturbase.no/steder?api_key=abc123"`
-
-```json
-{
-  "documents":[
-    {
-      "_id":"52407fb375049e5615000294",
-      "endret":"1970-01-16T15:09:24.647Z",
-      "navn":"Reisadalen hytteutleie"
-    },
-    {
-      "_id":"52407fb375049e561500031c",
-      "endret":"1970-01-16T20:29:04.710Z",
-      "navn":"Sappen leirskole og feriesenter"
-    },
-    {...}
-  ]
-}
+```
+npm test
 ```
 
-#### Hent ett sted
+## License
 
-`curl "dev.nasjonalturbase.no/steder/52407fb375049e5615000294?api_key=abc123"`
-
-```json
-{
-  "_id":"52407fb375049e5615000294",
-  "tilbyder":"DNT",
-  "opprettet":"1970-01-16T15:09:24.647Z",
-  "endret":"1970-01-16T15:09:24.647Z",
-  "lisens":"CC BY-NC-ND 3.0 NO",
-  "navngivning":"Hytten er levert via <a href=\"http://ut.no\">UT.no</a> og lisensiert under <a href=\"http://creativecommons.org/licenses/by-nc-nd/3.0/no\">CC BY-NC-ND 3.0</a>",
-  "status":"Offentlig",
-  "navn":"Reisadalen hytteutleie",
-  {...}
-}
-```
-
-### Områder
-
-`curl "dev.nasjonalturbase.no/områder?api_key=abc123"`
-`curl "dev.nasjonalturbase.no/områder/52408144e7926dcf15000010?api_key=abc123"`
-
-### Bilder
-
-`curl "dev.nasjonalturbase.no/bilder?api_key=abc123"`
-`curl "dev.nasjonalturbase.no/bilder/5242a068f92e7d7112032f5a?api_key=abc123"`
-
-### Grupper
-
-`curl "dev.nasjonalturbase.no/grupper?api_key=abc123"`
-`curl "dev.nasjonalturbase.no/grupper/52666d15b9223b8f00000001?api_key=abc123"`
-
-## Parametre
-
-### api_key
-
-`curl "dev.nasjonalturbase.no?api_key=acb123"`
-
-### skip
-
-`curl "dev.nasjonalturbase.no/turer?api_key=abc123&skip=10"`
-
-### limit
-
-`curl "dev.nasjonalturbase.no/turer?api_key=abc123&limit=20"`
-
-### after
-
-`curl "dev.nasjonalturbase.no/turer?api_key=abc123&after=2013-11-06"`
-
-### tag
-
-`curl "dev.nasjonalturbase.no/steder?api_key=abc123&tag=Hytte`
-`curl "dev.nasjonalturbase.no/steder?api_key=abc123&tag=!Hytte`
+> The MIT License (MIT)
+>
+> Copyright (c) 2013-2014 Turistforeningen, Hans Kristian Flaatten
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of
+> this software and associated documentation files (the "Software"), to deal in
+> the Software without restriction, including without limitation the rights to
+> use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+> the Software, and to permit persons to whom the Software is furnished to do so,
+> subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+> FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+> COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+> IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+> CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 

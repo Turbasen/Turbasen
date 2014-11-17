@@ -1,0 +1,80 @@
+{
+  "_id": "530b3c87dbd6386e051cd738",
+  "tilbyder": "DNT",
+  "endret": "2013-12-16T13:58:43.742Z",
+  "checksum": "9a539190a36a5ef3cf2057247206171bb712d277",
+  "lisens": "CC BY 4.0",
+  "navngiving": "<a href=\"http://example.com/\">Truls Turlag</a> av <a href=\"http://example.com/\">Eksempeltilbyder</a>. Tilgjengelig under <a rel=\"license\" href=\"http://creativecommons.org/licenses/by-nc/3.0/no\">CC BY-NC 3.0 NO lisens</a>.",
+  "status": "Offentlig",
+  "navn": "Truls Turlag",
+  "geojson": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [100.0, 0.0],
+        [101.0, 0.0],
+        [101.0, 1.0],
+        [100.0, 1.0],
+        [100.0, 0.0]
+      ]
+    ]
+  },
+  "områder": ["530b4183dbd6386e051cd739", "530b4184dbd6386e051cd73a"],
+  "kommuner": ["Kommune0", "Kommune1", "Kommune2"],
+  "fylker": ["Fylke0", "Fylke1"],
+  "organisasjonsnr": "123456789",
+  "beskrivelse": "Dette er en beskrivelse av truls turlag",
+  "logo": "http://example.com/logo.png",
+  "ansatte": "42",
+  "lenker": [
+    {
+      "type": "Hjemmeside",
+      "url": "http://example.com/"
+    },
+    {
+      "tittel": "Om Oss",
+      "url": "http://example.com/about"
+    },
+    {
+      "tittel": "Facebook",
+      "type": "Facebook",
+      "url": "http://example.com/"
+    }
+  ],
+  "kontaktinfo": [
+    {
+      "tittel": "Primærkontakt",
+      "adresse1": "Turgata 123",
+      "adresse2": "Etasje 14",
+      "postnummer": "0123",
+      "poststed": "Turlang",
+      "telefon": "55443322",
+      "fax": "55443321",
+      "epost": "post@example.com",
+      "url": "https://example.com/contact"
+    },
+    {
+      "tittel": "Medlemsservice",
+      "epost": "post@example.com"
+    }
+  ],
+  "tags": [
+    "DNT medlemsforening",
+    "Friluftsliv"
+  ],
+  "foreldregruppe": "530b4309dbd6386e051cd73b",
+  "privat": {
+    "foo": "bar"
+  },
+  "grupper": ["530b439cdbd6386e051cd73c", "530b439cdbd6386e051cd73d"],
+  "bilder": [
+    "530b439ddbd6386e051cd73e",
+    "530b439ddbd6386e051cd73f",
+    "530b49c4fa6eeb06069115f3",
+    "530b49c5fa6eeb06069115f4",
+    "530b49c6fa6eeb06069115f5"
+  ],
+  "steder": ["530b439fdbd6386e051cd742", "530b43a0dbd6386e051cd743"],
+  "url": "http://example.com/"
+}
+

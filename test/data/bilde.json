@@ -1,0 +1,60 @@
+{
+  "_id": "530b3c87dbd6386e051cd738",
+  "tilbyder": "DNT",
+  "endret": "2013-12-16T13:58:43.742Z",
+  "checksum": "9a539190a36a5ef3cf2057247206171bb712d277",
+  "lisens": "CC BY 4.0",
+  "navngiving": "<a href=\"http://example.com/\">Mitt Sted</a> av <a href=\"http://example.com/\">Eksempeltilbyder</a>. Tilgjengelig under <a rel=\"license\" href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0 lisens</a>.",
+  "status": "Offentlig",
+  "navn": "Mitt Sted",
+  "geojson": {
+    "type": "Point",
+    "coordinates": [10.0, 60.0]
+  },
+  "områder": ["530b4183dbd6386e051cd739", "530b4184dbd6386e051cd73a"],
+  "kommune": "Kommune0",
+  "fylke": "Fylke0",
+  "beskrivelse": "Dette er en beskrivelse av truls turlag",
+  "fotograf": {
+    "navn": "Navn",
+    "telefon": "+4712345678",
+    "epost": "foo@bar.com"
+  },
+  "eier": {
+    "navn": "Navn",
+    "telefon": "+4712345678",
+    "epost": "foo@bar.com",
+    "url": "http://foo.bar.com/"
+  },
+  "tags": [
+    "Fjell",
+    "Sol"
+  ],
+  "privat": {
+    "foo": "bar",
+    "bar": {
+      "foo": "bar"
+    }
+  },
+  "grupper": ["530b439cdbd6386e051cd73c", "530b439cdbd6386e051cd73d"],
+  "img": [
+    {
+      "url": "http://example.com/img/1.small.jpg",
+      "witdth": 100,
+      "height": 100,
+      "size": 1024
+    },{
+      "url": "http://example.com/img/1.medium.jpg",
+      "witdth": 500,
+      "height": 500,
+      "size": 2024
+    },{
+      "url": "http://example.com/img/1.full.jpg",
+      "witdth": 1024,
+      "height": 1024,
+      "size": 4048
+    }
+  ],
+  "url": "http://example.com/foo"
+}
+

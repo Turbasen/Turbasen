@@ -1,10 +1,12 @@
 .*swp
+.*swo
 .DS_Store
 .dotcloud/
 .dotcloudignore
 .git
 .gitignore
 .jshintrc
+.vim.custom
 .vagrant/
 README.md
 Vagrantfile
