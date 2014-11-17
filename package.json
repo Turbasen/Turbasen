@@ -1,10 +1,13 @@
 {
-  "name": "nasjonalturbase.api",
-  "version": "0.0.1",
+  "name": "nasjonalturbase",
+  "version": "1.0.0",
   "private": true,
-  "description": "API against Nasjonal Turbase (NTB)",
+  "description": "API for Nasjonal Turbase",
+  "homepage": "http://www.nasjonalturbase.no/",
+  "bugs": "https://github.com/turistforeningen/nasjonalturbase/issues",
   "repository": "git@github.com:Turistforeningen/nasjonalturbase.git",
-  "main": "src/nasjonalturbase.api.js",
+  "main": "src/server.js",
+  "author": "Hans Kristian Flaatten <hans.kristian.flaatten@turistforeningen.no>",
   "dependencies": {
     "coffee-script": "~1",
     "mongodb": "~2.0",
@@ -27,5 +30,14 @@
     "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register -w",
     "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/; if [ -d .git/hooks/ ]; then cp config/git-hooks/pre-commit .git/hooks/.; fi",
     "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec --compilers coffee:coffee-script/register"
-  }
+  },
+  "config": {
+    "port_www": 8080,
+    "sentry_dns": null,
+    "mongo_uri": null,
+    "dotcloud_cache_redis_port": null,
+    "dotcloud_cache_redis_host": null,
+    "dotcloud_cache_redis_password": null
+  },
+  "license": "MIT"
 }
