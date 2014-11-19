@@ -7,7 +7,7 @@ describe 'getUser()', ->
   it 'should return non-existing user for unknown API key', (done) ->
     auth.getUser 'foo', (err, user) ->
       assert.ifError err
-      assert.deepEqual user, remaining: 0
+      assert.deepEqual user, tilbyder: 'Ukjent', remaining: 0
       done()
 
   it 'should return user for known API key', (done) ->
@@ -19,12 +19,24 @@ describe 'getUser()', ->
       assert user.reset > Math.floor new Date().getTime() / 1000
       done()
 
+  it 'should return correct user for invalid cache data', (done) ->
+    key = 'dnt'
+    redis.hmset "api:users:#{key}", remaining: -1, (err) ->
+      assert.ifError err
+      auth.getUser key, (err, user) ->
+        assert.ifError err
+        assert.equal user.tilbyder, 'DNT'
+        assert.equal user.limit, 1000
+        assert.equal user.remaining, 1000
+        assert user.reset > Math.floor new Date().getTime() / 1000
+        done()
+
   it 'should cache existing user for 1 hour', (done) ->
     key = 'dnt'
     auth.getUser key, (err, user) ->
       assert.ifError err
       # @TODO this is hard-coded
-      redis.ttl "api.users:#{key}", (err, ttl) ->
+      redis.ttl "api:users:#{key}", (err, ttl) ->
         assert.ifError err
         assert ttl <= 1 * 60 * 60, "#{ttl} <= #{1 * 60 * 60}"
         done()
@@ -35,7 +47,7 @@ describe 'getUser()', ->
       assert.ifError err
 
       # @TODO this is hard-coded
-      redis.ttl "api.users:#{key}", (err, ttl) ->
+      redis.ttl "api:users:#{key}", (err, ttl) ->
         assert.ifError err
         assert ttl <= 24 * 60 * 60, "#{ttl} <= #{24 * 60 * 60}"
         done()
@@ -46,7 +58,7 @@ describe 'getUser()', ->
       assert.ifError err
 
       # @TODO this is hard-coded
-      redis.hset "api.users:#{key}", "foo", "bar", (err) ->
+      redis.hset "api:users:#{key}", "foo", "bar", (err) ->
         assert.ifError err
 
         auth.getUser key, (err, user) ->
@@ -75,7 +87,7 @@ describe 'chargeUser()', (done) ->
       assert.equal user.remaining, 1000
       auth.chargeUser key, user
 
-      redis.hgetall "api.users:#{key}", (err, user) ->
+      redis.hgetall "api:users:#{key}", (err, user) ->
         assert.ifError err
         assert.equal user.remaining, 999
 
@@ -134,7 +146,7 @@ describe 'check()', ->
       assert.ifError err
 
       # @TODO this is hard-coded
-      redis.hset "api.users:#{key}", "remaining", 0, (err, user) ->
+      redis.hset "api:users:#{key}", "remaining", 0, (err, user) ->
         assert.ifError err
 
         auth.check key, (err, user) ->

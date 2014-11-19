@@ -18,7 +18,7 @@ Returns `undefined`
       exports.getUser key, (err, user) ->
         return cb err if err
 
-        if not user.tilbyder
+        if not user.tilbyder or user.tilbyder is 'Ukjent'
           err = new Error 'Bad credentials'
           err.status = 401
           return cb err
@@ -45,7 +45,7 @@ Returns an updated API user `object`.
 
     exports.chargeUser = (key, user) ->
       user.remaining--
-      redis.hincrby "api.users:#{key}", 'remaining', -1
+      redis.hincrby "api:users:#{key}", 'remaining', -1
 
       return user
 
@@ -67,9 +67,15 @@ Returns `undefined`.
 
 First; check if API user exists in Redis cache.
 
-      redis.hgetall "api.users:#{key}", (err, user) ->
+      redis.hgetall "api:users:#{key}", (err, user) ->
         return cb err if err
-        return cb null, user if user
+
+        # There exist an edge case when the key is expired before changeUser()
+        # has been called. In this case only the "remainig" field is set and
+        # the key is never expired after that. Here we check that the key is
+        # valid by explicitly checking for the "tilbyder" field.
+
+        return cb null, user if user and user.tilbyder
 
 Fallback; get API user from MongoDB database.
 
@@ -95,13 +101,13 @@ expire time to 24 hours.
 
           else
             expire = Math.floor (new Date().getTime() + 86400000) / 1000
-            user = remaining: 0
+            user = tilbyder: 'Ukjent', remaining: 0
 
 Add user to Redis cache and apply expire time before returning the user
 object.
 
-          redis.hmset "api.users:#{key}", user
-          redis.expireat "api.users:#{key}", expire
+          redis.hmset "api:users:#{key}", user
+          redis.expireat "api:users:#{key}", expire
 
           cb null, user
 

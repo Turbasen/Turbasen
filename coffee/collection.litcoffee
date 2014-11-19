@@ -35,11 +35,13 @@
 ## PARAM {collection}
 
     exports.param = (req, res, next, col) ->
+      col = decodeURIComponent col
+
       if col not in collections
         return res.json 404, message: "Type #{col} not found"
 
-      req.type = decodeURIComponent col
-      req.db   = col: mongo[req.type], query: {}
+      req.type = col
+      req.db   = col: mongo[col], query: {}
 
       next()
 

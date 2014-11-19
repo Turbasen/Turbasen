@@ -6,9 +6,9 @@ $script = <<SCRIPT
 
 # Update & Install
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/10gen.list
+echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/mongodb.list
 apt-get update
-apt-get install -y build-essential python-setuptools git curl mongodb-10gen=2.4.5 tcl8.5
+apt-get install -y build-essential python-setuptools git curl mongodb-org=2.6.5 tcl8.5
 easy_install pip && pip install setuptools --no-use-wheel --upgrade && pip install dotcloud
 
 # Make build directory
@@ -56,7 +56,7 @@ echo "\n\n" >> /home/vagrant/.bashrc
 # NodeJS via NVM
 echo "Installing NVM..."
 export HOME=/home/vagrant
-curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | sh
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
@@ -128,7 +128,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #vb.gui = true
 
     # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "384", "--cpus", "2"]
+    vb.customize ["modifyvm", :id, "--memory", "512", "--cpus", "2"]
   end
 
   # View the documentation for the provider you're using for more
