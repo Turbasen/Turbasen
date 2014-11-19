@@ -35,7 +35,7 @@ describe '?api_key', ->
         assert.ifError err
 
         # @TODO This is a bit hacky! Maybe there is a better way?
-        redis.hset 'api.users:dnt', 'remaining', 0
+        redis.hset 'api:users:dnt', 'remaining', 0
 
         req.get '/?api_key=dnt'
           .expect 403
