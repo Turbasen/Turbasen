@@ -56,7 +56,7 @@ echo "\n\n" >> /home/vagrant/.bashrc
 # NodeJS via NVM
 echo "Installing NVM..."
 export HOME=/home/vagrant
-curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | sh
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
 echo "source ~/.nvm/nvm.sh" >> /home/vagrant/.bashrc
 source /home/vagrant/.nvm/nvm.sh
 #nvm install 0.8
