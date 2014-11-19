@@ -45,7 +45,7 @@ Returns an updated API user `object`.
 
     exports.chargeUser = (key, user) ->
       user.remaining--
-      redis.hincrby "api.users:#{key}", 'remaining', -1
+      redis.hincrby "api:users:#{key}", 'remaining', -1
 
       return user
 
@@ -67,7 +67,7 @@ Returns `undefined`.
 
 First; check if API user exists in Redis cache.
 
-      redis.hgetall "api.users:#{key}", (err, user) ->
+      redis.hgetall "api:users:#{key}", (err, user) ->
         return cb err if err
 
         # There exist an edge case when the key is expired before changeUser()
@@ -106,8 +106,8 @@ expire time to 24 hours.
 Add user to Redis cache and apply expire time before returning the user
 object.
 
-          redis.hmset "api.users:#{key}", user
-          redis.expireat "api.users:#{key}", expire
+          redis.hmset "api:users:#{key}", user
+          redis.expireat "api:users:#{key}", expire
 
           cb null, user
 
