@@ -352,7 +352,7 @@ describe 'POST', ->
         assert.equal res.body.document.navn, 'Test'
       .end done
 
-  it 'shoudl return warnings for missing data fileds', (done) ->
+  it 'should return warnings for missing data fileds', (done) ->
     req.post url
       .send navn: 'Test'
       .expect 201
