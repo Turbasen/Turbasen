@@ -36,6 +36,7 @@ before (done) ->
 beforeEach (done) ->
   redis.flushall()
 
+  mongo.områder.drop()
   mongo.steder.drop()
   mongo.turer.drop()
 
