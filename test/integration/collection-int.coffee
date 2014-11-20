@@ -365,6 +365,14 @@ describe 'POST', ->
         ]
       .end done
 
+  it 'should succeed posting to områder collection', (done) ->
+    req.post '/omr%C3%A5der?api_key=dnt'
+      .send navn: 'Test'
+      .expect 201
+      .expect (res) ->
+        assert.equal res.body.document.navn, 'Test'
+      .end done
+
 for method in ['put', 'patch', 'delete']
   describe method.toUpperCase(), ->
     it 'should return 405 Method Not Allowed status', (done) ->
