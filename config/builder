@@ -3,7 +3,7 @@
 packages_dir=node_modules
 node_root=/opt/node
 
-[ "$SERVICE_NODE_VERSION" ] && 
+[ "$SERVICE_NODE_VERSION" ] &&
 [ "$SERVICE_NODE_VERSION" != "$(node --version)" ] &&
 (
     rm -rf $node_root/*

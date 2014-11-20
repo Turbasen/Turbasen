@@ -352,7 +352,7 @@ describe 'POST', ->
         assert.equal res.body.document.navn, 'Test'
       .end done
 
-  it 'shoudl return warnings for missing data fileds', (done) ->
+  it 'should return warnings for missing data fileds', (done) ->
     req.post url
       .send navn: 'Test'
       .expect 201
@@ -363,6 +363,14 @@ describe 'POST', ->
           {resource: 'Document', field: 'navngiving', code: 'missing_field'}
           {resource: 'Document', field: 'status', code: 'missing_field'}
         ]
+      .end done
+
+  it 'should succeed posting to områder collection', (done) ->
+    req.post '/omr%C3%A5der?api_key=dnt'
+      .send navn: 'Test'
+      .expect 201
+      .expect (res) ->
+        assert.equal res.body.document.navn, 'Test'
       .end done
 
 for method in ['put', 'patch', 'delete']
