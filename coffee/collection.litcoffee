@@ -122,20 +122,20 @@ Default fields if unless specified by the user.
 ### Sort
 
 Limit sort to ascending or descending on `endret` and `navn` since they are
-indexed, non-indexed fields could be slower.
+indexed, non-indexed fields could be slower. Also, don't allow ordering of
+geospatial queries to prevent performance bottlenecks. From the [MongoDB
+refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavior):
 
-      if typeof req.query.sort is 'string' and req.query.sort
+> $near always returns the documents sorted by distance. Any other sort order
+> requires to sort the documents in memory, which can be inefficient.
+
+      if not req.db.query.geojson
         sort = switch req.query.sort
           when 'endret' then [['endret', 1]]
           when '-endret' then [['endret', -1]]
           when 'navn' then [['navn', 1]]
           when '-navn' then [['navn', -1]]
           else 'endret'
-
-Only apply default sort if there are no geospatial queries.
-
-      else
-        sort = 'endret' if not req.db.query.geojson
 
 ### Execute
 
