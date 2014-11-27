@@ -156,7 +156,7 @@ Calculate the total number of documents that will eventually be returned (not
 the total number of matching documents) since we don't know that in advanced
 (due to the nature of streaming).
 
-        count = Math.min(cursor.cmd.limit, Math.max(total - cursor.cmd.skip, 0))
+        count = Math.min cursor.cmd.limit, Math.max total - cursor.cmd.skip, 0
 
 Set `Count-Return` and `Count-Total` headers so that one can use a `HEAD` query
 to look up the number of matched documents for a query without the documents
