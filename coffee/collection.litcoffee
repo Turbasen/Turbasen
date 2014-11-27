@@ -139,14 +139,13 @@ refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavi
 
 ### Execute
 
-Set limit, skip and, sort options for documents to be returned.
+Make new cursor object with the correct query, fields, and other options (limit,
+skip, and sort).
 
-      options =
-        limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
+      cursor = req.db.col.find req.db.query, fields,
+        limit: Math.min (parseInt(req.query.limit, 10) or 20), 50
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
-
-      cursor = req.db.col.find(req.db.query, fields, options)
 
 Count number of matching documents in MongoDB database.
 
@@ -157,7 +156,7 @@ Calculate the total number of documents that will eventually be returned (not
 the total number of matching documents) since we don't know that in advanced
 (due to the nature of streaming).
 
-        count = Math.min(options.limit, Math.max(total - options.skip, 0))
+        count = Math.min(cursor.cmd.limit, Math.max(total - cursor.cmd.skip, 0))
 
 Set `Count-Return` and `Count-Total` headers so that one can use a `HEAD` query
 to look up the number of matched documents for a query without the documents
