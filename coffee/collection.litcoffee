@@ -122,9 +122,14 @@ Default fields if unless specified by the user.
 ### Sort
 
 Limit sort to ascending or descending on `endret` and `navn` since they are
-indexed, non-indexed fields could be slower.
+indexed, non-indexed fields could be slower. Also, don't allow ordering of
+geospatial queries to prevent performance bottlenecks. From the [MongoDB
+refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavior):
 
-      if typeof req.query.sort is 'string' and req.query.sort
+> $near always returns the documents sorted by distance. Any other sort order
+> requires to sort the documents in memory, which can be inefficient.
+
+      if not req.db.query.geojson
         sort = switch req.query.sort
           when 'endret' then [['endret', 1]]
           when '-endret' then [['endret', -1]]
@@ -132,21 +137,15 @@ indexed, non-indexed fields could be slower.
           when '-navn' then [['navn', -1]]
           else 'endret'
 
-Only apply default sort if there are no geospatial queries.
-
-      else
-        sort = 'endret' if not req.db.query.geojson
-
 ### Execute
 
-Set limit, skip and, sort options for documents to be returned.
+Make new cursor object with the correct query, fields, and other options (limit,
+skip, and sort).
 
-      options =
-        limit: Math.min((parseInt(req.query.limit, 10) or 20), 50)
+      cursor = req.db.col.find req.db.query, fields,
+        limit: Math.min (parseInt(req.query.limit, 10) or 20), 50
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
-
-      cursor = req.db.col.find(req.db.query, fields, options)
 
 Count number of matching documents in MongoDB database.
 
@@ -157,7 +156,7 @@ Calculate the total number of documents that will eventually be returned (not
 the total number of matching documents) since we don't know that in advanced
 (due to the nature of streaming).
 
-        count = Math.min(options.limit, Math.max(total - options.skip, 0))
+        count = Math.min cursor.cmd.limit, Math.max total - cursor.cmd.skip, 0
 
 Set `Count-Return` and `Count-Total` headers so that one can use a `HEAD` query
 to look up the number of matched documents for a query without the documents
