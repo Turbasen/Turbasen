@@ -9,14 +9,14 @@
   "main": "src/server.js",
   "author": "Hans Kristian Flaatten <hans.kristian.flaatten@turistforeningen.no>",
   "dependencies": {
-    "coffee-script": "1.8.0",
-    "mongodb": "2.0.7",
-    "mongo-querystring": "0.0.2",
-    "express": "3.18.3",
-    "raven": "0.6.3",
-    "redis": "0.12.1",
     "JSONStream": "0.9.0",
-    "joi": "4.9.0"
+    "coffee-script": "1.8.0",
+    "express": "3.18.3",
+    "joi": "4.9.0",
+    "mongo-querystring": "0.0.2",
+    "mongodb": "2.0.7",
+    "raven": "0.7.2",
+    "redis": "0.12.1"
   },
   "devDependencies": {
     "async": "~0",

@@ -56,13 +56,26 @@ All errors passed to `next` or exceptions ends up here. We set the status code
 to `500` if it is not already defined in the `Error` object. We then print the
 error mesage and stack trace to the console for debug purposes.
 
+Log 401 Unauthorized (warning) and 403 Forbidden (notice) errors to Sentry to
+enhance debugging and oversight as Nasjonal Turbase gets more used.
+
 Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
       res.status err.status or 500
 
-      if res.status >= 500
+      if res.statusCode is 401
+        sentry.captureMessage "Invalid API-key #{req.query.api_key}",
+          level: 'warning'
+          extra: sentry.parseRequest req, user: req.user
+
+      if res.statusCode is 403
+        sentry.captureMessage "Rate limit exceeded for #{req.tilbyder}",
+          level: 'notice'
+          extra: sentry.parseRequest req, user: req.user
+
+      if res.statusCode >= 500
         console.error err.message
         console.error err.stack
 
