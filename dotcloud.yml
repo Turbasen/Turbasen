@@ -5,7 +5,7 @@ api:
     www: http
   process: node src/server.js
   approot: .
-  node_version: v0.10.32
+  node_version: v0.10.38
 cache:
   type: redis
 
