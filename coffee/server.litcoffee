@@ -71,7 +71,7 @@ requests shall not contain any body – this applies for errors as well.
           extra: sentry.parseRequest req, user: req.user
 
       if res.statusCode is 403
-        sentry.captureMessage "Rate limit exceeded for #{req.tilbyder}",
+        sentry.captureMessage "Rate limit exceeded for #{req.user.tilbyder}",
           level: 'notice'
           extra: sentry.parseRequest req, user: req.user
 
