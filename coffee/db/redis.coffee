@@ -1,8 +1,2 @@
 createClient = require('redis').createClient
-
-port = process.env.DOTCLOUD_CACHE_REDIS_PORT or 6379
-host = process.env.DOTCLOUD_CACHE_REDIS_HOST or 'localhost'
-pass = process.env.DOTCLOUD_CACHE_REDIS_PASSWORD or null
-
-module.exports = createClient port, host, auth_pass: pass
-
+module.exports = createClient process.env.REDIS_PORT_6379_TCP_PORT, process.env.REDIS_PORT_6379_TCP_ADDR
