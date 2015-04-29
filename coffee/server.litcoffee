@@ -41,6 +41,7 @@ the rquest.
     app.use(express.compress())
     app.use(express.json())
     app.disable('x-powered-by')
+    app.disable('etag')
     app.set 'port', process.env.APP_PORT or 8080
     app.use(app.router)
 
