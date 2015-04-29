@@ -26,10 +26,10 @@
     "supertest": "~0"
   },
   "scripts": {
-    "start": "supervisor -w coffee -- coffee/server.litcoffee",
-    "test": "SILENT=ture mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register -w",
-    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/; if [ -d .git/hooks/ ]; then cp config/git-hooks/pre-commit .git/hooks/.; fi",
-    "test-drone": "SILENT=true node_modules/.bin/mocha test/suite.coffee -R spec --compilers coffee:coffee-script/register"
+    "start": "./node_modules/.bin/supervisor -w coffee -- coffee/server.litcoffee",
+    "test": "SILENT=true ./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R spec --compilers coffee:coffee-script/register",
+    "watch": "SILENT=true ./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register --watch",
+    "postinstall": "rm -rf src/* && ./node_modules/.bin/coffee --bare -o src/ -c coffee/"
   },
   "config": {
     "port_www": 8080,
