@@ -1,4 +1,4 @@
-mongodb:
+mongo:
   image: mongo:2.6
 
 redis:
@@ -9,7 +9,7 @@ www:
   ports:
     - "8080"
   links:
-    - mongodb
+    - mongo
     - redis
   volumes:
     - .:/usr/src/app
