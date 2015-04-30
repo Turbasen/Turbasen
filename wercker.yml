@@ -34,7 +34,7 @@ deploy:
         - script:
                 name: start application
                 code: |-
-                    ssh -i ${PRIVATEKEY_PATH} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -l ${SSH_USER} ${SSH_HOST} /var/www/config/manage.sh ${SSH_APP} update --rebuild
+                    ssh -i ${PRIVATEKEY_PATH} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -l ${SSH_USER} ${SSH_HOST} COMPOSE_FILE=docker-paas.yml /var/www/config/manage.sh ${SSH_APP} update --rebuild
 
     after-steps:
         - turistforeningen/slack-notifier:
