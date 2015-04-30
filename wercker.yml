@@ -16,8 +16,8 @@ build:
                     echo "npm version $(npm -v) running"
 
     after-steps:
-        - wantedly/pretty-slack-notify:
-                webhook_url: $SLACK_WEBHOOK_URL
+        - turistforeningen/slack-notifier:
+                url: $SLACK_WEBHOOK_URL
 
 deploy:
     steps:
@@ -37,5 +37,5 @@ deploy:
                     ssh -i ${PRIVATEKEY_PATH} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -l ${SSH_USER} ${SSH_HOST} /var/www/config/manage.sh ${SSH_APP} update --rebuild
 
     after-steps:
-        - wantedly/pretty-slack-notify:
-                webhook_url: $SLACK_WEBHOOK_URL
+        - turistforeningen/slack-notifier:
+                url: $SLACK_WEBHOOK_URL
