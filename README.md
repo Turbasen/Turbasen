@@ -4,8 +4,8 @@ The National Trekking Database (Nasjonal Turbase) is the Norwegian national
 platform to collect, manage, and distribute standardised trekking and outdoor
 data from all participants who facilitate outdoor recreation.
 
-| --------------- | ------------------------------------------------- |
 | Website         | http://www.nasjonalturbase.no                     |
+| --------------- | ------------------------------------------------- |
 | Data liceses    | http://www.nasjonalturbase.no/lisenser.html       |
 | Attribution     | http://www.nasjonalturbase.no/navngiving.html     |
 | API docs        | http://www.nasjonalturbase.no/api.html            |
