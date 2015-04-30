@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 
 COPY package.json /usr/src/app/
 RUN npm install
-COPY . /usr/src/app
+
+COPY coffee /usr/src/app/coffee
+RUN npm run-script postinstall
 
 CMD [ "npm", "start" ]
