@@ -26,7 +26,8 @@
     "supertest": "~0"
   },
   "scripts": {
-    "start": "./node_modules/.bin/supervisor -w coffee -- coffee/server.litcoffee",
+    "start": "./node_modules/.bin/supervisor -w src -- src/server.js",
+    "devserver": "./node_modules/.bin/supervisor -w coffee -- coffee/server.litcoffee",
     "test": "SILENT=true ./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R spec --compilers coffee:coffee-script/register",
     "watch": "SILENT=true ./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register --watch",
     "postinstall": "rm -rf src/* && ./node_modules/.bin/coffee --bare -o src/ -c coffee/"
