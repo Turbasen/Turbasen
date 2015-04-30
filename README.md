@@ -1,75 +1,47 @@
-API for Nasjonal Turbase [![Build Status](https://drone.io/github.com/Turistforeningen/nasjonalturbase/status.png)](https://drone.io/github.com/Turistforeningen/nasjonalturbase/latest)
-========================
+# Nasjonal Turbase [![Build status](https://img.shields.io/wercker/ci/5540e465dc16db44790b428d.svg "Build status")](https://app.wercker.com/project/bykey/ac9dffab857ff18e13ae57d86d6cee9a)
 
-## Resources
+The National Trekking Database (Nasjonal Turbase) is the Norwegian national
+platform to collect, manage, and distribute standardised trekking and outdoor
+data from all participants who facilitate outdoor recreation.
 
- * [Website](http://documentation.nasjonalturbase.no)
- * [API docs](http://documentation.nasjonalturbase.no/api.html)
- * [Technical docs](https://turistforeningen.atlassian.net/wiki/display/dnt/Nasjonal+Turbase)
- * [Data licenses](http://documentation.nasjonalturbase.no/lisenser.html)
- * [Attribution](http://documentation.nasjonalturbase.no/navngiving.html)
+| Website         | http://www.nasjonalturbase.no                     |
+| --------------- | ------------------------------------------------- |
+| Data liceses    | http://www.nasjonalturbase.no/lisenser.html       |
+| Attribution     | http://www.nasjonalturbase.no/navngiving.html     |
+| API docs        | http://www.nasjonalturbase.no/api.html            |
+| Technical docs  | https://github.com/Turistforeningen/Turbasen/wiki |
 
-## The stack
+## Technology
 
-The API is a RESTfull API with JSON as it's only supported input/output format.
-The API is wirtten in JavaScript for [Node.JS](http://nodejs.org) using
-[Literate](http://coffeescript.org/#literate)
-[CoffeeScript](http://coffeescript.org). It reads and writes to a
-[MongoDB](http://www.mongodb.org) database and caches ifemeral data in
-[Redis](http://redis.io).
+* [Node.JS](https://nodejs.org) (Express.JS)
+* [MongoDB](https://www.mongodb.org)
+* [Redis](https://redis.io)
 
-## Developing
+## Development
 
-### Environment Varaibles
+### Requirements
+
+* [Docker](https://docs.docker.com/) >= v1.6
+* [Docker Compose](https://docs.docker.com/compose/) >= v1.2
+
+### Environment
 
 * `NODE_ENV`
-* `PORT_WWW`
-* `MONGO_URI`
-* `DOTCLOUD_CACHE_REDIS_HOST`
-* `DOTCLOUD_CACHE_REDIS_PORT`
+* `APP_PORT` (default `8080`)
+* `REDIS_PORT_6379_TCP_PORT`
+* `REDIS_PORT_6379_TCP_ADDR`
+* `MONGO_PORT_27017_TCP_PORT`
+* `MONGO_PORT_27017_TCP_ADDR`
 
-### Install using Vagrant
-
-```bash
-vagrant up
-vagrant ssh
-```
-
-### Install manually
-
-`NB` this assumes that you already have Node, MongoDB and Redis running locally
-on your machine.
-
-```bash
-npm install
-```
-
-### Testing
+### Test
 
 ```
-npm test
+docker-compose run www npm test
+```
+### Start
+
+```
+docker-compose run www npm run-script devserver
 ```
 
-## License
-
-> The MIT License (MIT)
->
-> Copyright (c) 2013-2014 Turistforeningen, Hans Kristian Flaatten
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of
-> this software and associated documentation files (the "Software"), to deal in
-> the Software without restriction, including without limitation the rights to
-> use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-> the Software, and to permit persons to whom the Software is furnished to do so,
-> subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-> FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-> COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-> IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-> CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+## [MIT License](https://github.com/Turistforeningen/Turbasen/blob/master/LICENSE)
