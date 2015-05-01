@@ -37,7 +37,6 @@ the rquest.
 ### Configuration
 
     app.use(express.favicon())
-    app.use(express.logger(':date :remote-addr - :method :url :status :res[content-length] - :response-time ms')) if not process.env.SILENT
     app.use(express.compress())
     app.use(express.json())
     app.disable('x-powered-by')
