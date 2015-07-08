@@ -100,7 +100,7 @@ There optional are optional for all objects.
           tittel: joi.string()
           adresse1: joi.string()
           adresse2: joi.string()
-          postnummer: joi.number().integer()
+          postnummer: joi.string()
           poststed: joi.string()
           land: joi.string()
           telefon: joi.string()
