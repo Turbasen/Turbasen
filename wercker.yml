@@ -7,6 +7,11 @@ services:
 build:
     steps:
         - npm-install
+
+        - script
+                name: coffeehint
+                code: npm run hint
+
         - npm-test
 
         - script:
