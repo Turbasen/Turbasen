@@ -9,7 +9,7 @@
   "main": "src/server.js",
   "author": "Hans Kristian Flaatten <hans.kristian.flaatten@turistforeningen.no>",
   "dependencies": {
-    "JSONStream": "0.10.0",
+    "JSONStream": "1.0.4",
     "coffee-script": "1.8.0",
     "express": "3.20.2",
     "joi": "5.0.0",
