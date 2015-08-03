@@ -261,6 +261,7 @@ Returns `undefined`.
           redis.del "#{@type}:#{@id.toString()}"
           redis.hmset "#{@type}:#{@id.toString()}", @data
 
+          data._id = @id
           cb err, warn, data
 
 

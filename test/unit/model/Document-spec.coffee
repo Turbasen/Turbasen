@@ -319,27 +319,44 @@ describe 'Existing', ->
     # it 'should add document to recent updated documents list'
 
   describe '#replace()', ->
-    beforeEach -> d = JSON.parse(JSON.stringify(data.steder))
+    sted1 = sted2 = null
 
-    it 'should replace data for document in databse', (done) ->
-      doc.replace JSON.parse(JSON.stringify(data.steder)), (err, warn, d) ->
+    beforeEach ->
+      sted1 = JSON.parse JSON.stringify data.steder
+      sted2 = JSON.parse JSON.stringify data.steder
+      sted1._id = sted2._id = doc.id.toString()
+
+    it 'should replace data for document in database', (done) ->
+      doc.replace sted1, (err, warn) ->
         assert.ifError err
         assert.deepEqual warn, []
 
-        doc.getFull {}, (err, d) ->
+        doc.getFull {}, (err, doc) ->
           assert.ifError err
 
-          ignore = ['_id', 'checksum', 'endret']
-          assert.deepEqual d[key], val for key, val of data.steder when key not in ignore
+          # This is auto converted to string over HTTP
+          doc._id = doc._id.toString()
+
+          ignore = ['checksum', 'endret']
+          for key, val of sted2 when key not in ignore
+            assert.deepEqual doc[key], val
+
+          for key, val of sted2 when key in ignore
+            assert.notEqual doc[key], val
+
           done()
 
     it 'should replace data for document in cache', (done) ->
-      doc.replace JSON.parse(JSON.stringify(data.steder)), (err, warn, d) ->
+      doc.replace sted1, (err, warn) ->
         assert.ifError err
         assert.deepEqual warn, []
 
-        ignore = ['_id', 'checksum', 'endret']
-        assert.deepEqual val, data.steder[key] for key, val of doc.get() when key not in ignore
+        ignore = ['checksum', 'endret']
+        for key, val of doc.get() when key not in ignore
+          assert.deepEqual val, sted2[key]
+
+        for key, val of doc.get() when key in ignore
+          assert.notEqual val, sted2[key]
 
         done()
 
