@@ -24,7 +24,7 @@
     "coffeelint": "~1",
     "concat-stream": "~1",
     "mocha": "~2",
-    "supertest": "~0"
+    "supertest": "~1"
   },
   "scripts": {
     "start": "supervisor -w src -- src/server.js",
