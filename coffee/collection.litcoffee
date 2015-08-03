@@ -19,7 +19,7 @@
         tag: 'tags.0'
         gruppe: 'grupper'
         endret: 'after'
-      ignore:
+      blacklist:
         api_key     : true # other use
         order       : true # reserved
         sort        : true # other use
