@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "async": "~0",
+    "coffeelint": "~1",
     "concat-stream": "~1",
     "mocha": "~2",
     "supertest": "~0"
