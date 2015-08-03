@@ -273,7 +273,8 @@ describe '#get()', ->
       done()
 
     res.set = (key, val) ->
-      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
+      if key is 'Content-Type'
+        assert.equal val, 'application/json; charset=utf-8'
 
     document.get req, res, assert.ifError
 
@@ -289,7 +290,8 @@ describe '#get()', ->
       done()
 
     res.set = (key, val) ->
-      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
+      if key is 'Content-Type'
+        assert.equal val, 'application/json; charset=utf-8'
 
     document.get req, res, assert.ifError
 

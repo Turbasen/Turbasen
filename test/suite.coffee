@@ -16,8 +16,12 @@ data =
 if not (data['steder'][0]._id instanceof ObjectID)
   for val, key in data.api.users
     data.api.users[key]._id = new ObjectID(val._id['$oid'])
-  data.steder[key]._id = new ObjectID(val._id['$oid']) for val, key in data.steder
-  data.turer[key]._id = new ObjectID(val._id['$oid']) for val, key in data.turer
+
+  for val, key in data.steder
+    data.steder[key]._id = new ObjectID(val._id['$oid'])
+
+  for val, key in data.turer
+    data.turer[key]._id = new ObjectID(val._id['$oid'])
 
 exports.steder = JSON.parse JSON.stringify data.steder
 exports.turer = JSON.parse JSON.stringify data.turer
