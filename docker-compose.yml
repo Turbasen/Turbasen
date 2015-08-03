@@ -1,5 +1,6 @@
 mongo:
   image: mongo:2.6
+  command: mongod --smallfiles
 
 redis:
   image: redis:2.8

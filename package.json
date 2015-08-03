@@ -26,11 +26,11 @@
     "supertest": "~0"
   },
   "scripts": {
-    "start": "./node_modules/.bin/supervisor -w src -- src/server.js",
-    "devserver": "./node_modules/.bin/supervisor -w coffee -- coffee/server.litcoffee",
-    "test": "./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R spec --compilers coffee:coffee-script/register",
-    "watch": "./node_modules/.bin/mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register --watch",
-    "postinstall": "rm -rf src/* && ./node_modules/.bin/coffee --bare -o src/ -c coffee/"
+    "start": "supervisor -w src -- src/server.js",
+    "devserver": "supervisor -w coffee -- coffee/server.litcoffee",
+    "test": "mocha -b -c --check-leaks test/suite.coffee -R spec --compilers coffee:coffee-script/register",
+    "watch": "mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register --watch",
+    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/"
   },
   "config": {
     "port_www": 8080,
