@@ -20,7 +20,7 @@
     "supervisor": "0.6.0"
   },
   "devDependencies": {
-    "async": "~0",
+    "async": "~1",
     "coffeelint": "~1",
     "concat-stream": "~1",
     "mocha": "~2",
