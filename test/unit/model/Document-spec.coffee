@@ -65,7 +65,13 @@ describe 'New', ->
   describe '#isModifiedSince()', ->
     Date.prototype.toUnixTime = -> Math.floor(@getTime()/1000)
 
-    methods = ['toString', 'toUTCString', 'toISOString', 'getTime', 'toUnixTime']
+    methods = [
+      'toString'
+      'toUTCString'
+      'toISOString'
+      'getTime'
+      'toUnixTime'
+    ]
 
     beforeEach ->
       doc.data.endret = new Date('2013-12-16T14:25:47.966Z')
@@ -108,41 +114,45 @@ describe 'New', ->
         assert.equal doc.isNotModifiedSince(d[method]()), false
 
   describe '#isMatch()', ->
+    checksum = '7054837d420a83c2d70749dd09ef71e341079465'
+
     beforeEach ->
-      doc.data.checksum = '7054837d420a83c2d70749dd09ef71e341079465'
+      doc.data.checksum = checksum
 
     it 'should return false for no data.checksum', ->
       delete doc.data.checksum
-      assert.equal doc.isMatch('"7054837d420a83c2d70749dd09ef71e341079465"'), false
+      assert.equal doc.isMatch("\"#{checksum}\""), false
 
     it 'should reuturn false for no test checksum', ->
       assert.equal doc.isMatch(), false
 
     it 'should reuturn false for inequal test checksum', ->
-      assert.equal doc.isMatch('"7054837d420a83c2d70749dd09ef71e341079464"'), false
+      assert.equal doc.isMatch("\"#{checksum + 'a'}\""), false
 
     it 'should reuturn true for equal test checksum', ->
-      assert.equal doc.isMatch('"7054837d420a83c2d70749dd09ef71e341079465"'), true
+      assert.equal doc.isMatch("\"#{checksum}\""), true
 
     it 'should return true for special value "*"', ->
       assert.equal doc.isMatch('*'), true
 
   describe '#isNoneMatch()', ->
+    checksum = '7054837d420a83c2d70749dd09ef71e341079465'
+
     beforeEach ->
-      doc.data.checksum = '7054837d420a83c2d70749dd09ef71e341079465'
+      doc.data.checksum = checksum
 
     it 'should return false for no test checksum', ->
       assert.equal doc.isNoneMatch(), false
 
     it 'should return true for no data.checksum', ->
       delete doc.data.checksum
-      assert.equal doc.isNoneMatch('"7054837d420a83c2d70749dd09ef71e341079465"'), true
+      assert.equal doc.isNoneMatch("\"#{checksum}\""), true
 
     it 'should return true for inequal test checksum', ->
-      assert.equal doc.isNoneMatch('"7054837d420a83c2d70749dd09ef71e341079464"'), true
+      assert.equal doc.isNoneMatch("\"#{checksum + 'a'}\""), true
 
     it 'should return false for equal test checksum', ->
-      assert.equal doc.isNoneMatch('"7054837d420a83c2d70749dd09ef71e341079465"'), false
+      assert.equal doc.isNoneMatch("\"#{checksum}\""), false
 
     it 'should return true for special value "*"', ->
       assert.equal doc.isNoneMatch('*'), true
@@ -195,7 +205,9 @@ describe 'New', ->
         redis.hgetall "steder:#{doc1._id}", (err, doc2) ->
           assert.ifError err
 
-          for key, val of cache.arrayify 'steder', doc2 when key not in ['checksum']
+          doc2 = cache.arrayify 'steder', doc2
+
+          for key, val of doc2 when key not in ['checksum']
             assert.deepEqual val, (d[key] or [])
 
           done()
@@ -254,7 +266,11 @@ describe 'Existing', ->
       status: 'Offentlig'
       navn: 'd48f6eb3609490dadc7ac233136f95c1'
       områder: ['52408144e7926dcf1500000a', '52408144e7926dcf1500000e']
-      bilder: ['5242a065f92e7d7112011307', '5242a066f92e7d711201fd7e', '5242a065f92e7d71120119fd']
+      bilder: [
+        '5242a065f92e7d7112011307'
+        '5242a066f92e7d711201fd7e'
+        '5242a065f92e7d71120119fd'
+      ]
       grupper: ['52407f3c4ec4a13815000246']
 
   describe '#exists()', ->
@@ -374,7 +390,10 @@ describe 'Existing', ->
         $unset: navn: ''
         $push:
           steder: '530b4183dbd6386e051cd742'
-          grupper: $each: ['530b4183dbd6386e051cd743', '530b4183dbd6386e051cd744']
+          grupper: $each: [
+            '530b4183dbd6386e051cd743'
+            '530b4183dbd6386e051cd744'
+          ]
         $pull: områder: '52408144e7926dcf1500000e'
 
     it 'should update document data', (done) ->
@@ -464,4 +483,3 @@ describe 'Existing', ->
           done()
 
     # it 'should aggregate db delete statistics'
-
