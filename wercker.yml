@@ -8,7 +8,7 @@ build:
     steps:
         - npm-install
 
-        - script
+        - script:
                 name: coffeehint
                 code: npm run hint
 
