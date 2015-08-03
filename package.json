@@ -11,7 +11,7 @@
   "dependencies": {
     "JSONStream": "1.0.4",
     "coffee-script": "1.9.3",
-    "express": "3.20.2",
+    "express": "3.21.2",
     "joi": "5.0.0",
     "mongo-querystring": "0.1.0",
     "mongodb": "2.0.39",
