@@ -13,7 +13,7 @@
     "coffee-script": "1.9.3",
     "express": "3.20.2",
     "joi": "5.0.0",
-    "mongo-querystring": "0.0.2",
+    "mongo-querystring": "0.1.0",
     "mongodb": "2.0.28",
     "raven": "0.7.3",
     "redis": "0.12.1",
