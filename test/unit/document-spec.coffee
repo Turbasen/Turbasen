@@ -19,6 +19,7 @@ beforeEach (done) ->
     status: -> assert false, 'res.status called'
     json: -> assert false, 'res.json called'
     end: -> assert false, 'res.end called'
+    sendStatus: -> assert false, 'res.sendStatus called'
     headers: {}
     set: (header, value) ->
       @headers[header] = value
@@ -42,8 +43,8 @@ describe '#param()', ->
     delete req.isOwner
 
   it 'should return 400 error for invalid ObjectId', (done) ->
-    res.json = (code, body) ->
-      assert.equal code, 400
+    res.status = (code) -> assert.equal code, 400; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Invalid ObjectId'
       done()
 
@@ -146,8 +147,9 @@ describe '#all()', ->
   it 'should deny PUT if user is not owner', (done) ->
     req.isOwner = false
     req.method = 'PUT'
-    res.json = (code, body) ->
-      assert.equal code, 403
+
+    res.status = (code) -> assert.equal code, 403; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
 
@@ -156,8 +158,9 @@ describe '#all()', ->
   it 'should deny PATCH if user is not owner', (done) ->
     req.isOwner = false
     req.method = 'PATCH'
-    res.json = (code, body) ->
-      assert.equal code, 403
+
+    res.status = (code) -> assert.equal code, 403; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
 
@@ -166,8 +169,9 @@ describe '#all()', ->
   it 'should deny DELETE if user is not owner', (done) ->
     req.isOwner = false
     req.method = 'DELETE'
-    res.json = (code, body) ->
-      assert.equal code, 403
+
+    res.status = (code) -> assert.equal code, 403; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
 
@@ -219,7 +223,7 @@ describe '#all()', ->
 
 describe '#options()', ->
   it 'should set Access-Control-Allow-Headers', (done) ->
-    res.send = (code) ->
+    res.sendStatus = (code) ->
       assert.equal res.headers['Access-Control-Allow-Methods'], [
         'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
       ].join ', '
@@ -228,7 +232,7 @@ describe '#options()', ->
     document.options req, res, -> assert false, 'next() called'
 
   it 'should set Access-Control-Allow-Methods', (done) ->
-    res.send = (code) ->
+    res.sendStatus = (code) ->
       assert.equal res.headers['Access-Control-Allow-Headers'], [
         'Content-Type'
         'If-Match'
@@ -241,7 +245,7 @@ describe '#options()', ->
     document.options req, res, -> assert false, 'next() called'
 
   it 'should return 204 status code', (done) ->
-    res.send = (code) ->
+    res.sendStatus = (code) ->
       assert.equal code, 204
       done()
 
@@ -250,7 +254,7 @@ describe '#options()', ->
 describe '#get()', ->
   it 'should return no body for HEAD', (done) ->
     req.method = 'HEAD'
-    res.send = (code) ->
+    res.sendStatus = (code) ->
       assert.equal code, 200
       done()
 
@@ -273,7 +277,8 @@ describe '#get()', ->
       done()
 
     res.set = (key, val) ->
-      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
+      if key is 'Content-Type'
+        assert.equal val, 'application/json; charset=utf-8'
 
     document.get req, res, assert.ifError
 
@@ -289,12 +294,14 @@ describe '#get()', ->
       done()
 
     res.set = (key, val) ->
-      assert.equal val, 'application/json; charset=utf-8' if key is 'Content-Type'
+      if key is 'Content-Type'
+        assert.equal val, 'application/json; charset=utf-8'
 
     document.get req, res, assert.ifError
 
 describe '#put()', ->
   beforeEach ->
+    res.status = -> @
     req.method = 'PUT'
     req.body = foo: 'bar'
     req.doc.replace = (body, cb) ->
@@ -304,8 +311,9 @@ describe '#put()', ->
 
   it 'should return 400 if body is missing', (done) ->
     req.body = {}
-    res.json = (code, body) ->
-      assert.equal code, 400
+
+    res.status = (code) -> assert.equal code, 400; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Body is missing'
       done()
 
@@ -313,15 +321,16 @@ describe '#put()', ->
 
   it 'should return 400 if body is not object', (done) ->
     req.body = [{}]
-    res.json = (code, body) ->
-      assert.equal code, 400
+
+    res.status = (code) -> assert.equal code, 400; @
+    res.json = (body) ->
       assert.deepEqual body, message: 'Body should be a JSON Hash'
       done()
 
     document.put req, res, assert.ifError
 
   it 'should replace doc data if method is PUT', (done) ->
-    res.json = (code, body) -> done()
+    res.json = -> done()
     req.doc.replace = (body, cb) ->
       assert.equal body.foo, 'bar'
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
@@ -331,7 +340,7 @@ describe '#put()', ->
   it 'should update doc data if method is PATCH', (done) ->
     req.method = 'PATCH'
     req.body = $set: foo: 'bar'
-    res.json = (code, body) -> done()
+    res.json = -> done()
     req.doc.update = (body, cb) ->
       assert.equal body.$set.foo, 'bar'
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
@@ -339,7 +348,7 @@ describe '#put()', ->
     document.patch req, res, assert.ifError
 
   it 'should override data.tilbyder', (done) ->
-    res.json = (code, body) -> done()
+    res.json = -> done()
     req.doc.replace = (body, cb) ->
       assert.equal body.tilbyder, req.user.tilbyder
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
@@ -348,8 +357,9 @@ describe '#put()', ->
 
   it 'should return 422 if data schema fails', (done) ->
     req.body = navn: 123
-    res.json = (code, body) ->
-      assert.equal code, 422
+
+    res.status = (code) -> assert.equal code, 422; @
+    res.json = (body) ->
       assert.equal body.message, 'Validation Failed'
       assert.deepEqual body.errors, [foo: 'bar']
       done()
@@ -377,8 +387,8 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return 200 with body', (done) ->
-    res.json = (code, body) ->
-      assert.equal code, 200
+    res.status = (code) -> assert.equal code, 200; @
+    res.json = (body) ->
       assert.deepEqual body,
         document:
           foo: 'bar'
@@ -392,8 +402,8 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return warnings if any', (done) ->
-    res.json = (code, body) ->
-      assert.equal code, 200
+    res.status = (code) -> assert.equal code, 200; @
+    res.json = (body) ->
       assert.deepEqual body.message, 'Validation Warnings'
       assert.deepEqual body.warnings, [foo: 'bar']
       done()
@@ -418,7 +428,7 @@ describe '#delete()', ->
 
   it 'should return 204 with no body', (done) ->
     req.doc.delete = (cb) -> cb null
-    res.send = (code) ->
+    res.sendStatus = (code) ->
       assert.equal code, 204
       done()
 

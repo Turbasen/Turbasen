@@ -5,16 +5,17 @@ redis:
   image: redis:2.8
 
 www:
-  build: .
+  image: node:argon-slim
   ports:
     - "8080"
   links:
     - mongo
     - redis
+  working_dir: /usr/src/app
   volumes:
     - .:/usr/src/app
   environment:
     - APP_PORT=8080
     - NODE_ENV=development
     - NPM_CONFIG_LOGLEVEL=info
-  command: npm run-script watch
+  command: npm start

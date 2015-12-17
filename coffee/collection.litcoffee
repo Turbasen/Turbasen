@@ -19,7 +19,7 @@
         tag: 'tags.0'
         gruppe: 'grupper'
         endret: 'after'
-      ignore:
+      blacklist:
         api_key     : true # other use
         order       : true # reserved
         sort        : true # other use
@@ -38,7 +38,7 @@
       col = decodeURIComponent col
 
       if col not in collections
-        return res.json 404, message: "Type #{col} not found"
+        return res.status(404).json message: "Type #{col} not found"
 
       req.type = col
       req.db   = col: mongo[col], query: {}
@@ -47,7 +47,7 @@
 
     exports.paramCol2 = (req, res, next, col2) ->
       if col not in collections
-        return res.json 404, message: "Type #{col2} not found"
+        return res.status(404).json message: "Type #{col2} not found"
 
       req.type      = col2
       req.db.col    = mongo[col2]
@@ -65,7 +65,7 @@
       res.setHeader 'Access-Control-Max-Age', 86400
       res.setHeader 'Access-Control-Allow-Headers', 'Content-Type'
       res.setHeader 'Access-Control-Allow-Methods', 'HEAD, GET, POST'
-      res.send 204
+      res.sendStatus 204
 
 ## HEAD /{collection}
 ## GET /{collection}
@@ -167,7 +167,7 @@ them selves. This may be useful for statistics purposes.
 
 Return to the user if this is a `HEAD` query or there are no matching documents.
 
-        return res.send 204 if req.method is 'HEAD'
+        return res.sendStatus 204 if req.method is 'HEAD'
         return res.json documents: [], count: 0, total: 0 if total is 0
 
 Stream matching documents in order to prevent loading them into memory.
@@ -182,8 +182,8 @@ Stream matching documents in order to prevent loading them into memory.
 ## POST /{collection}
 
     exports.post = (req, res, next) ->
-      return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
-      return res.json 422, message: 'Body should be a JSON Hash' if req.body instanceof Array
+      return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
+      return res.status(422).json message: 'Body should be a JSON Hash' if req.body instanceof Array
 
       req.body.tilbyder = req.user.tilbyder
 
@@ -194,7 +194,7 @@ Stream matching documents in order to prevent loading them into memory.
 
             sentry.captureDocumentError req, err
 
-            return res.json 422,
+            return res.status(422).json
               document: req.body
               message: 'Validation Failed'
               errors: err.details #TODO(starefossen) document this
@@ -203,7 +203,7 @@ Stream matching documents in order to prevent loading them into memory.
           res.set 'Last-Modified', new Date(data.endret).toUTCString()
           # res.set 'Location', req.get 'host'
 
-          return res.json 201,
+          return res.status(201).json
             document: data
             message: 'Validation Warnings' if warn.length > 0
             warnings: warn if warn.length > 0

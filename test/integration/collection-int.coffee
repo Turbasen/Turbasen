@@ -270,7 +270,7 @@ describe 'GET', ->
             .expect documentAfter.bind(undefined, date)
             .end done
 
-        it 'should return documents changed after millis from 1.1.1970', (done) ->
+        it 'should return documents changed after ms from 1.1.1970', (done) ->
           date = new Date '2014-06-01T17:42:39.766Z'
           req.get "/turer?after=#{date.getTime()}&api_key=dnt"
             .expect 200
@@ -280,7 +280,11 @@ describe 'GET', ->
 
       describe '?bbox', ->
         it 'should return documents within bbox', (done) ->
-          coords = '5.3633880615234375,60.777937176256515,6.52862548828125,61.044326483979894'
+          coords = [
+            '5.3633880615234375', '60.777937176256515'
+            '6.52862548828125', '61.044326483979894'
+          ].join(',')
+
           req.get "/steder?bbox=#{coords}&api_key=dnt"
             .expect 200
             .expect 'count-total', 7

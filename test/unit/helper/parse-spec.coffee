@@ -5,30 +5,63 @@ parse = require '../../../coffee/helper/parse'
 
 describe 'docDefaults()', ->
   it 'should set endret to current data', ->
-    [warn, data] = parse.docDefaults 'steder', {endret: '2014-07-04T08:51:46.355Z'}, false
+    [warn, data] = parse.docDefaults 'steder', {
+      endret: '2014-07-04T08:51:46.355Z'
+    }, false
+
     assert.equal typeof data.endret, 'string'
     assert data.endret > '2014-07-04T08:51:46.355Z'
     assert data.endret <= new Date().toISOString()
 
   it 'should set checksum to new random checksum', ->
-    [warn, data] = parse.docDefaults 'steder', {checksum: 'abc123'}, false
+    [warn, data] = parse.docDefaults 'steder', {
+      checksum: 'abc123'
+    }, false
+
     assert.equal typeof data.checksum, 'string'
     assert.notEqual data.checksum, 'abc123'
     assert /[a-f0-9]{32}/.test data.checksum
 
   it 'should warn and set if lisens is not specified', ->
-    [warn, data] = parse.docDefaults 'steder', {status: 'Foo', navngiving: 'Bar'}, false
-    assert.deepEqual warn, [resource: 'Document', field: 'lisens', code: 'missing_field']
+    [warn, data] = parse.docDefaults 'steder', {
+      status: 'Foo'
+      navngiving: 'Bar'
+    }, false
+
+    assert.deepEqual warn, [
+      resource: 'Document'
+      field: 'lisens'
+      code: 'missing_field'
+    ]
+
     assert.equal data.lisens, 'CC BY 4.0'
 
   it 'should warn if navngiving is not specified', ->
-    [warn, data] = parse.docDefaults 'steder', {status: 'Foo', lisens: 'Bar'}, false
-    assert.deepEqual warn, [resource: 'Document', field: 'navngiving', code: 'missing_field']
+    [warn, data] = parse.docDefaults 'steder', {
+      status: 'Foo'
+      lisens: 'Bar'
+    }, false
+
+    assert.deepEqual warn, [
+      resource: 'Document'
+      field: 'navngiving'
+      code: 'missing_field'
+    ]
+
     assert.equal data.navngiving, undefined
 
   it 'should warn and set if status if not specified', ->
-    [warn, data] = parse.docDefaults 'steder', {lisens: 'Foo', navngiving: 'Bar'}, false
-    assert.deepEqual warn, [resource: 'Document', field: 'status', code: 'missing_field']
+    [warn, data] = parse.docDefaults 'steder', {
+      lisens: 'Foo'
+      navngiving: 'Bar'
+    }, false
+
+    assert.deepEqual warn, [
+      resource: 'Document'
+      field: 'status'
+      code: 'missing_field'
+    ]
+
     assert.equal data.status, 'Kladd'
 
   it 'should not check missing fields if isPatch flag is set', ->
@@ -67,6 +100,8 @@ describe 'docValidate()', ->
         done() if --i is 0
 
 describe 'docInsert()', ->
+  _id = '53b673aef3a92bc52a80414b'
+
   it 'should set _id if not provided', (done) ->
     parse.docInsert 'steder', {}, (err, warn, data) ->
       assert.ifError err
@@ -74,15 +109,15 @@ describe 'docInsert()', ->
       done()
 
   it 'should return _id as ObjectID', (done) ->
-    parse.docInsert 'steder', _id: '53b673aef3a92bc52a80414b', (err, warn, data) ->
+    parse.docInsert 'steder', _id: _id, (err, warn, data) ->
       assert.ifError err
       assert data._id instanceof ObjectID, '_id is not instance of ObjectID'
       done()
 
   it 'should preserve _id if provided', (done) ->
-    parse.docInsert 'steder', _id: '53b673aef3a92bc52a80414b', (err, warn, data) ->
+    parse.docInsert 'steder', _id: _id, (err, warn, data) ->
       assert.ifError err
-      assert.equal data._id.toString(), '53b673aef3a92bc52a80414b'
+      assert.equal data._id.toString(), _id
       done()
 
   it 'should warn about missing fields', (done) ->
@@ -97,8 +132,10 @@ describe 'docInsert()', ->
       done()
 
 describe 'docReplace()', ->
+  _id = '53b673aef3a92bc52a80414b'
+
   it 'should remove _id', (done) ->
-    parse.docReplace 'steder', _id: '53b673aef3a92bc52a80414b', (err, warn, data) ->
+    parse.docReplace 'steder', _id: _id, (err, warn, data) ->
       assert.ifError err
       assert.equal data._id, undefined
       done()
@@ -178,4 +215,3 @@ describe 'docPath()', ->
     parse.docPatch 'steder', navn: 123, (err, warn, data) ->
       assert err instanceof Error, 'error is not instance of Error'
       done()
-

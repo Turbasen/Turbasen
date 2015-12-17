@@ -14,5 +14,4 @@ www:
     - NODE_ENV=production
     - NPM_CONFIG_LOGLEVEL=info
     - SENTRY_DNS
-  command: npm start
   restart: always

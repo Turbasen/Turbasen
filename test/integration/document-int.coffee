@@ -24,104 +24,79 @@ describe 'OPTIONS', ->
 
 describe 'GET', ->
   it 'should return 404 for missing document', (done) ->
-    req.get('/steder/53507fb375049e5615000181?api_key=dnt')
-      .end (err, res) ->
-        assert.equal res.statusCode, 404
-        assert.deepEqual res.body, message: 'Not Found'
-        done()
+    req.get '/steder/53507fb375049e5615000181?api_key=dnt'
+      .expect 404, message: 'Not Found', done
 
   it 'should return 200 for public document', (done) ->
-    req.get('/steder/52407fb375049e5615000170?api_key=dnt')
-      .end (err, res) ->
+    req.get '/steder/52407fb375049e5615000170?api_key=dnt'
+      .expect (res) ->
         assert.equal res.statusCode, 200
         assert.equal typeof res.body, 'object'
         assert.equal typeof res.body.privat, 'object'
-        done()
+      .end done
 
   it 'should not return private data for non owner', (done) ->
-    req.get('/steder/52407fb375049e5615000170?api_key=nrk')
-      .end (err, res) ->
+    req.get '/steder/52407fb375049e5615000170?api_key=nrk'
+      .expect (res) ->
         assert.equal res.statusCode, 200
         assert.equal typeof res.body, 'object'
         assert.equal typeof res.body.privat, 'undefined'
-        done()
+      .end done
 
   it 'should return 200 for private document for owner', (done) ->
-    req.get('/steder/52d65b2544db971c94b2d949?api_key=dnt')
-      .end (err, res) ->
+    req.get '/steder/52d65b2544db971c94b2d949?api_key=dnt'
+      .expect (res) ->
         assert.equal res.statusCode, 200
         assert.equal typeof res.body, 'object'
         assert.equal typeof res.body.privat, 'object'
-        done()
+      .end done
 
   it 'should return 404 for private document for non owner', (done) ->
-    req.get('/steder/52d65b2544db971c94b2d949?api_key=nrk')
-      .end (err, res) ->
-        assert.equal res.statusCode, 404
-        assert.deepEqual res.body, message: 'Not Found'
-        done()
+    req.get '/steder/52d65b2544db971c94b2d949?api_key=nrk'
+      .expect 404, message: 'Not Found', done
 
 describe 'HEAD', ->
   it 'should return 404 with no body for missing document', (done) ->
-    req.head('/steder/53507fb375049e5615000181?api_key=dnt')
-      .end (err, res) ->
-        assert.equal res.statusCode, 404
-        assert.deepEqual res.body, {}
-        done()
+    req.head '/steder/53507fb375049e5615000181?api_key=dnt'
+      .expect 404, {}, done
 
   it 'should return 200 with no body for existing document', (done) ->
-    req.head('/steder/52407fb375049e5615000170?api_key=dnt')
-      .end (err, res) ->
-        assert.equal res.statusCode, 200
-        assert.deepEqual res.body, {}
-        done()
+    req.head '/steder/52407fb375049e5615000170?api_key=dnt'
+      .expect 200, {}, done
 
 describe 'PUT', ->
   it 'should return 403 for non owner', (done) ->
-    req.put('/steder/52407fb375049e5615000170?api_key=nrk')
-      .end (err, res) ->
-        assert.equal res.statusCode, 403
-        assert.deepEqual res.body, message: 'Request Denied'
-        done()
+    req.put '/steder/52407fb375049e5615000170?api_key=nrk'
+      .expect 403, message: 'Request Denied', done
 
   it 'should return 200 for owner', (done) ->
-    req.put('/steder/52407fb375049e5615000170?api_key=dnt')
-      .send(navn: 'Foo')
-      .end (err, res) ->
+    req.put '/steder/52407fb375049e5615000170?api_key=dnt'
+      .send navn: 'Foo'
+      .expect (res) ->
         assert.equal res.statusCode, 200
         assert.equal typeof res.body.document, 'object'
         assert.equal res.body.document.navn, 'Foo'
-        done()
+      .end done
 
 describe 'PATCH', ->
   it 'should return 403 for non owner', (done) ->
-    req.patch('/steder/52407fb375049e5615000170?api_key=nrk')
-      .end (err, res) ->
-        assert.equal res.statusCode, 403
-        assert.deepEqual res.body, message: 'Request Denied'
-        done()
+    req.patch '/steder/52407fb375049e5615000170?api_key=nrk'
+      .expect 403, message: 'Request Denied', done
 
   it 'should return 200 for owner', (done) ->
-    req.patch('/steder/52407fb375049e5615000170?api_key=dnt')
-      .send($set: navn: 'Foo')
-      .end (err, res) ->
+    req.patch '/steder/52407fb375049e5615000170?api_key=dnt'
+      .send $set: navn: 'Foo'
+      .expect (res) ->
         assert.equal res.statusCode, 200
         assert.equal typeof res.body.document, 'object'
         assert.equal res.body.document.navn, 'Foo'
-        done()
+      .end done
 
 describe 'DELETE', ->
   it 'should return 403 for non owner', (done) ->
-    req.delete('/steder/52407fb375049e5615000170?api_key=nrk')
-      .end (err, res) ->
-        assert.equal res.statusCode, 403
-        assert.deepEqual res.body, message: 'Request Denied'
-        done()
+    req.delete '/steder/52407fb375049e5615000170?api_key=nrk'
+      .expect 403, message: 'Request Denied', done
 
   it 'should return 204 for owner', (done) ->
-    req.delete('/steder/52407fb375049e5615000170?api_key=dnt')
-      .end (err, res) ->
-        assert.equal res.statusCode, 204
-        assert.deepEqual res.body, {}
-        done()
-
+    req.delete '/steder/52407fb375049e5615000170?api_key=dnt'
+      .expect 204, {}, done

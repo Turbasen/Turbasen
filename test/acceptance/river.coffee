@@ -24,7 +24,7 @@ it 'should reindex all documents in collection', (done) ->
 
           req.get "/steder/#{doc._id}?api_key=dnt"
             .end (err, res) ->
-              assert.ifError err
+              assert.ifError err if not /Not Found/.test err
 
               if doc.status is 'Slettet'
                 assert.equal res.statusCode, 404

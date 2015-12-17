@@ -98,7 +98,9 @@ describe 'check()', ->
     auth.check 'dnt', (err, user) ->
       assert.ifError err
 
-      assert.deepEqual Object.keys(user), ['tilbyder','limit','remaining','reset']
+      assert.deepEqual Object.keys(user), [
+        'tilbyder','limit','remaining','reset'
+      ]
       assert.equal user.tilbyder, 'DNT'
       assert.equal user.remaining, 999
       assert.equal user.limit, 1000
