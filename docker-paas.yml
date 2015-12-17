@@ -1,5 +1,5 @@
 redis:
-  image: redis:2.8
+  image: redis:3.0
   restart: always
 
 www:
