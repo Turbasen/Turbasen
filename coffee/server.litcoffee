@@ -1,3 +1,5 @@
+    require 'newrelic' if process.env.NODE_ENV is 'production'
+
     raven       = require 'raven'
     sentry      = require './db/sentry'
     express     = require 'express'
