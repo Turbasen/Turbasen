@@ -11,6 +11,10 @@ www:
   environment:
     - APP_PORT=8080
     - MONGO_URI
+    - NEW_RELIC_APP_NAME
+    - NEW_RELIC_LICENSE_KEY
+    - NEW_RELIC_LOG=stdout
+    - NEW_RELIC_NO_CONFIG_FILE=true
     - NODE_ENV=production
     - NPM_CONFIG_LOGLEVEL=info
     - SENTRY_DNS
