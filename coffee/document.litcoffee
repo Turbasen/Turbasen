@@ -6,7 +6,7 @@
 ## param()
 
     exports.param = (req, res, next, id) ->
-      return res.json 400, message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
+      return res.status(400).json message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
       return next() if req.method is 'OPTIONS'
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
@@ -27,7 +27,7 @@
       res.set 'Last-Modified', new Date(req.doc.get 'endret').toUTCString()
 
       if req.method not in ['GET', 'HEAD'] and not req.isOwner
-        return res.json 403, message: 'Request Denied'
+        return res.status(403).json message: 'Request Denied'
 
       if req.get 'If-Match'
         return res.status(412).end() if req.doc.isNoneMatch req.get 'If-Match'
@@ -58,14 +58,14 @@
         'If-None-Match'
         'If-Unmodified-Since'
       ].join ', '
-      res.send 204
+      res.sendStatus 204
 
 
 ## head()
 ## get()
 
     exports.head = exports.get = (req, res, next) ->
-      return res.send 200 if req.method is 'HEAD'
+      return res.sendStatus 200 if req.method is 'HEAD'
 
       res.set 'Content-Type', 'application/json; charset=utf-8'
       req.doc.getFull if req.isOwner then {} else privat: false
@@ -78,8 +78,8 @@
 ## put()
 
     exports.patch = exports.put = (req, res, next) ->
-      return res.json 400, message: 'Body is missing' if Object.keys(req.body).length is 0
-      return res.json 400, message: 'Body should be a JSON Hash' if req.body instanceof Array
+      return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
+      return res.status(400).json message: 'Body should be a JSON Hash' if req.body instanceof Array
 
       req.body.tilbyder = req.user.tilbyder
 
@@ -90,7 +90,7 @@
 
           sentry.captureDocumentError req, err
 
-          return res.json 422,
+          return res.status(422).json
             document: req.body
             message: 'Validation Failed'
             errors: err.details #TODO(starefossen) document this
@@ -98,7 +98,7 @@
         res.set 'ETag', "\"#{data.checksum}\""
         res.set 'Last-Modified', new Date(data.endret).toUTCString()
 
-        return res.json 200,
+        return res.status(200).json
           document: data
           message: 'Validation Warnings' if warn.length > 0
           warnings: warn if warn.length > 0
@@ -109,5 +109,5 @@
     exports.delete = (req, res, next) ->
       req.doc.delete (err) ->
         return next err if err
-        return res.send 204
+        return res.sendStatus 204
 

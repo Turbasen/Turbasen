@@ -1,6 +1,8 @@
     raven       = require 'raven'
     sentry      = require './db/sentry'
     express     = require 'express'
+    compression = require 'compression'
+    bodyParser  = require 'body-parser'
 
     auth        = require './helper/auth'
 
@@ -36,13 +38,67 @@ the rquest.
 
 ### Configuration
 
-    app.use(express.favicon())
-    app.use(express.compress())
-    app.use(express.json())
+    app.use(compression())
+    app.use(bodyParser.json())
     app.disable('x-powered-by')
     app.disable('etag')
     app.set 'port', process.env.APP_PORT or 8080
-    app.use(app.router)
+
+## GET /
+
+    app.get '/', (req, res) ->
+      res.json message: 'Here be dragons'
+
+## GET /favicon
+
+    app.get '/favicon.ico', (req, res) ->
+      res.set 'Content-Type': 'image/x-icon'
+      res.status(200).end()
+
+## GET /CloudHealthCheck
+
+> So...You’re seeing the dotCloud active health check looking to make sure that
+> your service is up. There is no way for you to disable it, but you can prevent
+> it and you can handle it [1]!
+
+[1] [dotCloud](http://docs.dotcloud.com/tutorials/more/cloud-health-check/)
+
+    app.all '/CloudHealthCheck', system.check
+
+## GET /objekttyper
+
+    app.get '/objekttyper', (req, res, next) ->
+      res.json ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
+
+## ALL /{collection}
+
+    app.param 'collection', collection.param
+    app.all '/:collection', (req, res, next) ->
+      switch req.method
+        when 'OPTIONS' then collection.options req, res, next
+        when 'HEAD', 'GET' then collection.get req, res, next
+        when 'POST' then collection.post req, res, next
+        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+
+## ALL /{collection}/{objectid}
+
+    app.param 'objectid', document.param
+    app.options '/:collection/:ojectid', document.options
+    app.all '/:collection/:objectid', document.all, (req, res, next) ->
+      switch req.method
+        when 'HEAD', 'GET' then document.get req, res, next
+        when 'PUT' then document.put req, res, next
+        when 'PATCH' then document.patch req, res, next
+        when 'DELETE' then document.delete req, res, next
+        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+
+## 404 handling
+
+This the fmous 404 Not Found handler. If no route configuration for the request
+is found, it ends up here. We don't do much fancy about it – just a standard
+error message and HTTP status code.
+
+    app.use (req, res) -> res.status(404).json message: "Resurs ikke funnet"
 
 ### Error handling
 
@@ -81,54 +137,6 @@ requests shall not contain any body – this applies for errors as well.
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'
 
-This the fmous 404 Not Found handler. If no route configuration for the request
-is found, it ends up here. We don't do much fancy about it – just a standard
-error message and HTTP status code.
-
-    app.use (req, res) -> res.json 404, message: "Resurs ikke funnet"
-
-## GET /
-
-    app.get '/', (req, res) ->
-      res.json message: 'Here be dragons'
-
-## GET /CloudHealthCheck
-
-> So...You’re seeing the dotCloud active health check looking to make sure that
-> your service is up. There is no way for you to disable it, but you can prevent
-> it and you can handle it [1]!
-
-[1] [dotCloud](http://docs.dotcloud.com/tutorials/more/cloud-health-check/)
-
-    app.all '/CloudHealthCheck', system.check
-
-## GET /objekttyper
-
-    app.get '/objekttyper', (req, res, next) ->
-      res.json 200, ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
-
-## ALL /{collection}
-
-    app.param 'collection', collection.param
-    app.all '/:collection', (req, res, next) ->
-      switch req.method
-        when 'OPTIONS' then collection.options req, res, next
-        when 'HEAD', 'GET' then collection.get req, res, next
-        when 'POST' then collection.post req, res, next
-        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
-
-## ALL /{collection}/{objectid}
-
-    app.param 'objectid', document.param
-    app.options '/:collection/:ojectid', document.options
-    app.all '/:collection/:objectid', document.all, (req, res, next) ->
-      switch req.method
-        when 'HEAD', 'GET' then document.get req, res, next
-        when 'PUT' then document.put req, res, next
-        when 'PATCH' then document.patch req, res, next
-        when 'DELETE' then document.delete req, res, next
-        else res.json 405, message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
-
 ## Start
 
 Ok, so if the server is running in stand-alone mode i.e. there is not
@@ -149,4 +157,3 @@ return the application instance so that we can do some testing on it.
 
     else
       module.exports = app
-
