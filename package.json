@@ -9,22 +9,22 @@
   "main": "src/server.js",
   "author": "Hans Kristian Flaatten <hans.kristian.flaatten@turistforeningen.no>",
   "dependencies": {
-    "JSONStream": "1.0.4",
-    "coffee-script": "1.9.3",
-    "express": "3.21.2",
-    "joi": "5.1.0",
-    "mongo-querystring": "0.1.0",
-    "mongodb": "2.0.39",
-    "raven": "0.8.1",
-    "redis": "0.12.1",
-    "supervisor": "0.7.1"
+    "JSONStream": "1.0.7",
+    "coffee-script": "^1.10.0",
+    "express": "^3.21.2",
+    "joi": "^5.1.0",
+    "mongo-querystring": "^1.2.0",
+    "mongodb": "^2.1.1",
+    "raven": "^0.9.0",
+    "redis": "^2.4.2"
   },
   "devDependencies": {
-    "async": "~1",
-    "coffeelint": "~1",
-    "concat-stream": "~1",
-    "mocha": "~2",
-    "supertest": "~1"
+    "async": "^1.4.0",
+    "coffeelint": "^1.14.2",
+    "concat-stream": "^1.5.1",
+    "mocha": "^2.3.4",
+    "supertest": "~1",
+    "supervisor": "0.9.1"
   },
   "scripts": {
     "start": "supervisor -w src -- src/server.js",
