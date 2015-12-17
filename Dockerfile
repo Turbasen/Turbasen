@@ -9,4 +9,4 @@ RUN npm install
 COPY coffee /usr/src/app/coffee
 RUN npm run-script postinstall
 
-CMD [ "npm", "start" ]
+CMD [ "node", "src/server.js" ]
