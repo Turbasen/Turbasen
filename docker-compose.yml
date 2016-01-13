@@ -4,8 +4,8 @@ mongo:
 redis:
   image: redis:3.0
 
-www:
-  image: node:argon-slim
+dev:
+  image: node:argon
   ports:
     - "8080"
   links:
