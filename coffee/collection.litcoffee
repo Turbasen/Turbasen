@@ -119,8 +119,8 @@ Parse user specified fields to be returned.
 
 ### Sort
 
-Limit sort to ascending or descending on `endret` and `navn` since they are
-indexed, non-indexed fields could be slower. Also, don't allow ordering of
+Limit sort to ascending or descending on `\_id`, `endret`, and `navn` since they
+are indexed. Non-indexed fields will be slower. Also, don't allow ordering of
 geospatial queries to prevent performance bottlenecks. From the [MongoDB
 refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavior):
 
@@ -129,6 +129,8 @@ refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavi
 
       if not req.db.query.geojson
         sort = switch req.query.sort
+          when '_id' then [['_id', 1]]
+          when '-_id' then [['_id', -1]]
           when 'endret' then [['endret', 1]]
           when '-endret' then [['endret', -1]]
           when 'navn' then [['navn', 1]]
