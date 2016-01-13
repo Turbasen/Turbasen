@@ -40,7 +40,7 @@ New `Doc`.
         redis.hgetall "#{@type}:#{@id.toString()}", (err, data) =>
           return @emit 'error', err if err
 
-          if data
+          if Object.keys(data).length
             @data = cache.arrayify @type, data
             @chit = true
             return @emit 'ready'
