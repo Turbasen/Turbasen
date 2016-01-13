@@ -104,6 +104,24 @@ describe 'GET', ->
           return
         .end done
 
+    it 'should sort ascending on _id', (done) ->
+      req.get '/steder?sort=_id&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc._id >= res.body.documents[i-1]._id
+          return
+        .end done
+
+    it 'should sort decreasing on _id', (done) ->
+      req.get '/steder?sort=-_id&api_key=dnt'
+        .expect 200
+        .expect (res) ->
+          for doc, i in res.body.documents when i > 0
+            assert doc._id <= res.body.documents[i-1]._id
+          return
+        .end done
+
     it 'should sort ascending on endret', (done) ->
       req.get '/steder?sort=endret&api_key=dnt'
         .expect 200

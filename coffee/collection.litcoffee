@@ -100,10 +100,16 @@ queried.
 
 ### Fields
 
-Always return `lisens` and `tilbyder` fields for propper attribution. Document
-ObjectID is always returned by MongoDB.
+Always return `endret`, `lisens`, `navn`, `status`, `tilbyder`, and `tags` in
+addition to `\_id` ObjectID which is always returned by MongoDB.
 
-      fields = lisens: true, tilbyder: true
+      fields =
+        endret: true
+        lisens: true
+        navn: true
+        status: true
+        tags: true
+        tilbyder: true
 
 Parse user specified fields to be returned.
 
@@ -111,18 +117,10 @@ Parse user specified fields to be returned.
         for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
           fields[field] = true
 
-Default fields if unless specified by the user.
-
-      else
-        fields.endret = true
-        fields.status = true
-        fields.navn = true
-        fields.tags = true
-
 ### Sort
 
-Limit sort to ascending or descending on `endret` and `navn` since they are
-indexed, non-indexed fields could be slower. Also, don't allow ordering of
+Limit sort to ascending or descending on `\_id`, `endret`, and `navn` since they
+are indexed. Non-indexed fields will be slower. Also, don't allow ordering of
 geospatial queries to prevent performance bottlenecks. From the [MongoDB
 refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavior):
 
@@ -131,6 +129,8 @@ refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavi
 
       if not req.db.query.geojson
         sort = switch req.query.sort
+          when '_id' then [['_id', 1]]
+          when '-_id' then [['_id', -1]]
           when 'endret' then [['endret', 1]]
           when '-endret' then [['endret', -1]]
           when 'navn' then [['navn', 1]]

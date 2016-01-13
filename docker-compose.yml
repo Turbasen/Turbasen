@@ -2,10 +2,10 @@ mongo:
   image: mongo:2.6
 
 redis:
-  image: redis:2.8
+  image: redis:3.0
 
-www:
-  image: node:argon-slim
+dev:
+  image: node:argon
   ports:
     - "8080"
   links:
