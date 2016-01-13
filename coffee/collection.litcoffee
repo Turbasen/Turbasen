@@ -100,24 +100,22 @@ queried.
 
 ### Fields
 
-Always return `lisens` and `tilbyder` fields for propper attribution. Document
-ObjectID is always returned by MongoDB.
+Always return `endret`, `lisens`, `navn`, `status`, `tilbyder`, and `tags` in
+addition to `\_id` ObjectID which is always returned by MongoDB.
 
-      fields = lisens: true, tilbyder: true
+      fields =
+        endret: true
+        lisens: true
+        navn: true
+        status: true
+        tags: true
+        tilbyder: true
 
 Parse user specified fields to be returned.
 
       if typeof req.query.fields is 'string' and req.query.fields
         for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
           fields[field] = true
-
-Default fields if unless specified by the user.
-
-      else
-        fields.endret = true
-        fields.status = true
-        fields.navn = true
-        fields.tags = true
 
 ### Sort
 
