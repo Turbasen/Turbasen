@@ -35,7 +35,8 @@
     "test": "mocha -b -c --check-leaks test/suite.coffee -R spec --compilers coffee:coffee-script/register",
     "watch": "mocha -b -c --check-leaks test/suite.coffee -R progress --compilers coffee:coffee-script/register,litcoffee:coffee-script/register --watch",
     "hint": "coffeelint coffee/ test/",
-    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/"
+    "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/",
+    "keygen": "coffee utils/keyGenerator.coffee"
   },
   "config": {
     "port_www": 8080,
