@@ -189,7 +189,8 @@ describe 'GET', ->
       req.get '/steder?fields=navn,geojson&api_key=dnt'
         .expect 200
         .expect fieldsMatching.bind undefined, [
-          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags', 'geojson'
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'geojson'
         ]
         .end done
 
@@ -197,7 +198,8 @@ describe 'GET', ->
       req.get '/steder?fields=navn,privat.secret,privat&api_key=dnt'
         .expect 200
         .expect fieldsMatching.bind undefined, [
-          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags', 'privat'
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'privat'
         ]
         .expect tilbyderMatching.bind undefined, 'DNT'
         .end done
@@ -206,7 +208,8 @@ describe 'GET', ->
       req.get '/steder?fields=navn,privat.secret,privat&api_key=nrk'
         .expect 200
         .expect fieldsMatching.bind undefined, [
-          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags', 'privat'
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'privat'
         ]
         .expect tilbyderMatching.bind undefined, 'NRK'
         .end done
