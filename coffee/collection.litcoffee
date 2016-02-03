@@ -114,8 +114,13 @@ addition to `\_id` ObjectID which is always returned by MongoDB.
 Parse user specified fields to be returned.
 
       if typeof req.query.fields is 'string' and req.query.fields
-        for field in req.query.fields.split ',' when field.substr(0,6) isnt 'privat'
+        for field in req.query.fields.split ','
           fields[field] = true
+
+If any private fields are to be returned we need to limit the query to documents
+owner by the API user to prevent exposing private data publicly.
+
+          req.db.query.tilbyder = req.user.tilbyder if field.substr(0,6) is 'privat'
 
 ### Sort
 
