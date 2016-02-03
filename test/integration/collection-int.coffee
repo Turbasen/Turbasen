@@ -159,15 +159,20 @@ describe 'GET', ->
         .end done
 
   describe '?fields', ->
-    documentFields = (fields, res) ->
+    fieldsMatching = (fields, res) ->
       for doc in res.body.documents
-        assert key in Object.keys(doc) for key in fields
+        assert key in fields for key in Object.keys(doc)
+      return
+
+    tilbyderMatching  = (owner, res) ->
+      for doc in res.body.documents
+        assert.equal doc.tilbyder, owner
       return
 
     it 'should return default fields', (done) ->
       req.get '/steder?api_key=dnt'
         .expect 200
-        .expect documentFields.bind undefined, [
+        .expect fieldsMatching.bind undefined, [
           '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags'
         ]
         .end done
@@ -175,19 +180,38 @@ describe 'GET', ->
     it 'should always return tilbyder and lisens', (done) ->
       req.get '/steder?fields=navn&api_key=dnt'
         .expect 200
-        .expect documentFields.bind undefined, ['tilbyder', 'lisens']
+        .expect fieldsMatching.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags'
+        ]
         .end done
 
     it 'should return chosen fields', (done) ->
       req.get '/steder?fields=navn,geojson&api_key=dnt'
         .expect 200
-        .expect documentFields.bind undefined, ['_id', 'navn', 'geojson']
+        .expect fieldsMatching.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'geojson'
+        ]
         .end done
 
-    it 'should not return any private fields', (done) ->
+    it 'should return private fields', (done) ->
       req.get '/steder?fields=navn,privat.secret,privat&api_key=dnt'
         .expect 200
-        .expect documentFields.bind undefined, ['_id', 'navn']
+        .expect fieldsMatching.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'privat'
+        ]
+        .expect tilbyderMatching.bind undefined, 'DNT'
+        .end done
+
+    it 'should only return documents I own with private fileds', (done) ->
+      req.get '/steder?fields=navn,privat.secret,privat&api_key=nrk'
+        .expect 200
+        .expect fieldsMatching.bind undefined, [
+          '_id', 'tilbyder', 'endret', 'status', 'lisens', 'navn', 'tags',
+          'privat'
+        ]
+        .expect tilbyderMatching.bind undefined, 'NRK'
         .end done
 
   describe 'Queries', ->
