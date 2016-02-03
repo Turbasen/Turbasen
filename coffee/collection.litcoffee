@@ -79,7 +79,7 @@
 Prevent private documents for other API user from being returned when quering
 `tilbyder` and `status` fields.
 
-      for key, val of req.query
+      for key, val of req.db.query
         switch key
           when 'status'
             req.db.query.tilbyder = req.user.tilbyder if val not in ['Offentlig', 'Slettet']
