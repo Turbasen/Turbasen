@@ -41,7 +41,7 @@ the rquest.
 ### Configuration
 
     app.use(compression())
-    app.use(bodyParser.json())
+    app.use bodyParser.json extended: true, limit: '10mb'
     app.disable('x-powered-by')
     app.disable('etag')
     app.set 'port', process.env.APP_PORT or 8080
