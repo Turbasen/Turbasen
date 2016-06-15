@@ -231,7 +231,9 @@ describe 'GET', ->
         req.get '/steder?api_key=nrk'
           .expect 200
           .expect tilbyderMatching.bind undefined, ['NRK', 'DNT']
-          .expect statusMatching.bind undefined, ['Offentlig', 'Privat', 'Kladd']
+          .expect statusMatching.bind undefined, [
+            'Offentlig', 'Privat', 'Kladd'
+          ]
           .end done
 
       it 'returns my documents', (done) ->
