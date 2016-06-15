@@ -8,26 +8,26 @@
   "main": "src/server.js",
   "author": "Hans Kristian Flaatten <hans.kristian.flaatten@turistforeningen.no>",
   "dependencies": {
-    "JSONStream": "1.0.7",
+    "JSONStream": "^1.1.1",
     "async": "^1.5.2",
-    "body-parser": "^1.14.2",
+    "body-parser": "^1.15.1",
     "coffee-script": "^1.10.0",
-    "compression": "^1.6.0",
+    "compression": "^1.6.2",
     "express": "^4.13.3",
-    "ioredis": "^1.14.0",
+    "ioredis": "^2.0.1",
     "joi": "^5.1.0",
-    "mongo-querystring": "^1.2.0",
-    "mongodb": "^2.1.4",
-    "newrelic": "^1.24.1",
-    "raven": "^0.10.0"
+    "mongo-querystring": "^3.1.0",
+    "mongodb": "^2.1.18",
+    "newrelic": "^1.28.0",
+    "raven": "^0.11.0"
   },
   "devDependencies": {
     "async": "^1.4.0",
     "coffeelint": "^1.14.2",
     "concat-stream": "^1.5.1",
-    "mocha": "^2.3.4",
+    "mocha": "^2.5.3",
     "supertest": "~1",
-    "supervisor": "0.9.1"
+    "supervisor": "0.11.0"
   },
   "scripts": {
     "start": "supervisor -w coffee -- coffee/server.litcoffee",
