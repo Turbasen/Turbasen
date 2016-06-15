@@ -37,13 +37,5 @@
     "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/",
     "keygen": "coffee utils/keyGenerator.coffee"
   },
-  "config": {
-    "port_www": 8080,
-    "sentry_dns": null,
-    "mongo_uri": null,
-    "dotcloud_cache_redis_port": null,
-    "dotcloud_cache_redis_host": null,
-    "dotcloud_cache_redis_password": null
-  },
   "license": "MIT"
 }
