@@ -95,7 +95,7 @@ Prevent private documents for other API user from being returned when quering
 Apply default access control unless `status` or `tilbyder` fields are already
 queried.
 
-      if not req.db.query.tilbyder or req.db.query.status
+      if not (req.db.query.tilbyder or req.db.query.status)
         req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
 
 ### Fields
