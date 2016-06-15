@@ -2,7 +2,7 @@ mongo:
   image: mongo:3.0
 
 redis:
-  image: redis:3.0
+  image: redis:3
 
 dev:
   image: node:argon
