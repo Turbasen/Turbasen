@@ -1,10 +1,10 @@
 mongo:
-  image: mongo:2.6
+  image: mongo:3.0
 
 redis:
-  image: redis:3.0
+  image: redis:3
 
-dev:
+node:
   image: node:argon
   ports:
     - "8080"
@@ -17,5 +17,7 @@ dev:
   environment:
     - APP_PORT=8080
     - NODE_ENV=development
-    - NPM_CONFIG_LOGLEVEL=info
+    - NPM_CONFIG_LOGLEVEL=silent
+    - NPM_CONFIG_PROGRESS=false
+    - NPM_CONFIG_SPIN=false
   command: npm start

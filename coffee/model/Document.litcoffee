@@ -313,7 +313,7 @@ Returns `undefined`.
     Doc.prototype.delete = (cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
 
-      @data = status: 'Slettet'
+      @data = status: 'Slettet', endret: new Date()
       @db.replaceOne _id: @id, @data, w: 1, (err) =>
         return cb err if err
 

@@ -1,45 +1,39 @@
 box: node:argon
 
 services:
-    - mongo:2.6
-    - redis:2.8
+    - mongo:3.0
+    - redis:3
 
 build:
-    steps:
-        - npm-install
+  steps:
+    - script:
+        name: echo nodejs information
+        code: |
+          echo "node version $(node -v) running"
+          echo "npm version $(npm -v) running"
 
-        - script:
-                name: coffeehint
-                code: npm run hint
+    - npm-install
 
-        - npm-test
+    - script:
+        name: lint
+        code: npm run lint
 
-        - script:
-                name: echo nodejs information
-                code: |
-                    echo "node version $(node -v) running"
-                    echo "npm version $(npm -v) running"
+    - npm-test
 
-    after-steps:
-        - turistforeningen/slack-notifier:
-                url: $SLACK_WEBHOOK_URL
+  after-steps:
+    - turistforeningen/slack-notifier:
+        url: $SLACK_WEBHOOK_URL
 
 deploy:
-    steps:
-        - add-ssh-key:
-                keyname: SSH_KEY
-                host: $SSH_HOST
+  steps:
+    - script:
+        name: docker hub build
+        code: |
+          curl --verbose \
+            -H "Content-Type: application/json" \
+            -d "{\"source_type\": \"Branch\", \"source_name\": \"$WERCKER_GIT_BRANCH\"}" \
+            -X POST $DOCKER_TRIGGER_URL
 
-        - add-to-known_hosts:
-                hostname: $SSH_HOST
-
-        - script:
-                name: start application
-                code: |
-                    ssh -l ${SSH_USER} ${SSH_HOST} \
-                        COMPOSE_FILE=docker-paas.yml \
-                        /var/www/config/manage.sh ${SSH_APP} update --rebuild
-
-    after-steps:
-        - turistforeningen/slack-notifier:
-                url: $SLACK_WEBHOOK_URL
+  after-steps:
+    - turistforeningen/slack-notifier:
+        url: $SLACK_WEBHOOK_URL

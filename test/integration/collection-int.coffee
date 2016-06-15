@@ -42,6 +42,22 @@ describe 'HEAD', ->
       .end done
 
 describe 'GET', ->
+  tilbyderMatching = (owner, res) ->
+    owner = [owner] if not (owner instanceof Array)
+
+    for doc in res.body.documents
+      assert doc.tilbyder in owner
+
+    return
+
+  statusMatching = (status, res) ->
+    status = [status] if not (status instanceof Array)
+
+    for doc in res.body.documents
+      assert doc.status in status
+
+    return
+
   it 'should return 200 status code with documents', (done) ->
     req.get '/steder?api_key=dnt'
       .expect 200
@@ -164,11 +180,6 @@ describe 'GET', ->
         assert key in fields for key in Object.keys(doc)
       return
 
-    tilbyderMatching  = (owner, res) ->
-      for doc in res.body.documents
-        assert.equal doc.tilbyder, owner
-      return
-
     it 'should return default fields', (done) ->
       req.get '/steder?api_key=dnt'
         .expect 200
@@ -215,6 +226,41 @@ describe 'GET', ->
         .end done
 
   describe 'Queries', ->
+    describe 'ACL', ->
+      it 'returns my own or public documents', (done) ->
+        req.get '/steder?api_key=nrk'
+          .expect 200
+          .expect tilbyderMatching.bind undefined, ['NRK', 'DNT']
+          .expect statusMatching.bind undefined, [
+            'Offentlig', 'Privat', 'Kladd'
+          ]
+          .end done
+
+      it 'returns my documents', (done) ->
+        req.get '/steder?api_key=nrk&tilbyder=NRK'
+          .expect 200
+          .expect tilbyderMatching.bind undefined, 'NRK'
+          .end done
+
+      it 'returns other\'s documents', (done) ->
+        req.get '/steder?api_key=dnt&tilbyder=NRK'
+          .expect 200
+          .expect tilbyderMatching.bind undefined, 'NRK'
+          .expect statusMatching.bind undefined, 'Offentlig'
+          .end done
+
+      it 'returns public documents', (done) ->
+        req.get '/steder?api_key=dnt&status=Offentlig'
+          .expect 200
+          .expect statusMatching.bind undefined, 'Offentlig'
+          .end done
+
+      it 'returns public or deleted documents', (done) ->
+        req.get '/steder?api_key=dnt&status[]=Offentlig&&status[]=Slettet'
+          .expect 200
+          .expect statusMatching.bind undefined, ['Offentlig', 'Slettet']
+          .end done
+
     describe 'Basic Operators', ->
       it 'field should exist', (done) ->
         req.get '/turer?bilder=&fields=bilder&api_key=dnt'

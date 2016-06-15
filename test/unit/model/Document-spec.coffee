@@ -464,7 +464,9 @@ describe 'Existing', ->
     it 'should have status = Slettet', (done) ->
       doc.delete (err) ->
         assert.ifError err
-        assert.deepEqual doc.get(), status: 'Slettet'
+        assert.deepEqual Object.keys(doc.get()), ['status', 'endret']
+        assert.deepEqual doc.get().status, 'Slettet'
+        assert doc.get().endret instanceof Date
         done()
 
     it 'should set document as deleted in database', (done) ->
@@ -472,14 +474,18 @@ describe 'Existing', ->
         assert.ifError err
         doc.db.findOne _id: doc.id, {}, (err, data1) ->
           assert.ifError err
-          assert.deepEqual data1, _id: new ObjectID(doc.id), status: 'Slettet'
+          assert.deepEqual Object.keys(data1), ['_id', 'status', 'endret']
+          assert.deepEqual data1.status, 'Slettet'
+          assert data1.endret instanceof Date
           done()
 
     it 'should set document as deleted in cache', (done) ->
       doc.delete (err) ->
         redis.hgetall "#{doc.type}:#{doc.id.toString()}", (err, data1) ->
           assert.ifError err
-          assert.deepEqual data1, status: 'Slettet'
+          assert.deepEqual Object.keys(data1), ['status', 'endret']
+          assert.deepEqual data1.status, 'Slettet'
+          assert.deepEqual typeof data1.endret, 'string'
           done()
 
     # it 'should aggregate db delete statistics'
