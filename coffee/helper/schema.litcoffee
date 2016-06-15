@@ -1,5 +1,18 @@
     joi = require 'joi'
 
+## Types
+
+Supported schema object types.
+
+    exports.types = [
+      'arrangementer'
+      'bilder'
+      'grupper'
+      'områder'
+      'steder'
+      'turer'
+    ]
+
 ## All
 
 ### Required

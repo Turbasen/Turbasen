@@ -13,6 +13,8 @@ Import data storage modules.
     parse   = require '../helper/parse'
     cache   = require '../helper/cache'
 
+    collections = require('../helper/schema').types
+
 ## Class: Doc
 
 ### Params

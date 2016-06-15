@@ -2,17 +2,9 @@
     Document    = require './model/Document'
     stringify   = require('JSONStream').stringify
 
+    collections = require('./helper/schema').types
     sentry      = require './db/sentry'
     mongo       = require './db/mongo'
-
-    collections = [
-      'turer'
-      'steder'
-      'grupper'
-      'områder'
-      'bilder'
-      'arrangementer'
-    ]
 
     qs = new MongoQS
       alias:

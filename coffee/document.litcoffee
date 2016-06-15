@@ -1,3 +1,4 @@
+    schema   = require './helper/schema'
     sentry   = require './db/sentry'
     Document = require './model/Document'
 

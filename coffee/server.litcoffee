@@ -7,6 +7,7 @@
     bodyParser  = require 'body-parser'
 
     auth        = require './helper/auth'
+    collections = require('./helper/schema').types
 
     system      = require './system'
     collection  = require './collection'
@@ -70,7 +71,7 @@ the rquest.
 ## GET /objekttyper
 
     app.get '/objekttyper', (req, res, next) ->
-      res.json ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
+      res.json collections
 
 ## ALL /{collection}
 
