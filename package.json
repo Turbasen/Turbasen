@@ -1,7 +1,6 @@
 {
   "name": "nasjonalturbase",
   "version": "1.0.0",
-  "private": true,
   "description": "API for Nasjonal Turbase",
   "homepage": "http://www.nasjonalturbase.no/",
   "bugs": "https://github.com/turistforeningen/nasjonalturbase/issues",
