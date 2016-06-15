@@ -4,7 +4,7 @@ mongo:
 redis:
   image: redis:3
 
-dev:
+node:
   image: node:argon
   ports:
     - "8080"
