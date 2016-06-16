@@ -21,8 +21,8 @@ Import data storage modules.
 
 ### Params
 
-* `string` type - document type
-* `string` id - document id
+* **string** `type` - document type
+* **string** `id` - document id
 
 ### Return
 
@@ -112,7 +112,7 @@ Check if document has not been modified since a given timestamp.
 
 ### Params
 
-* `string` time - timestamp to check against.
+* **string** `time` - timestamp to check against.
 
 ### Return
 
@@ -150,7 +150,7 @@ Check if checksum, or Etag, matche current document checksum.
 
 ### Params
 
-* `string` checksum - checksum to check against.
+* **string** `checksum` - checksum to check against.
 
 ### Return
 
@@ -169,7 +169,7 @@ Check if checksum, or Etag, doesnt match current document checksum.
 
 ### Params
 
-* `string` checksum - checksum to check against.
+* **string** `checksum` - checksum to check against.
 
 ### Return
 
@@ -189,7 +189,7 @@ Get cached data for current document.
 
 ### Params
 
-* `string` key - get specific object property
+* **string** `key` - get specific object property
 
 ### Return
 
@@ -207,8 +207,8 @@ Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
 
 ### Params
 
-* `object` filter - control which object properties are returned
-* `function` cb - callback function (`Error` err, `object` data)
+* **object** `filter` - control which object properties are returned
+* **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
 ### Return
 
@@ -229,10 +229,10 @@ Returns `undefined`.
 
 ### Params
 
-* `object` filter - control which object properties are returned
-* `array` expand -
-* `object` query -
-* `function` cb - callback function (`Error` err, `object` data)
+* **object** `filter` - control which object properties are returned
+* **array** `expand` - sub-document property names to expand
+* **object** `query` - query for expanded sub-documents
+* **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
 ### Return
 
@@ -309,8 +309,8 @@ Inserts a document into databse.
 
 ### Params
 
-* `object` data - data to insert for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
+* **object** `data` - data to insert for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
 ### Return
 
@@ -342,8 +342,8 @@ Replaces all document data in database.
 
 ### Params
 
-* `object` data - replacement data for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
+* **object** `data` - replacement data for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
 ### Return
 
@@ -371,13 +371,13 @@ Returns `undefined`.
 
 ## Doc.update
 
-Partially update the document-data in database. This is some times refered to as
+Partially update the document-data in database. This is some times referred to as
 PATCH in a HTTP / REST context.
 
 ### Params
 
-* `object` data - replacement object for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
+* **object** `data` - replacement object for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
 ### Return
 
@@ -410,7 +410,7 @@ setting the `status` property to `Slettet`.
 
 ### Params
 
-* `function`  cb - callback function (`Error` err).
+* **function** `cb` - callback function (**Error** `err`).
 
 ### Return
 
