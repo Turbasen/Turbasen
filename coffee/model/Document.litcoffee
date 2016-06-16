@@ -64,7 +64,7 @@ New `Doc`.
 
     inherits Doc, EventEmitter
 
-## Doc.exists
+## doc.exists()
 
 Check if document exists.
 
@@ -78,7 +78,7 @@ Returns `true` if document exists; otherwise `false`.
       return @data.status? and @data.status isnt 'Slettet'
 
 
-## Doc.getId
+## doc.getId()
 
 Get document id (ObjectID) for current document.
 
@@ -92,7 +92,7 @@ Returns an `ObjectID` if the document has an id; otherwise `null`.
       @id
 
 
-## Doc.wasCacheHit
+## doc.wasCacheHit()
 
 Check if document request was a cache hit.
 
@@ -106,7 +106,7 @@ Returns `true` if document request was a cache hit; otherwise `false`.
       @chit
 
 
-## Doc.isNotModifiedSince
+## doc.isNotModifiedSince()
 
 Check if document has not been modified since a given timestamp.
 
@@ -183,7 +183,7 @@ Return `true` if checksum does not match or document has no checksum; otherwise
       return true if not @data.checksum
       return checksum isnt "\"#{@data.checksum}\""
 
-## Doc.get
+## doc.get()
 
 Get cached data for current document.
 
@@ -303,7 +303,7 @@ Bundle all the sub-documents in one array and pass it to the `next` function.
           .toArray next.bind null, x.type
 
 
-## Doc.insert
+## doc.insert()
 
 Inserts a document into database.
 
@@ -336,7 +336,7 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## Doc.replace
+## doc.replace()
 
 Replaces all document data in database.
 
@@ -369,7 +369,7 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## Doc.update
+## doc.update()
 
 Partially update the document-data in database. This is some times referred to as
 PATCH in a HTTP / REST context.
@@ -403,7 +403,7 @@ Returns `undefined`.
             cb err, warn, doc
 
 
-## Doc.delete
+## doc.delete()
 
 Delete a document from the database by removing all document properties and
 setting the `status` property to `Slettet`.
