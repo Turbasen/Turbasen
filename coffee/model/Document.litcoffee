@@ -19,14 +19,10 @@ Import data storage modules.
 
 ## Class: Doc
 
-### Params
+### new Doc(type, id)
 
-* **string** `type` - document type
+* **string** `type` - document type (collection name)
 * **string** `id` - document id
-
-### Return
-
-New `Doc`.
 
 ---
 
@@ -36,11 +32,38 @@ New `Doc`.
 
       EventEmitter.call @
 
+### doc.db
+
+MongoDB collection instance where the document is stored.
+
       @db   = mongo[type]
+
+### doc.id
+
+Unique `ObjectID` for the document. Access through `doc.getId()`.
+
       @id   = if typeof id is 'string' then new ObjectID(id) else null
+
+### doc.type
+
+Document collection name (object type).
+
       @type = type
+
+### doc.data
+
+Cached document data from Redis. This gets poppulated automaticly when the
+a new document is instanciated.
+
       @data = {}
+
+### doc.chit
+
+Cache hit indicator. Accessed through `doc.wasCacheHit()`.
+
       @chit = false
+
+---
 
       if @id
         redis.hgetall "#{@type}:#{@id.toString()}", (err, data) =>
@@ -64,13 +87,9 @@ New `Doc`.
 
     inherits Doc, EventEmitter
 
-## doc.exists()
+### doc.exists()
 
-Check if document exists.
-
-### Return
-
-Returns `true` if document exists; otherwise `false`.
+Check if document exists. Returns `true` if document exists; otherwise `false`.
 
 ---
 
@@ -78,13 +97,10 @@ Returns `true` if document exists; otherwise `false`.
       return @data.status? and @data.status isnt 'Slettet'
 
 
-## doc.getId()
+### doc.getId()
 
-Get document id (ObjectID) for current document.
-
-### Return
-
-Returns an `ObjectID` if the document has an id; otherwise `null`.
+Get the unique id for current document. Returns an `ObjectID` if the document
+exists; otherwise `null`.
 
 ---
 
@@ -92,13 +108,10 @@ Returns an `ObjectID` if the document has an id; otherwise `null`.
       @id
 
 
-## doc.wasCacheHit()
+### doc.wasCacheHit()
 
-Check if document request was a cache hit.
-
-### Return
-
-Returns `true` if document request was a cache hit; otherwise `false`.
+Check if document request was a cache hit. Returns `true` if document request
+was a cache hit; otherwise `false`.
 
 ---
 
@@ -106,18 +119,12 @@ Returns `true` if document request was a cache hit; otherwise `false`.
       @chit
 
 
-## doc.isNotModifiedSince()
-
-Check if document has not been modified since a given timestamp.
-
-### Params
+### doc.isNotModifiedSince(time)
 
 * **string** `time` - timestamp to check against.
 
-### Return
-
-Returns `true` if document has not been modified since given timestamp; otherwise
-`false`.
+Check if document has not been modified since a given timestamp. Returns `true`
+if document has not been modified since given timestamp; otherwise `false`.
 
 ---
 
@@ -144,17 +151,12 @@ Returns `true` if document has not been modified since given timestamp; otherwis
       return chk <  org
 
 
-## doc.isMatch
-
-Check if checksum, or Etag, matches current document checksum.
-
-### Params
+### doc.isMatch(checksum)
 
 * **string** `checksum` - checksum to check against.
 
-### Return
-
-Returns `true` if checksum matches the current checksum; otherwise `false`.
+Check if checksum, or Etag, matches current document checksum. Returns `true`
+if checksum matches the current checksum; otherwise `false`.
 
 ---
 
@@ -163,17 +165,12 @@ Returns `true` if checksum matches the current checksum; otherwise `false`.
       return (checksum is "\"#{@data.checksum}\"" or checksum is '*')
 
 
-## doc.isNoneMatch
-
-Check if checksum, or Etag, doesn't match current document checksum.
-
-### Params
+### doc.isNoneMatch(checksum)
 
 * **string** `checksum` - checksum to check against.
 
-### Return
-
-Return `true` if checksum does not match or document has no checksum; otherwise
+Check if checksum, or Etag, doesn't match current document checksum. Return
+`true` if checksum does not match or document has no checksum; otherwise
 `false`.
 
 ---
@@ -183,18 +180,13 @@ Return `true` if checksum does not match or document has no checksum; otherwise
       return true if not @data.checksum
       return checksum isnt "\"#{@data.checksum}\""
 
-## doc.get()
-
-Get cached data for current document.
-
-### Params
+### doc.get([key])
 
 * **string** `key` - get specific object property
 
-### Return
-
-Returns an `object` if `key` is `undefined`; otherwise `string`. Will return
-`undefined` if the given key does not exist.
+Get cached data for the current document. Returns an `object` if `key` is
+`undefined`; otherwise `string`. Will return `undefined` if the given key does
+not exist.
 
 ---
 
@@ -203,16 +195,13 @@ Returns an `object` if `key` is `undefined`; otherwise `string`. Will return
       return @data[key]
 
 
-## doc.getFull
-
-### Params
+### doc.getFull(filter[, cb])
 
 * **object** `filter` - control which object properties are returned
 * **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
-### Return
-
-Returns `undefined`.
+Get the full document data from the database asynchronously. Returns a cursor
+stream if `cb` is undefined.
 
 ---
 
@@ -232,9 +221,9 @@ Returns `undefined`.
 * **object** `query` - query for expanded sub-documents
 * **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
-### Return
-
-Returns `undefined`.
+Get the full document with expanded sub-documents from the database
+asynchronously. To expand a given collection jsut pass the collection name to
+the `expand` parameter and it will be merged with the document data.
 
 ---
 
@@ -301,18 +290,12 @@ Bundle all the sub-documents in one array and pass it to the `next` function.
           .toArray next.bind null, x.type
 
 
-## doc.insert()
-
-Inserts a document into database.
-
-### Params
+### doc.insert(data, cb)
 
 * **object** `data` - data to insert for document.
 * **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
-### Return
-
-Returns `undefined`.
+Inserts a new document into database.
 
 ---
 
@@ -334,18 +317,13 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## doc.replace()
-
-Replaces all document data in database.
-
-### Params
+### doc.replace(data, cb)
 
 * **object** `data` - replacement data for document.
 * **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
-### Return
+Replaces all document data in database.
 
-Returns `undefined`.
 
 ---
 
@@ -367,19 +345,13 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## doc.update()
-
-Partially update the document-data in database. This is some times referred to as
-PATCH in a HTTP / REST context.
-
-### Params
+### doc.update(data, cb)
 
 * **object** `data` - replacement object for document.
 * **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
 
-### Return
-
-Returns `undefined`.
+Partially update the document-data in database. This is some times referred to as
+PATCH in a HTTP / REST context.
 
 ---
 
@@ -401,18 +373,12 @@ Returns `undefined`.
             cb err, warn, doc
 
 
-## doc.delete()
-
-Delete a document from the database by removing all document properties and
-setting the `status` property to `Slettet`.
-
-### Params
+### doc.delete(cb)
 
 * **function** `cb` - callback function (**Error** `err`).
 
-### Return
-
-Returns `undefined`.
+Delete a document from the database by removing all document properties and
+setting the `status` property to `Slettet`.
 
 ---
 
@@ -427,4 +393,3 @@ Returns `undefined`.
         redis.hmset "#{@type}:#{@id.toString()}", @data
 
         cb null
-
