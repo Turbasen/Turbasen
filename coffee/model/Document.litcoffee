@@ -15,6 +15,8 @@ Import data storage modules.
 
     collections = require('../helper/schema').types
 
+---
+
 ## Class: Doc
 
 ### Params
@@ -25,6 +27,8 @@ Import data storage modules.
 ### Return
 
 New `Doc`.
+
+---
 
     module.exports = Doc = (type, id) ->
       throw new Error('Missing Doc type param') if not type
@@ -68,6 +72,8 @@ Check if document exists.
 
 Returns `true` if document exists; otherwise `false`.
 
+---
+
     Doc.prototype.exists = ->
       return @data.status? and @data.status isnt 'Slettet'
 
@@ -80,6 +86,8 @@ Get document id (ObjectID) for current document.
 
 Returns an `ObjectID` if the document has an id; otherwise `null`.
 
+---
+
     Doc.prototype.getId = ->
       @id
 
@@ -91,6 +99,8 @@ Check if document request was a cache hit.
 ### Return
 
 Returns `true` if document request was a cache hit; otherwise `false`.
+
+---
 
     Doc.prototype.wasCacheHit = ->
       @chit
@@ -108,6 +118,8 @@ Check if document has not been modified since a given timestamp.
 
 Returns `true` if document has not been modified since given tmestamp; otherwise
 `false`.
+
+---
 
     Doc.prototype.isModifiedSince = (time) -> @modifiedSince time, false
     Doc.prototype.isNotModifiedSince = (time) -> @modifiedSince time, true
@@ -144,6 +156,8 @@ Check if checksum, or Etag, matche current document checksum.
 
 Returns `true` if checksum matches the current checksum; otherwise `false`.
 
+---
+
     Doc.prototype.isMatch = (checksum) ->
       return false if not checksum or not @data.checksum
       return (checksum is "\"#{@data.checksum}\"" or checksum is '*')
@@ -161,6 +175,8 @@ Check if checksum, or Etag, doesnt match current document checksum.
 
 Return `true` if checksum does not match or document has no checksum; otherwise
 `false`.
+
+---
 
     Doc.prototype.isNoneMatch = (checksum) ->
       return false if not checksum
@@ -180,6 +196,8 @@ Get cached data for current document.
 Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
 `undefined` if the given key does not exist.
 
+---
+
     Doc.prototype.get = (key) ->
       return @data if not key
       return @data[key]
@@ -195,6 +213,8 @@ Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
 ### Return
 
 Returns `undefined`.
+
+---
 
     Doc.prototype.getFull = (filter, cb) ->
       if not cb
@@ -217,6 +237,8 @@ Returns `undefined`.
 ### Return
 
 Returns `undefined`.
+
+---
 
     Doc.prototype.getFuller = (filter, expand, query, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
@@ -294,6 +316,8 @@ Inserts a document into databse.
 
 Returns `undefined`.
 
+---
+
     Doc.prototype.insert = (data, cb) ->
       return cb new Error('Document already exists') if @exists()
       return cb new Error('Document is deleted') if @data.status is 'Slettet'
@@ -324,6 +348,8 @@ Replaces all document data in database.
 ### Return
 
 Returns `undefined`.
+
+---
 
     Doc.prototype.replace = (data, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
@@ -357,6 +383,8 @@ PATCH in a HTTP / REST context.
 
 Returns `undefined`.
 
+---
+
     Doc.prototype.update = (query, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
 
@@ -387,6 +415,8 @@ setting the `status` property to `Slettet`.
 ### Return
 
 Returns `undefined`.
+
+---
 
     Doc.prototype.delete = (cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
