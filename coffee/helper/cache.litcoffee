@@ -17,6 +17,7 @@ Returns an `object` with `field` and filter status (`boolean`).
         endret    : true
         checksum  : true
         status    : true
+        lisens    : true
         navn      : true
         områder   : true
         steder    : true

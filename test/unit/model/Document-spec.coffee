@@ -264,6 +264,7 @@ describe 'Existing', ->
       checksum: '6fa48eca48702c171c4bb6ef5e95dbbd'
       tilbyder: 'DNT'
       status: 'Offentlig'
+      lisens: 'CC BY 4.0'
       navn: 'd48f6eb3609490dadc7ac233136f95c1'
       områder: ['52408144e7926dcf1500000a', '52408144e7926dcf1500000e']
       bilder: [
@@ -286,7 +287,7 @@ describe 'Existing', ->
 
   describe '#get()', ->
     it 'should return all cached document properties', ->
-      assert.equal Object.keys(doc.get()).length, 8
+      assert.equal Object.keys(doc.get()).length, 9
 
     it 'should only return data for selected key', ->
       assert.equal doc.get('navn'), 'd48f6eb3609490dadc7ac233136f95c1'
