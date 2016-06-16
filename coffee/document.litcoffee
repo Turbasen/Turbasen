@@ -2,7 +2,7 @@
     sentry   = require './db/sentry'
     Document = require './model/Document'
 
-    stringify= require('JSONStream').stringify
+    JSONStream = require 'JSONStream'
 
 ## param()
 
@@ -68,12 +68,26 @@
     exports.head = exports.get = (req, res, next) ->
       return res.sendStatus 200 if req.method is 'HEAD'
 
-      res.set 'Content-Type', 'application/json; charset=utf-8'
-      req.doc.getFull if req.isOwner then {} else privat: false
-        .stream()
-        .pipe stringify '', '', ''
-        .pipe res
+      fields = {}
 
+      if req.query?.fields
+        fields[field] = true for field in req.query.fields.split ','
+        fields.endret = true
+        fields.lisens = true
+        fields.status = true
+        fields.navn   = true
+        fields.tilbyder   = true
+        fields.navngiving = true
+
+      if not req.isOwner
+        fields.privat = false
+
+      expand = (req.query?.expand or '').split ','
+      query = $or: [status: 'Offentlig', tilbyder: req.user.tilbyder]
+
+      req.doc.getFuller fields, expand, query, (err, doc) ->
+        return next err if err
+        res.json doc
 
 ## patch()
 ## put()

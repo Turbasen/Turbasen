@@ -55,6 +55,29 @@ describe 'GET', ->
     req.get '/steder/52d65b2544db971c94b2d949?api_key=nrk'
       .expect 404, message: 'Not Found', done
 
+  it 'should return single expanded field', (done) ->
+    req.get '/steder/52d65b2544db971c94b2d949?expand=grupper&api_key=dnt'
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.grupper.length, 1
+        assert.equal typeof res.body.grupper[0], 'object'
+      .end done
+
+  it 'should return multiple expanded fields', (done) ->
+    req.get '/steder/52407fb375049e5615000170?expand=bilder,områder&api_key=dnt'
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.bilder.length, 3
+        assert.equal res.body.områder.length, 3
+        assert.equal typeof res.body.bilder[0], 'object'
+        assert.equal typeof res.body.områder[0], 'object'
+      .end done
+
+  it 'should hide private sub-documents from non-owners'
+  it 'should return private sub-documents to document owner'
+  it 'should hide private fields from sub-documents'
+  it 'should return only specified fields'
+
 describe 'HEAD', ->
   it 'should return 404 with no body for missing document', (done) ->
     req.head '/steder/53507fb375049e5615000181?api_key=dnt'

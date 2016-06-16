@@ -205,6 +205,82 @@ Returns `undefined`.
         @db.findOne _id: @id, filter, cb
 
 
+## doc.getFuller
+
+### Params
+
+* `object` filter - control which object properties are returned
+* `array` expand -
+* `object` query -
+* `function` cb - callback function (`Error` err, `object` data)
+
+### Return
+
+Returns `undefined`.
+
+    Doc.prototype.getFuller = (filter, expand, query, cb) ->
+      return cb new Error('Document doesnt exists') if not @exists()
+
+      count = 0
+      mapped = {}
+
+Since `expand` might be a user supplied input parameter we need to limit it to
+properties which are expandable (eg. `collections`). We also remove properties
+which holds no value for this document.
+
+      expand = expand
+        .filter (v) => @data[v] and v in collections
+
+Next we map the string array into an object array on the following format:
+`{ type: String, ids: Array }` where `ids` are ObjectIDs to an document of the
+collection `type`.
+
+        .map (v) => type: v, ids: @data[v].map (d) -> new ObjectID d
+
+Set up a `final` function which is called when expanded data is ready to be
+mapped to the original document.
+
+      final = () =>
+        @db.findOne _id: @id, filter, (err, doc) ->
+          cb err, Object.assign doc or {}, mapped
+
+If there are no fields to expand, we just call the `final` function instantly
+and no fields will get expanded.
+
+      return final() if expand.length is 0
+
+Set up a `next` function which is called for each expanded data returned from
+the database. Expanded data is stored in the `mapped` object which is merged
+with the main document in `final`. When all expanded fields are mapped `final`
+is called.
+
+      next = (type, _, docs) ->
+        mapped[type] = docs or []
+        return final() if Object.keys(mapped).length == expand.length
+
+Get the expanded sub-documents from the database.
+
+      expand.forEach (x) ->
+        mongo[x.type]
+
+We find the sub-documents using the ObjectIDs in the expanded fields, that is
+the easy part. The tricky part is to prevent information leackage of private
+documents. This the second part is a `query` limiting the results to public
+documents or those owned by the current API user.
+
+          .find Object.assign {_id: $in: x.ids}, query
+
+We reuse the projection filter from the original document, but since we do not
+know in advanced who owns a given sub-document we remove the `private` property
+to prevent information leakage.
+
+          .project Object.assign filter, privat: false
+
+Bundle all the sub-documents in one array and pass it to the `next` function.
+
+          .toArray next.bind null, x.type
+
+
 ## Doc.insert
 
 Inserts a document into databse.
