@@ -116,7 +116,7 @@ Check if document has not been modified since a given timestamp.
 
 ### Return
 
-Returns `true` if document has not been modified since given tmestamp; otherwise
+Returns `true` if document has not been modified since given timestamp; otherwise
 `false`.
 
 ---
@@ -128,7 +128,7 @@ Returns `true` if document has not been modified since given tmestamp; otherwise
       return false if not time or not @data.endret
 
       if not isNaN time
-        # Make unix timestamp into milliseconds
+        # Make UNIX timestamp into milliseconds
         time = time + '000' if (time + '').length is 10
         time = parseInt time
 
@@ -146,7 +146,7 @@ Returns `true` if document has not been modified since given tmestamp; otherwise
 
 ## doc.isMatch
 
-Check if checksum, or Etag, matche current document checksum.
+Check if checksum, or Etag, matches current document checksum.
 
 ### Params
 
@@ -165,7 +165,7 @@ Returns `true` if checksum matches the current checksum; otherwise `false`.
 
 ## doc.isNoneMatch
 
-Check if checksum, or Etag, doesnt match current document checksum.
+Check if checksum, or Etag, doesn't match current document checksum.
 
 ### Params
 
@@ -193,7 +193,7 @@ Get cached data for current document.
 
 ### Return
 
-Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
+Returns an `object` if `key` is `undefined`; otherwise `string`. Will return
 `undefined` if the given key does not exist.
 
 ---
@@ -247,8 +247,8 @@ Returns `undefined`.
       mapped = {}
 
 Since `expand` might be a user supplied input parameter we need to limit it to
-properties which are expandable (eg. `collections`). We also remove properties
-which holds no value for this document.
+properties which are expandable (`collections`). We also remove properties which
+holds no value for this document.
 
       expand = expand
         .filter (v) => @data[v] and v in collections
@@ -286,7 +286,7 @@ Get the expanded sub-documents from the database.
         mongo[x.type]
 
 We find the sub-documents using the ObjectIDs in the expanded fields, that is
-the easy part. The tricky part is to prevent information leackage of private
+the easy part. The tricky part is to prevent information leakage of private
 documents. This the second part is a `query` limiting the results to public
 documents or those owned by the current API user.
 
@@ -305,7 +305,7 @@ Bundle all the sub-documents in one array and pass it to the `next` function.
 
 ## Doc.insert
 
-Inserts a document into databse.
+Inserts a document into database.
 
 ### Params
 
