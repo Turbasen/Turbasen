@@ -225,9 +225,7 @@ Returns `undefined`.
         @db.findOne _id: @id, filter, cb
 
 
-## doc.getFuller
-
-### Params
+### doc.getExpanded(filter, expand, query, cb)
 
 * **object** `filter` - control which object properties are returned
 * **array** `expand` - sub-document property names to expand
@@ -240,7 +238,7 @@ Returns `undefined`.
 
 ---
 
-    Doc.prototype.getFuller = (filter, expand, query, cb) ->
+    Doc.prototype.getExpanded = (filter, expand, query, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
 
       count = 0

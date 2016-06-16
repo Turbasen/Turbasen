@@ -85,7 +85,7 @@
       expand = (req.query?.expand or '').split ','
       query = $or: [status: 'Offentlig', tilbyder: req.user.tilbyder]
 
-      req.doc.getFuller fields, expand, query, (err, doc) ->
+      req.doc.getExpanded fields, expand, query, (err, doc) ->
         return next err if err
         res.json doc
 
