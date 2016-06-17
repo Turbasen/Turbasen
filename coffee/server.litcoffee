@@ -5,6 +5,7 @@
     express     = require 'express'
     compression = require 'compression'
     bodyParser  = require 'body-parser'
+    responseTime= require 'response-time'
 
     auth        = require './helper/auth'
     collections = require('./helper/schema').types
@@ -20,6 +21,7 @@
 ### Configuration
 
     app.use compression()
+    app.use responseTime()
     app.use bodyParser.json extended: true, limit: '10mb'
     app.disable('x-powered-by')
     app.disable('etag')
