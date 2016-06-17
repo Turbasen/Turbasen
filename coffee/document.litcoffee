@@ -82,7 +82,7 @@ GET /{type}/{id}
 
 ### Fields Projection
 
-```
+```none
 &fields=field1[,field2[,..]]
 ```
 
@@ -114,7 +114,7 @@ The list of default fields below will always be returned for compliance reasons.
 
 ### Sub-document Expansion
 
-```
+```none
 &expand=field1[,field2[..]]
 ```
 
@@ -143,7 +143,7 @@ deleted.
 
 ### Sub-document Limit
 
-```
+```none
 &limit={n}
 ```
 
