@@ -176,6 +176,12 @@ describe 'New', ->
         doc.getFull {}
       , /Document doesnt exists/
 
+  describe '#getExpanded()', ->
+    it 'returns unexpanded object'
+    it 'ignores invalid collection keys'
+    it 'returns single expanded object'
+    it 'returns multiple expanded objects'
+
   describe '#insert()', ->
     it 'should insert new document without _id in database', (done) ->
       d = JSON.parse JSON.stringify steder[39]
