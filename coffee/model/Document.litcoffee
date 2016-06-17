@@ -214,11 +214,13 @@ stream if `cb` is undefined.
         @db.findOne _id: @id, filter, cb
 
 
-### doc.getExpanded(filter, expand, query, cb)
+### doc.getExpanded(opts, cb)
 
-* **object** `filter` - control which object properties are returned
-* **array** `expand` - sub-document property names to expand
-* **object** `query` - query for expanded sub-documents
+* **object** `opts`
+  * **object** `filter` - document and sub-document projection (**default** `{}`)
+  * **number** `limit` - sub-document max expanded (**default** `10`)
+  * **array** `expand` - sub-document collections to expand (**default** `[]`)
+  * **object** `query` - sub-document select query (**default** `{}`)
 * **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
 Get the full document with expanded sub-documents from the database
@@ -227,8 +229,23 @@ the `expand` parameter and it will be merged with the document data.
 
 ---
 
-    Doc.prototype.getExpanded = (filter, expand, query, cb) ->
+    Doc.prototype.getExpanded = (opts, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
+
+      docFields = opts.fields or {}
+      subFields = Object.assign {}, docFields
+
+Prevent private fields from being included in sub-documents to prevent
+unauthorized information disclosure.
+
+      if Object.keys(subFields).length > 0
+        delete subFields.privat
+
+      if Object.keys(subFields).length is 0
+        subFields.privat = false
+
+      limit = Math.min opts.limit or 10, 10
+      query = opts.query or {}
 
       count = 0
       mapped = {}
@@ -237,20 +254,20 @@ Since `expand` might be a user supplied input parameter we need to limit it to
 properties which are expandable (`collections`). We also remove properties which
 holds no value for this document.
 
-      expand = expand
+      expand = (opts.expand or [])
         .filter (v) => @data[v] and v in collections
 
 Next we map the string array into an object array on the following format:
 `{ type: String, ids: Array }` where `ids` are ObjectIDs to an document of the
 collection `type`.
 
-        .map (v) => type: v, ids: @data[v].map (d) -> new ObjectID d
+        .map (v) => type: v, ids: @data[v].slice(0, limit).map (d) -> new ObjectID d
 
 Set up a `final` function which is called when expanded data is ready to be
 mapped to the original document.
 
       final = () =>
-        @db.findOne _id: @id, filter, (err, doc) ->
+        @db.findOne _id: @id, docFields, (err, doc) ->
           cb err, Object.assign doc or {}, mapped
 
 If there are no fields to expand, we just call the `final` function instantly
@@ -279,11 +296,11 @@ documents or those owned by the current API user.
 
           .find Object.assign {_id: $in: x.ids}, query
 
-We reuse the projection filter from the original document, but since we do not
+We reuse the projection fields from the original document, but since we do not
 know in advanced who owns a given sub-document we remove the `private` property
 to prevent information leakage.
 
-          .project Object.assign filter, privat: false
+          .project subFields
 
 Bundle all the sub-documents in one array and pass it to the `next` function.
 

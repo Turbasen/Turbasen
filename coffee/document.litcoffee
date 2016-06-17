@@ -68,24 +68,87 @@
     exports.head = exports.get = (req, res, next) ->
       return res.sendStatus 200 if req.method is 'HEAD'
 
-      fields = {}
+      opts =
+        query: $or: [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
+        fields: {}
+
+### Fields Projection
+
+```
+&fields=field1[,field2[,..]]
+```
+
+Private (`privat.`) fields are hidden unless the current API user is the owner
+of the document. This is to prevent unauthorized information disclosure.
+
+      opts.fields.privat = false if not req.isOwner
+
+If you only want some of the document properties returned you can use the
+`fields` query parameter to control the projection of document properties.
+Multiple fields must be comma separated without any additional spacing.
+
+This projection also applies to expanded sub-documents when using the `&expand=`
+query parameter below.
 
       if req.query?.fields
-        fields[field] = true for field in req.query.fields.split ','
-        fields.endret = true
-        fields.lisens = true
-        fields.status = true
-        fields.navn   = true
-        fields.tilbyder   = true
-        fields.navngiving = true
+        opts.fields[field] = true for field in req.query.fields.split ','
+        opts.fields.privat = false if not req.isOwner
 
-      if not req.isOwner
-        fields.privat = false
+The list of default fields below will always be returned for compliance reasons.
 
-      expand = (req.query?.expand or '').split ','
-      query = $or: [status: 'Offentlig', tilbyder: req.user.tilbyder]
+        opts.fields = Object.assign opts.fields,
+          endret: true
+          lisens: true
+          status: true
+          navn  : true
+          tilbyder  : true
+          navngiving: true
 
-      req.doc.getExpanded fields, expand, query, (err, doc) ->
+### Sub-document Expansion
+
+```
+&expand=field1[,field2[..]]
+```
+
+Sub-document expansion is an easy and convenient way to get connected documents
+such as `grupper`, `bilder`, and `områder` as their full objects instead of a
+list of `ObjectIDs`. It works by setting the `expand` query parameter to the
+fields to expand.
+
+**Rate limit**
+
+Sub-document expansion will decrease your remaining API rate limit with `1` per
+collection expanded in addition to the request itself. Thus, if you request a
+document (1) with two collection expanded (2) your remaining API rate limit will
+be decremented with 3. This is to encurrage resonable expansion of relevant
+collections only.
+
+**Order and limit**
+
+Sub-document expansion will return at most 10 first sub-documents for each
+collection expanded and out of order. Only sub-documents avaiable to the current
+API user will be return as sub-documents my not be published or may have been
+deleted.
+
+      if req.query?.expand
+        opts.expand = req.query.expand.split ','
+
+### Sub-document Limit
+
+```
+&limit={n}
+```
+
+If you wisth to return less sub-documents in order to increase response time and
+body size you may do so by using the `limit` query parameter. This will affect
+all sub-documents expanded by the `expand` query parameter.
+
+      if req.query?.limit and parseInt req.query.limit, 10
+        opts.limit = parseInt req.query.limit, 10
+
+---
+
+      req.doc.getExpanded opts, (err, doc) ->
         return next err if err
         res.json doc
 
