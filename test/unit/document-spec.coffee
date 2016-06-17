@@ -268,11 +268,9 @@ describe '#get()', ->
       done()
 
   it 'should return doc data with private data for owner', (done) ->
-    res = new ConcatStream (data) ->
-      json = JSON.parse data
-
-      assert.equal typeof json, 'object'
-      assert.equal typeof json.privat, 'object'
+    res.json = (data) ->
+      assert.equal typeof data, 'object'
+      assert.equal typeof data.privat, 'object'
 
       done()
 
@@ -285,11 +283,9 @@ describe '#get()', ->
   it 'should return doc data with no privat data for non owner', (done) ->
     req.isOwner = false
 
-    res = new ConcatStream (data) ->
-      json = JSON.parse data
-
-      assert.equal typeof json, 'object'
-      assert.equal typeof json.privat, 'undefined'
+    res.json = (data) ->
+      assert.equal typeof data, 'object'
+      assert.equal typeof data.privat, 'undefined'
 
       done()
 

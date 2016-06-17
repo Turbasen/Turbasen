@@ -13,6 +13,7 @@ describe 'getFilter()', ->
       endret    : true
       checksum  : true
       status    : true
+      lisens    : true
       navn      : true
       områder   : true
       steder    : true
@@ -26,6 +27,7 @@ describe 'filterData()', ->
       endret: '2013-12-16T14:19:26.938Z'
       checksum: 'e6bfd76b7fa1b9fc3dfac9f5d5e083e9'
       status: 'Offentlig'
+      lisens: 'CC BY 4.0'
       navn: 'be35d2bbf9b4077bbd38ad5454e590b1'
       områder: [
         '52408144e7926dcf1500000e'

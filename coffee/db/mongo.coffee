@@ -1,6 +1,7 @@
 EventEmitter = require('events').EventEmitter
 MongoClient = require('mongodb').MongoClient
 inherits = require('util').inherits
+collections = require('./../helper/schema').types
 
 Mongo = (uri) ->
   EventEmitter.call @
@@ -9,10 +10,7 @@ Mongo = (uri) ->
     throw err if err
     @db = database
 
-    for col in [
-      'arrangementer', 'bilder', 'grupper',
-      'områder', 'turer', 'steder', 'api.users'
-    ]
+    for col in collections.concat ['api.users']
       @[col] = @db.collection col
 
     @emit 'ready'

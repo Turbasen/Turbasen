@@ -55,6 +55,67 @@ describe 'GET', ->
     req.get '/steder/52d65b2544db971c94b2d949?api_key=nrk'
       .expect 404, message: 'Not Found', done
 
+  it 'should return single expanded field', (done) ->
+    req.get '/steder/52d65b2544db971c94b2d949?expand=grupper&api_key=dnt'
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.grupper.length, 1
+        assert.equal typeof res.body.grupper[0], 'object'
+      .end done
+
+  it 'should return multiple expanded fields', (done) ->
+    req.get '/steder/52407fb375049e5615000170?expand=bilder,områder&api_key=dnt'
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.bilder.length, 3
+        assert.equal res.body.områder.length, 3
+        assert.equal typeof res.body.bilder[0], 'object'
+        assert.equal typeof res.body.områder[0], 'object'
+      .end done
+
+  it 'should hide private sub-documents from non-owners', (done) ->
+    req.get '/steder/52407fb375049e5615000170?expand=bilder,områder&api_key=nrk'
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.bilder.length, 2
+        assert.equal res.body.områder.length, 2
+      .end done
+
+  it 'should hide private fields from sub-documents', (done) ->
+    req.get '/steder/52407fb375049e5615000170?expand=bilder,områder&api_key=nrk'
+      .expect 200
+      .expect (res) ->
+        assert.equal typeof res.body.bilder[0].privat, 'undefined'
+        assert.equal typeof res.body.bilder[1].privat, 'undefined'
+        assert.equal typeof res.body.områder[0].privat, 'undefined'
+        assert.equal typeof res.body.områder[1].privat, 'undefined'
+      .end done
+
+  it 'should return only specified sub-document fields', (done) ->
+    url = '/steder/52407fb375049e5615000170'
+    req.get "#{url}?expand=bilder&fields=tags&api_key=dnt"
+      .expect 200
+      .expect (res) ->
+        assert.equal typeof res.body.bilder[0].tags, 'object'
+        assert.equal typeof res.body.bilder[1].tags, 'object'
+        assert.equal typeof res.body.bilder[2].tags, 'object'
+
+        assert.equal typeof res.body.bilder[0].src, 'undefined'
+        assert.equal typeof res.body.bilder[1].src, 'undefined'
+        assert.equal typeof res.body.bilder[2].src, 'undefined'
+      .end done
+
+  it 'should limit the number of sub documents returned', (done) ->
+    url = '/steder/52407fb375049e5615000170'
+    req.get "#{url}?expand=bilder,områder&limit=1&api_key=dnt"
+      .expect 200
+      .expect (res) ->
+        assert.equal res.body.bilder.length, 1
+        assert.equal res.body.områder.length, 1
+        assert.equal typeof res.body.bilder[0], 'object'
+        assert.equal typeof res.body.områder[0], 'object'
+      .end done
+
 describe 'HEAD', ->
   it 'should return 404 with no body for missing document', (done) ->
     req.head '/steder/53507fb375049e5615000181?api_key=dnt'
