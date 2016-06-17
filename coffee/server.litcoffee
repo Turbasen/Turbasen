@@ -28,6 +28,12 @@
 
     app.use bodyParser.json extended: true, limit: '10mb'
 
+## GET /favicon.ico
+
+    app.get '/favicon.ico', (req, res) ->
+      res.set 'Content-Type': 'image/x-icon'
+      res.status(200).end()
+
 ### Authentication
 
 This routine is called for all request to the API. It is reponsible for
@@ -54,12 +60,6 @@ the rquest.
 
     app.get '/', (req, res) ->
       res.json message: 'Here be dragons'
-
-## GET /favicon
-
-    app.get '/favicon.ico', (req, res) ->
-      res.set 'Content-Type': 'image/x-icon'
-      res.status(200).end()
 
 ## GET /CloudHealthCheck
 
