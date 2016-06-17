@@ -16,16 +16,17 @@
 
 ## Init
 
-    app = express()
+    app = module.exports = express()
 
 ### Configuration
 
+    app.disable 'x-powered-by'
+    app.disable 'etag'
+
     app.use compression()
     app.use responseTime()
+
     app.use bodyParser.json extended: true, limit: '10mb'
-    app.disable('x-powered-by')
-    app.disable('etag')
-    app.set 'port', process.env.APP_PORT or 8080
 
 ### Authentication
 
@@ -144,21 +145,18 @@ requests shall not contain any body – this applies for errors as well.
 
 ## Start
 
-Ok, so if the server is running in stand-alone mode i.e. there is not
-`module.parent` then continue with starting the databse and listening to a port.
+Start the server listening on the port defined in the `VIRTUAL_PORT` environment
+variable or the default port `8080` if the server is running in stand alone
+mode.
 
     if not module.parent
+
+Wait for Redis and MongoDB to become aviable before accepting connections on the
+server port.
+
       require('./db/redis')
       require('./db/mongo').once 'ready', ->
         console.log 'Database is open...'
 
-        app.listen app.get('port'), ->
-          console.log "Server is listening on port #{app.get('port')}"
-
-However, if there is a `module.parent` don't do all the stuff above. This means
-that there is some program that is including the server from it, e.g a test, and
-hence it should not listen to a port for incomming connections and rather just
-return the application instance so that we can do some testing on it.
-
-    else
-      module.exports = app
+        app.listen process.env.VIRTUAL_PORT || 8080, ->
+          console.log "Server is listening on port #{process.env.VIRTUAL_PORT || 8080}"

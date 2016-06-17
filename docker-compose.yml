@@ -15,8 +15,9 @@ node:
   volumes:
     - .:/usr/src/app
   environment:
-    - APP_PORT=8080
     - NODE_ENV=development
+    - VIRTUAL_PORT=8080
+    - VIRTUAL_HOST=api.ntb.privat
     - NPM_CONFIG_LOGLEVEL=silent
     - NPM_CONFIG_PROGRESS=false
     - NPM_CONFIG_SPIN=false
