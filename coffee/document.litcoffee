@@ -46,7 +46,7 @@
       next()
 
 
-## options()
+## OPTIONS
 
     exports.options = (req, res, next) ->
       res.set 'Access-Control-Allow-Methods', [
@@ -62,8 +62,7 @@
       res.sendStatus 204
 
 
-## head()
-## get()
+## HEAD and GET
 
     exports.head = exports.get = (req, res, next) ->
       return res.sendStatus 200 if req.method is 'HEAD'
@@ -152,8 +151,8 @@ all sub-documents expanded by the `expand` query parameter.
         return next err if err
         res.json doc
 
-## patch()
-## put()
+
+## PUT and PATCH
 
     exports.patch = exports.put = (req, res, next) ->
       return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
@@ -182,7 +181,7 @@ all sub-documents expanded by the `expand` query parameter.
           warnings: warn if warn.length > 0
 
 
-## delete()
+## DELETE
 
     exports.delete = (req, res, next) ->
       req.doc.delete (err) ->
