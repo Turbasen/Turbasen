@@ -16,6 +16,14 @@
 
     app = express()
 
+### Configuration
+
+    app.use compression()
+    app.use bodyParser.json extended: true, limit: '10mb'
+    app.disable('x-powered-by')
+    app.disable('etag')
+    app.set 'port', process.env.APP_PORT or 8080
+
 ### Authentication
 
 This routine is called for all request to the API. It is reponsible for
@@ -37,14 +45,6 @@ the rquest.
         return next err if err
 
         next()
-
-### Configuration
-
-    app.use(compression())
-    app.use bodyParser.json extended: true, limit: '10mb'
-    app.disable('x-powered-by')
-    app.disable('etag')
-    app.set 'port', process.env.APP_PORT or 8080
 
 ## GET /
 
