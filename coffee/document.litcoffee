@@ -48,6 +48,10 @@
 
 ## OPTIONS
 
+```http
+OPTIONS /{type}/{id}
+```
+
     exports.options = (req, res, next) ->
       res.set 'Access-Control-Allow-Methods', [
         'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
@@ -63,6 +67,11 @@
 
 
 ## HEAD and GET
+
+```http
+HEAD /{type}/{id}
+GET /{type}/{id}
+```
 
     exports.head = exports.get = (req, res, next) ->
       return res.sendStatus 200 if req.method is 'HEAD'
@@ -154,6 +163,11 @@ all sub-documents expanded by the `expand` query parameter.
 
 ## PUT and PATCH
 
+```http
+PUT /{type}/{id}
+PATCH /{type}/{id}
+```
+
     exports.patch = exports.put = (req, res, next) ->
       return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
       return res.status(400).json message: 'Body should be a JSON Hash' if req.body instanceof Array
@@ -182,6 +196,10 @@ all sub-documents expanded by the `expand` query parameter.
 
 
 ## DELETE
+
+```http
+DELETE /{type}/{id}
+```
 
     exports.delete = (req, res, next) ->
       req.doc.delete (err) ->
