@@ -26,4 +26,3 @@ OK` message if everything is fine. Errors are logged.
 
       mongo.db.command dbStats: true, ret
       redis.info ret
-

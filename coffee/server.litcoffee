@@ -34,6 +34,10 @@
       res.set 'Content-Type': 'image/x-icon'
       res.status(200).end()
 
+## GET /CloudHealthCheck
+
+    app.all '/CloudHealthCheck', system.check
+
 ### Authentication
 
 This routine is called for all request to the API. It is reponsible for
@@ -42,8 +46,6 @@ session variables so they become accessible throughout the entire system during
 the rquest.
 
     app.use '/', (req, res, next) ->
-      return next() if req.originalUrl.substr(0, 17) is '/CloudHealthCheck'
-
       auth.check req.query.api_key, (err, user) ->
         if user
           res.set 'X-RateLimit-Limit', user.limit
@@ -60,16 +62,6 @@ the rquest.
 
     app.get '/', (req, res) ->
       res.json message: 'Here be dragons'
-
-## GET /CloudHealthCheck
-
-> So...You’re seeing the dotCloud active health check looking to make sure that
-> your service is up. There is no way for you to disable it, but you can prevent
-> it and you can handle it [1]!
-
-[1] [dotCloud](http://docs.dotcloud.com/tutorials/more/cloud-health-check/)
-
-    app.all '/CloudHealthCheck', system.check
 
 ## GET /objekttyper
 
