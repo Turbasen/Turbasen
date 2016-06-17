@@ -50,14 +50,6 @@ describe '#param()', ->
 
     document.param req, res, assert.false, 'foobar'
 
-  it 'should return early if request method is OPTIONS', (done) ->
-    req.method = 'OPTIONS'
-    next = (err) ->
-      assert.ifError err
-      done()
-
-    document.param req, res, next, '53b86e20970e053231a591aa'
-
   it 'should set document object to request', (done) ->
     delete req.doc
     next = (err) ->
@@ -220,36 +212,6 @@ describe '#all()', ->
     req.headers['If-Unmodified-Since'] = 'Sun, 10 Nov 2013 08:49:37 GMT'
 
     document.all req, res, done
-
-describe '#options()', ->
-  it 'should set Access-Control-Allow-Headers', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal res.headers['Access-Control-Allow-Methods'], [
-        'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
-      ].join ', '
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
-
-  it 'should set Access-Control-Allow-Methods', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal res.headers['Access-Control-Allow-Headers'], [
-        'Content-Type'
-        'If-Match'
-        'If-Modified-Since'
-        'If-None-Match'
-        'If-Unmodified-Since'
-      ].join ', '
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
-
-  it 'should return 204 status code', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal code, 204
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
 
 describe '#get()', ->
   it 'should return no body for HEAD', (done) ->

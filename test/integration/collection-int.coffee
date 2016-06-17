@@ -3,29 +3,6 @@ assert  = require 'assert'
 
 req     = request require './../../coffee/server'
 
-describe 'OPTIONS', ->
-  url = '/steder?api_key=dnt'
-
-  it 'should return 204 status code with no body', (done) ->
-    req.options url
-      .expect 204, {}
-      .end done
-
-  it 'shoould return correct headers', (done) ->
-    req.options url
-      .expect 204, {}
-      .expect 'access-control-expose-headers', [
-        'ETag', 'Location', 'Last-Modified', 'Count-Return', 'Count-Total'
-      ].join(', ')
-      .expect 'access-control-max-age', '86400'
-      .expect 'access-control-allow-headers', 'Content-Type'
-      .expect 'access-control-allow-methods', 'HEAD, GET, POST'
-      # Access-Control-Allow-Origin
-      # Strict-Transport-Security
-      # X-Content-Type-Options: nosniff
-      # Vary: Accept-Encoding
-      .end done
-
 describe 'HEAD', ->
   url = '/turer?api_key=dnt'
 

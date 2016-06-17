@@ -73,7 +73,6 @@ the rquest.
     app.param 'collection', collection.param
     app.all '/:collection', (req, res, next) ->
       switch req.method
-        when 'OPTIONS' then collection.options req, res, next
         when 'HEAD', 'GET' then collection.get req, res, next
         when 'POST' then collection.post req, res, next
         else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
@@ -81,7 +80,6 @@ the rquest.
 ## ALL /{collection}/{objectid}
 
     app.param 'objectid', document.param
-    app.options '/:collection/:ojectid', document.options
     app.all '/:collection/:objectid', document.all, (req, res, next) ->
       switch req.method
         when 'HEAD', 'GET' then document.get req, res, next

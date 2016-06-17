@@ -8,20 +8,6 @@ before ->
   steder = module.parent.exports.steder
   turer = module.parent.exports.turer
 
-describe 'OPTIONS', ->
-  url = '/steder/53507fb375049e5615000181?api_key=nrk'
-
-  it 'should return 204 status code with no body', (done) ->
-    req.options url
-      .expect 204, {}
-      .end done
-
-  it 'should return access-control headers', (done) ->
-    req.options url
-      .expect 204, {}
-      .expect 'access-control-allow-methods', 'HEAD, GET, PUT, PATCH, DELETE'
-      .end done
-
 describe 'GET', ->
   it 'should return 404 for missing document', (done) ->
     req.get '/steder/53507fb375049e5615000181?api_key=dnt'

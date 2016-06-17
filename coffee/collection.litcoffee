@@ -48,17 +48,6 @@
       next()
 
 
-## OPTIONS /{collection}
-
-    exports.options = (req, res, next) ->
-      res.setHeader 'Access-Control-Expose-Headers', [
-        'ETag', 'Location', 'Last-Modified', 'Count-Return', 'Count-Total'
-      ].join(', ')
-      res.setHeader 'Access-Control-Max-Age', 86400
-      res.setHeader 'Access-Control-Allow-Headers', 'Content-Type'
-      res.setHeader 'Access-Control-Allow-Methods', 'HEAD, GET, POST'
-      res.sendStatus 204
-
 ## HEAD /{collection}
 ## GET /{collection}
 

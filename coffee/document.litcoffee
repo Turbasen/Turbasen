@@ -8,7 +8,6 @@
 
     exports.param = (req, res, next, id) ->
       return res.status(400).json message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
-      return next() if req.method is 'OPTIONS'
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
         req.isOwner = @exists() and req.user.tilbyder is @get 'tilbyder'
@@ -44,26 +43,6 @@
           return res.status(412).end()
 
       next()
-
-
-## OPTIONS
-
-```http
-OPTIONS /{type}/{id}
-```
-
-    exports.options = (req, res, next) ->
-      res.set 'Access-Control-Allow-Methods', [
-        'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
-      ].join ', '
-      res.set 'Access-Control-Allow-Headers', [
-        'Content-Type'
-        'If-Match'
-        'If-Modified-Since'
-        'If-None-Match'
-        'If-Unmodified-Since'
-      ].join ', '
-      res.sendStatus 204
 
 
 ## HEAD and GET
