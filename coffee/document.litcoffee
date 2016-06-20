@@ -79,7 +79,7 @@ query parameter below.
 
       if req.query?.fields
         opts.fields[field] = true for field in req.query.fields.split ','
-        opts.fields.privat = false if not req.isOwner
+        delete opts.fields.privat if not req.isOwner
 
 The list of default fields below will always be returned for compliance reasons.
 
