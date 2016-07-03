@@ -4,7 +4,7 @@
 
     collections = require('./helper/schema').types
     sentry      = require './db/sentry'
-    mongo       = require './db/mongo'
+    mongo       = require '@turbasen/db-mongo'
 
     qs = new MongoQS
       alias:
@@ -43,7 +43,7 @@
 
       req.type      = col2
       req.db.col    = mongo[col2]
-      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
+      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.user.provider}]
 
       next()
 
@@ -55,29 +55,7 @@
 
 ### Query
 
-      req.db.query = qs.parse req.query
-
-Prevent private documents for other API user from being returned when quering
-`tilbyder` and `status` fields.
-
-      for key, val of req.db.query
-        switch key
-          when 'status'
-            req.db.query.tilbyder = req.user.tilbyder if val not in ['Offentlig', 'Slettet']
-            break
-          when 'tilbyder'
-            req.db.query.status = 'Offentlig' if val isnt req.user.tilbyder
-            break
-          else
-            if key.substr(0,6) is 'privat'
-              req.db.query.tilbyder = req.user.tilbyder
-              break
-
-Apply default access control unless `status` or `tilbyder` fields are already
-queried.
-
-      if not (req.db.query.tilbyder or req.db.query.status)
-        req.db.query.$or = [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
+      req.db.query = req.user.query qs.parse req.query
 
 ### Fields
 
@@ -101,7 +79,7 @@ Parse user specified fields to be returned.
 If any private fields are to be returned we need to limit the query to documents
 owner by the API user to prevent exposing private data publicly.
 
-          req.db.query.tilbyder = req.user.tilbyder if field.substr(0,6) is 'privat'
+          req.db.query.tilbyder = req.user.provider if field.substr(0,6) is 'privat'
 
 ### Sort
 
@@ -171,7 +149,7 @@ Stream matching documents in order to prevent loading them into memory.
       return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
       return res.status(422).json message: 'Body should be a JSON Hash' if req.body instanceof Array
 
-      req.body.tilbyder = req.user.tilbyder
+      req.body.tilbyder = req.user.provider
 
       new Document(req.type, null).once('error', next).once 'ready', ->
         @insert req.body, (err, warn, data) ->
@@ -193,4 +171,3 @@ Stream matching documents in order to prevent loading them into memory.
             document: data
             message: 'Validation Warnings' if warn.length > 0
             warnings: warn if warn.length > 0
-

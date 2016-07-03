@@ -7,8 +7,8 @@ Import event emitter stuff.
 
 Import data storage modules.
 
-    mongo   = require '../db/mongo'
-    redis   = require '../db/redis'
+    mongo   = require '@turbasen/db-mongo'
+    redis   = require '@turbasen/db-redis'
 
     parse   = require '../helper/parse'
     cache   = require '../helper/cache'

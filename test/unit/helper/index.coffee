@@ -8,7 +8,3 @@ describe 'Parse', ->
 
 describe 'Cache', ->
   require './cache-spec'
-
-describe 'Auth', ->
-  require './auth-spec'
-

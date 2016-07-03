@@ -7,8 +7,8 @@ Collection  = require('mongodb').Collection
 
 Document    = require '../../../coffee/model/Document'
 cache       = require '../../../coffee/helper/cache'
-redis       = require '../../../coffee/db/redis'
-mongo       = require '../../../coffee/db/mongo'
+redis       = require '@turbasen/db-redis'
+mongo       = require '@turbasen/db-mongo'
 
 data =
   grupper : require '../../data/gruppe.json'
