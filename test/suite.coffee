@@ -100,8 +100,8 @@ beforeEach (done) ->
   mongo.turer.drop()
 
   async.series [
-    mongo.steder.ensureIndex.bind(mongo.steder, {geojson: '2dsphere'})
-    mongo.turer.ensureIndex.bind(mongo.turer, {geojson: '2dsphere'})
+    mongo.steder.ensureIndex.bind(mongo.steder, { geojson: '2dsphere' })
+    mongo.turer.ensureIndex.bind(mongo.turer, { geojson: '2dsphere' })
     mongo.steder.insert.bind(mongo.steder, data.steder)
     mongo.turer.insert.bind(mongo.turer, data.turer)
   ], done

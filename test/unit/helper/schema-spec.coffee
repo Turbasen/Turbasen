@@ -3,11 +3,11 @@ joi     = require 'joi'
 schema  = require '../../../coffee/helper/schema'
 
 data =
-  grupper : require '../../data/gruppe.json'
-  bilder  : require '../../data/bilde.json'
-  turer   : require '../../data/tur.json'
-  områder : require '../../data/omrade.json'
-  steder  : require '../../data/sted.json'
+  grupper: require '../../data/gruppe.json'
+  bilder: require '../../data/bilde.json'
+  turer: require '../../data/tur.json'
+  områder: require '../../data/omrade.json'
+  steder: require '../../data/sted.json'
 
 validate = (schemaType, dataType) ->
   s = schema[schemaType]

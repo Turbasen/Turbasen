@@ -67,5 +67,6 @@ describe '?api_key', ->
           .expect 'X-RateLimit-Remaining', 0
           .expect 'X-RateLimit-Reset', /^[0-9]{10}$/
           .expect (res) ->
-            assert.deepEqual res.body, message: 'API rate limit exceeded for token "dnt"'
+            assert.deepEqual res.body,
+              message: 'API rate limit exceeded for token "dnt"'
           .end done
