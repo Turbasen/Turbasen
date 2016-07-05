@@ -21,35 +21,35 @@ data from all participants who facilitate outdoor recreation.
 
 ## Technology
 
-* [Node.JS](https://nodejs.org) (Express.JS)
-* [MongoDB](https://www.mongodb.org)
+* [Node.js](https://nodejs.org) (Express.js)
+* [mongoDB](https://www.mongodb.org)
 * [Redis](https://redis.io)
 
 ## Development
 
-### Requirements
+### Getting started
 
-* [Docker](https://docs.docker.com/) >= v1.6
-* [Docker Compose](https://docs.docker.com/compose/) >= v1.2
+Download [Docker for Mac or Windows](https://www.docker.com/products/docker).
 
-### Environment
+Run in this directory:
 
-* `NODE_ENV`
-* `APP_PORT` (default `8080`)
-* `REDIS_PORT_6379_TCP_PORT`
-* `REDIS_PORT_6379_TCP_ADDR`
-* `MONGO_PORT_27017_TCP_PORT`
-* `MONGO_PORT_27017_TCP_ADDR`
+```
+$ docker-compose up
+```
+
+Docker is now watching for changes and will run the test suite automatically.
 
 ### Test
 
 ```
-docker-compose run www npm test
+docker-compose run --rm node npm run test
+docker-compose run --rm node npm run lint
 ```
+
 ### Start
 
 ```
-docker-compose run www npm run-script devserver
+docker-compose up
 ```
 
-## [MIT License](https://github.com/Turistforeningen/Turbasen/blob/master/LICENSE)
+## [MIT License](https://github.com/Turbasen/Turbasen/blob/master/LICENSE)
