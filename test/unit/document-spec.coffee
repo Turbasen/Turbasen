@@ -24,7 +24,7 @@ beforeEach (done) ->
     headers: {}
     set: (header, value) ->
       @headers[header] = value
-      @
+      return this
 
   req =
     method: 'GET'
@@ -49,7 +49,7 @@ describe '#param()', ->
     delete req.isOwner
 
   it 'should return 400 error for invalid ObjectId', (done) ->
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Invalid ObjectId'
       done()
@@ -85,7 +85,7 @@ describe '#param()', ->
     document.param req, res, next, '52407fb375049e5615000008'
 
   it 'should return 404 if document does not exist', (done) ->
-    res.status = (code) -> assert.equal code, 404; @
+    res.status = (code) -> assert.equal code, 404; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Not Found'
       done()
@@ -94,7 +94,7 @@ describe '#param()', ->
 
   it 'should return 404 if document is not accessible for user', (done) ->
     req.user.provider = 'OTHER'
-    res.status = (code) -> assert.equal code, 404; @
+    res.status = (code) -> assert.equal code, 404; return this
     res.json = (body) ->
       assert.equal req.doc.exists(), true
       assert.deepEqual body, message: 'Not Found'
@@ -104,7 +104,7 @@ describe '#param()', ->
 
   it 'should return 404 with no body for HEAD requests', (done) ->
     req.method = 'HEAD'
-    res.status = (code) -> assert.equal code, 404; @
+    res.status = (code) -> assert.equal code, 404; return this
     res.end = done
 
     document.param req, res, assert.fail, '53b86e20970e053231a591aa'
@@ -146,7 +146,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'PUT'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -157,7 +157,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'PATCH'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -168,7 +168,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'DELETE'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -177,28 +177,28 @@ describe '#all()', ->
 
   it 'should return 412 when If-Match != doc checksum', (done) ->
     req.headers['If-Match'] = '"6fa48eca48702c171c4bb6ef5e95dbbe"'
-    res.status = (code) -> spy = true; assert.equal code, 412; @
+    res.status = (code) -> spy = true; assert.equal code, 412; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 304 when If-None-Match == doc checksum', (done) ->
     req.headers['If-None-Match'] = "\"#{req.doc.data.checksum}\""
-    res.status = (code) -> spy = true; assert.equal code, 304; @
+    res.status = (code) -> spy = true; assert.equal code, 304; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 304 when If-Modified-Since >= doc last change', (done) ->
     req.headers['If-Modified-Since'] = 'Sun, 12 Jan 2014 08:49:37 GMT'
-    res.status = (code) -> spy = true; assert.equal code, 304; @
+    res.status = (code) -> spy = true; assert.equal code, 304; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 412 when If-Unmodified-Since < doc last cahnge', (done) ->
     req.headers['If-Unmodified-Since'] = 'Sun, 10 Nov 2013 08:49:37 GMT'
-    res.status = (code) -> spy = true; assert.equal code, 412; @
+    res.status = (code) -> spy = true; assert.equal code, 412; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
@@ -265,7 +265,7 @@ describe '#get()', ->
 
 describe '#put()', ->
   beforeEach ->
-    res.status = -> @
+    res.status = -> return this
     req.method = 'PUT'
     req.body = foo: 'bar'
     req.doc.replace = (body, cb) ->
@@ -276,7 +276,7 @@ describe '#put()', ->
   it 'should return 400 if body is missing', (done) ->
     req.body = {}
 
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Body is missing'
       done()
@@ -286,7 +286,7 @@ describe '#put()', ->
   it 'should return 400 if body is not object', (done) ->
     req.body = [{}]
 
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Body should be a JSON Hash'
       done()
@@ -322,7 +322,7 @@ describe '#put()', ->
   it 'should return 422 if data schema fails', (done) ->
     req.body = navn: 123
 
-    res.status = (code) -> assert.equal code, 422; @
+    res.status = (code) -> assert.equal code, 422; return this
     res.json = (body) ->
       assert.equal body.message, 'Validation Failed'
       assert.deepEqual body.errors, [foo: 'bar']
@@ -351,7 +351,7 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return 200 with body', (done) ->
-    res.status = (code) -> assert.equal code, 200; @
+    res.status = (code) -> assert.equal code, 200; return this
     res.json = (body) ->
       assert.deepEqual body,
         document:
@@ -366,7 +366,7 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return warnings if any', (done) ->
-    res.status = (code) -> assert.equal code, 200; @
+    res.status = (code) -> assert.equal code, 200; return this
     res.json = (body) ->
       assert.deepEqual body.message, 'Validation Warnings'
       assert.deepEqual body.warnings, [foo: 'bar']
