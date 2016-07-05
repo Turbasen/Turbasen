@@ -1,4 +1,12 @@
-# Nasjonal Turbase [![Build status](https://img.shields.io/wercker/ci/5540e465dc16db44790b428d.svg "Build status")](https://app.wercker.com/project/bykey/ac9dffab857ff18e13ae57d86d6cee9a)
+# Nasjonal Turbase API Server
+
+[![Build status](https://app.wercker.com/status/b8dc87b43260bb78fc535fe7cc0c03ff/s "wercker status")](https://app.wercker.com/project/bykey/b8dc87b43260bb78fc535fe7cc0c03ff)
+[![Codacy grade](https://img.shields.io/codacy/grade/6362f4d1ca3c40ee817d2ae20017faee.svg "Codacy grade")](https://www.codacy.com/app/Turbasen/Turbasen)
+[![Codacy coverage](https://img.shields.io/codacy/coverage/6362f4d1ca3c40ee817d2ae20017faee.svg "Codacy coverage")](https://www.codacy.com/app/Turbasen/Turbasen)
+[![NPM downloads](https://img.shields.io/npm/dm/@turbasen/server.svg "NPM downloads")](https://www.npmjs.com/package/@turbasen/server)
+[![NPM version](https://img.shields.io/npm/v/@turbasen/server.svg "NPM version")](https://www.npmjs.com/package/@turbasen/server)
+[![Node version](https://img.shields.io/node/v/@turbasen/server.svg "Node version")](https://www.npmjs.com/package/@turbasen/server)
+[![Dependency status](https://img.shields.io/david/Turbasen/Turbasen.svg "Dependency status")](https://david-dm.org/Turbasen/Turbasen)
 
 The National Trekking Database (Nasjonal Turbase) is the Norwegian national
 platform to collect, manage, and distribute standardised trekking and outdoor
