@@ -7,15 +7,15 @@ Collection  = require('mongodb').Collection
 
 Document    = require '../../../coffee/model/Document'
 cache       = require '../../../coffee/helper/cache'
-redis       = require '../../../coffee/db/redis'
-mongo       = require '../../../coffee/db/mongo'
+redis       = require '@turbasen/db-redis'
+mongo       = require '@turbasen/db-mongo'
 
 data =
-  grupper : require '../../data/gruppe.json'
-  bilder  : require '../../data/bilde.json'
-  turer   : require '../../data/tur.json'
-  områder : require '../../data/omrade.json'
-  steder  : require '../../data/sted.json'
+  grupper: require '../../data/gruppe.json'
+  bilder: require '../../data/bilde.json'
+  turer: require '../../data/tur.json'
+  områder: require '../../data/omrade.json'
+  steder: require '../../data/sted.json'
 
 now = new Date().toISOString()
 
@@ -63,7 +63,7 @@ describe 'New', ->
       assert.equal doc.wasCacheHit(), false
 
   describe '#isModifiedSince()', ->
-    Date.prototype.toUnixTime = -> Math.floor(@getTime()/1000)
+    Date.prototype.toUnixTime = -> Math.floor @getTime() / 1000
 
     methods = [
       'toString'

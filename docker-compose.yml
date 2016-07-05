@@ -21,4 +21,5 @@ node:
     - NPM_CONFIG_LOGLEVEL=silent
     - NPM_CONFIG_PROGRESS=false
     - NPM_CONFIG_SPIN=false
+    - NTB_API_ENV=test
   command: npm start

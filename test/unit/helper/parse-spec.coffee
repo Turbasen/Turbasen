@@ -95,7 +95,7 @@ describe 'docValidate()', ->
     i = Object.keys(types).length
 
     for type, val of types
-      parse.docValidate type, {geojson: type: 'Foo'}, (err) ->
+      parse.docValidate type, { geojson: type: 'Foo' }, (err) ->
         assert val.expect.test(err), "#{type} assertion failed"
         done() if --i is 0
 
@@ -202,7 +202,7 @@ describe 'docPath()', ->
         lisens: '', navngiving: '', status: '', navn: 'abc'
       parse.docPatch 'steder', orig, (err, warn, data) ->
         assert.ifError err
-        assert.deepEqual data[verb], {navn: 'abc'}, "#{verb} failed"
+        assert.deepEqual data[verb], { navn: 'abc' }, "#{verb} failed"
         done() if --i is 0
 
   it 'should not warn about missing fields', (done) ->

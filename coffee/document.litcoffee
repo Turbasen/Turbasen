@@ -10,7 +10,7 @@
       return res.status(400).json message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
-        req.isOwner = @exists() and req.user.tilbyder is @get 'tilbyder'
+        req.isOwner = req.user.isOwner @get()
 
         if not @exists() or (@get('status') isnt 'Offentlig' and not req.isOwner)
           return res.status(404).json message: 'Not Found' if req.method isnt 'HEAD'
@@ -56,7 +56,7 @@ GET /{type}/{id}
       return res.sendStatus 200 if req.method is 'HEAD'
 
       opts =
-        query: $or: [{status: 'Offentlig'}, {tilbyder: req.user.tilbyder}]
+        query: req.user.query {}
         fields: {}
 
 ### Fields Projection
@@ -151,7 +151,7 @@ PATCH /{type}/{id}
       return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
       return res.status(400).json message: 'Body should be a JSON Hash' if req.body instanceof Array
 
-      req.body.tilbyder = req.user.tilbyder
+      req.body.tilbyder = req.user.provider
 
       method = (if req.method is 'PUT' then 'replace' else 'update')
       req.doc[method] req.body, (err, warn, data) ->

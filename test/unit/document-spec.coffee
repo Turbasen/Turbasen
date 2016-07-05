@@ -3,8 +3,9 @@ ConcatStream  = require 'concat-stream'
 
 assert    = require 'assert'
 
-mongo     = require '../../coffee/db/mongo'
-redis     = require '../../coffee/db/redis'
+mongo     = require '@turbasen/db-mongo'
+redis     = require '@turbasen/db-redis'
+AuthUser  = require('@turbasen/auth').AuthUser
 
 document  = require '../../coffee/document'
 Document  = require '../../coffee/model/Document'
@@ -29,7 +30,12 @@ beforeEach (done) ->
     method: 'GET'
     headers: {}
     get: (header) -> @headers[header]
-    user: tilbyder: 'DNT'
+    user: new AuthUser 'dnt',
+      provider: 'DNT'
+      app: 'dnt_app1'
+      limit: 1000
+      remaining: 1000
+      reset: 9999999999
     type: 'steder'
     isOwner: true
 
@@ -70,7 +76,7 @@ describe '#param()', ->
 
   it 'should set isOwner to false if current user isnt owner', (done) ->
     delete req.isOwner
-    req.user.tilbyder = 'OTHER'
+    req.user.provider = 'OTHER'
     next = (err) ->
       assert.ifError err
       assert.equal req.isOwner, false
@@ -87,7 +93,7 @@ describe '#param()', ->
     document.param req, res, assert.fail, '53b86e20970e053231a591aa'
 
   it 'should return 404 if document is not accessible for user', (done) ->
-    req.user.tilbyder = 'OTHER'
+    req.user.provider = 'OTHER'
     res.status = (code) -> assert.equal code, 404; @
     res.json = (body) ->
       assert.equal req.doc.exists(), true
@@ -308,7 +314,7 @@ describe '#put()', ->
   it 'should override data.tilbyder', (done) ->
     res.json = -> done()
     req.doc.replace = (body, cb) ->
-      assert.equal body.tilbyder, req.user.tilbyder
+      assert.equal body.tilbyder, req.user.provider
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
 
     document.put req, res, assert.ifError
@@ -350,7 +356,7 @@ describe '#put()', ->
       assert.deepEqual body,
         document:
           foo: 'bar'
-          tilbyder: req.user.tilbyder
+          tilbyder: req.user.provider
           checksum: 'foo'
           endret: '2013-01-01T01:01:01.010Z'
         message: undefined

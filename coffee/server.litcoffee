@@ -2,12 +2,15 @@
 
     raven       = require 'raven'
     sentry      = require './db/sentry'
+    mongo       = require '@turbasen/db-mongo'
+    redis       = require '@turbasen/db-redis'
     express     = require 'express'
+
     compression = require 'compression'
     bodyParser  = require 'body-parser'
     responseTime= require 'response-time'
 
-    auth        = require './helper/auth'
+    auth        = require '@turbasen/auth'
     collections = require('./helper/schema').types
 
     system      = require './system'
@@ -45,18 +48,7 @@ authenticating the user by validating the `api\_key`. It then sets some request
 session variables so they become accessible throughout the entire system during
 the rquest.
 
-    app.use '/', (req, res, next) ->
-      auth.check req.query.api_key, (err, user) ->
-        if user
-          res.set 'X-RateLimit-Limit', user.limit
-          res.set 'X-RateLimit-Remaining', user.remaining
-          res.set 'X-RateLimit-Reset', user.reset
-
-        req.user = user
-
-        return next err if err
-
-        next()
+    app.use auth.middleware
 
 ## GET /
 
@@ -114,7 +106,7 @@ Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
-      res.status err.status or 500
+      res.status err.code or err.status or 500
 
       if res.statusCode is 401
         sentry.captureMessage "Invalid API-key #{req.query.api_key}",
@@ -122,7 +114,7 @@ requests shall not contain any body – this applies for errors as well.
           extra: sentry.parseRequest req, user: req.user
 
       if res.statusCode is 403
-        sentry.captureMessage "Rate limit exceeded for #{req.user.tilbyder}",
+        sentry.captureMessage "Rate limit exceeded for #{req.user.provider}",
           level: 'notice'
           extra: sentry.parseRequest req, user: req.user
 
@@ -144,8 +136,7 @@ mode.
 Wait for Redis and MongoDB to become aviable before accepting connections on the
 server port.
 
-      require('./db/redis')
-      require('./db/mongo').once 'ready', ->
+      mongo.once 'ready', ->
         console.log 'Database is open...'
 
         app.listen process.env.VIRTUAL_PORT || 8080, ->

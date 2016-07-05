@@ -93,7 +93,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc.endret >= res.body.documents[i-1].endret
+            assert doc.endret >= res.body.documents[i - 1].endret
           return
         .end done
 
@@ -102,7 +102,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc._id >= res.body.documents[i-1]._id
+            assert doc._id >= res.body.documents[i - 1]._id
           return
         .end done
 
@@ -111,7 +111,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc._id <= res.body.documents[i-1]._id
+            assert doc._id <= res.body.documents[i - 1]._id
           return
         .end done
 
@@ -120,7 +120,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc.endret >= res.body.documents[i-1].endret
+            assert doc.endret >= res.body.documents[i - 1].endret
           return
         .end done
 
@@ -129,7 +129,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc.endret <= res.body.documents[i-1].endret
+            assert doc.endret <= res.body.documents[i - 1].endret
           return
         .end done
 
@@ -138,7 +138,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc.navn >= res.body.documents[i-1].navn
+            assert doc.navn >= res.body.documents[i - 1].navn
           return
         .end done
 
@@ -147,7 +147,7 @@ describe 'GET', ->
         .expect 200
         .expect (res) ->
           for doc, i in res.body.documents when i > 0
-            assert doc.navn <= res.body.documents[i-1].navn
+            assert doc.navn <= res.body.documents[i - 1].navn
           return
         .end done
 
@@ -428,9 +428,9 @@ describe 'POST', ->
       .expect (res) ->
         assert.equal res.body.message, 'Validation Warnings'
         assert.deepEqual res.body.warnings, [
-          {resource: 'Document', field: 'lisens', code: 'missing_field'}
-          {resource: 'Document', field: 'navngiving', code: 'missing_field'}
-          {resource: 'Document', field: 'status', code: 'missing_field'}
+          { resource: 'Document', field: 'lisens', code: 'missing_field' }
+          { resource: 'Document', field: 'navngiving', code: 'missing_field' }
+          { resource: 'Document', field: 'status', code: 'missing_field' }
         ]
       .end done
 

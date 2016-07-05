@@ -8,17 +8,17 @@ before -> steder = module.parent.exports.steder
 describe 'getFilter()', ->
   it 'should return cache filter for type', ->
     assert.deepEqual cache.getFilter('steder'),
-      _id       : false
-      tilbyder  : true
-      endret    : true
-      checksum  : true
-      status    : true
-      lisens    : true
-      navn      : true
-      områder   : true
-      steder    : true
-      bilder    : true
-      grupper   : true
+      _id: false
+      tilbyder: true
+      endret: true
+      checksum: true
+      status: true
+      lisens: true
+      navn: true
+      områder: true
+      steder: true
+      bilder: true
+      grupper: true
 
 describe 'filterData()', ->
   it 'should return filtered data for type', ->
