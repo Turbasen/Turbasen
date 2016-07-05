@@ -20,6 +20,7 @@
     "express": "^4.13.3",
     "joi": "^5.1.0",
     "mongo-querystring": "^3.1.0",
+    "mongodb": "^2.1.18",
     "newrelic": "^1.28.0",
     "raven": "^0.11.0",
     "response-time": "^2.3.1"
@@ -30,7 +31,6 @@
     "coffeelint": "^1.14.2",
     "concat-stream": "^1.5.1",
     "mocha": "^2.5.3",
-    "mongodb": "^2.1.18",
     "supertest": "~1",
     "supervisor": "0.11.0"
   },
