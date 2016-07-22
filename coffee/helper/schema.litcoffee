@@ -8,6 +8,7 @@ Supported schema object types.
       'arrangementer'
       'bilder'
       'grupper'
+      'lister'
       'områder'
       'steder'
       'turer'
@@ -206,3 +207,8 @@ There optional are optional for all objects.
         kart: joi.string()
         turkart: joi.array().includes(joi.string())
 
+### Lister
+
+      lister:
+        start: joi.date().iso()
+        stopp: joi.date().iso()
