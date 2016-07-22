@@ -16,7 +16,7 @@
     "@turbasen/db-mongo": "^1.0.0",
     "@turbasen/db-redis": "^1.0.0",
     "JSONStream": "^1.1.1",
-    "async": "^1.5.2",
+    "async": "^2.0.1",
     "body-parser": "^1.15.1",
     "coffee-script": "^1.10.0",
     "compression": "^1.6.2",
