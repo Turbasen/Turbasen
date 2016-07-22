@@ -11,6 +11,7 @@ it 'should return list of avaiable object types', (done) ->
         'arrangementer'
         'bilder'
         'grupper'
+        'lister'
         'områder'
         'steder'
         'turer'
