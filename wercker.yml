@@ -35,6 +35,20 @@ build:
     - turistforeningen/slack-notifier:
         url: $SLACK_WEBHOOK_URL
 
+docker:
+  steps:
+    - script:
+        name: docker hub build
+        code: |
+          curl --verbose \
+            -H "Content-Type: application/json" \
+            -d "{\"source_type\": \"Branch\", \"source_name\": \"$WERCKER_GIT_BRANCH\"}" \
+            -X POST $DOCKER_TRIGGER_URL
+
+  after-steps:
+    - turistforeningen/slack-notifier:
+        url: $SLACK_WEBHOOK_URL
+
 npm:
   steps:
     # Rebuild node_modules to fix broken symlinks
