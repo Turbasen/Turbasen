@@ -23,7 +23,7 @@
     "express": "^4.13.3",
     "joi": "^5.1.0",
     "mongo-querystring": "^4.0.0",
-    "mongodb": "^2.1.18",
+    "mongodb": "^2.2.5",
     "newrelic": "^1.28.0",
     "raven": "^0.11.0",
     "response-time": "^2.3.1"
