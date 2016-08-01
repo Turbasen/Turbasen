@@ -37,7 +37,7 @@
     "concat-stream": "^1.5.1",
     "greenkeeper-postpublish": "^1.0.0",
     "istanbul": "^0.4.4",
-    "mocha": "^2.5.3",
+    "mocha": "^3.0.0",
     "nsp": "^2.5.0",
     "semantic-release": "^4.3.5",
     "supertest": "~1",
