@@ -135,17 +135,17 @@ There optional are optional for all objects.
         )
         distanse: joi.number()
         retning: joi.string().valid([
-          "AB"
-          "BA"
-          "ABA"
-          "BAB"
+          'AB'
+          'BA'
+          'ABA'
+          'BAB'
         ])
         adkomst: joi.string()
         gradering: joi.string().valid([
-          "Enkel"
-          "Middels"
-          "Krevende"
-          "Ekspert"
+          'Enkel'
+          'Middels'
+          'Krevende'
+          'Ekspert'
         ])
         passer_for: joi.array().includes(joi.string())
         tilrettelagt_for: joi.array().includes(joi.string())

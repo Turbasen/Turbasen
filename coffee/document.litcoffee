@@ -7,7 +7,8 @@
 ## param()
 
     exports.param = (req, res, next, id) ->
-      return res.status(400).json message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
+      if not /^[a-f0-9]{24}$/.test id
+        return res.status(400).json message: 'Invalid ObjectId'
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
         req.isOwner = req.user.isOwner @get()
@@ -87,8 +88,8 @@ The list of default fields below will always be returned for compliance reasons.
           endret: true
           lisens: true
           status: true
-          navn  : true
-          tilbyder  : true
+          navn: true
+          tilbyder: true
           navngiving: true
 
 ### Sub-document Expansion
@@ -148,8 +149,11 @@ PATCH /{type}/{id}
 ```
 
     exports.patch = exports.put = (req, res, next) ->
-      return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
-      return res.status(400).json message: 'Body should be a JSON Hash' if req.body instanceof Array
+      if Object.keys(req.body).length is 0
+        return res.status(400).json message: 'Body is missing'
+
+      if req.body instanceof Array
+        return res.status(400).json message: 'Body should be a JSON Hash'
 
       req.body.tilbyder = req.user.provider
 

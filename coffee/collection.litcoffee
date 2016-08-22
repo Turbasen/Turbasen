@@ -13,13 +13,13 @@
         endret: 'after'
         order: 'sort'
       blacklist:
-        api_key     : true # other use
-        sort        : true # other use
-        limit       : true # other use
-        skip        : true # other use
-        fields      : true # other use
-        expand      : true # other use
-        _id         : true # use API endpoint
+        api_key: true # other use
+        sort: true # other use
+        limit: true # other use
+        skip: true # other use
+        fields: true # other use
+        expand: true # other use
+        _id: true # use API endpoint
       custom:
         bbox: 'geojson'
         near: 'geojson'
@@ -44,7 +44,7 @@
 
       req.type      = col2
       req.db.col    = mongo[col2]
-      req.db.query  = [{status: 'Offentlig'}, {tilbyder: req.user.provider}]
+      req.db.query  = [{ status: 'Offentlig' }, { tilbyder: req.user.provider }]
 
       next()
 
@@ -80,14 +80,15 @@ Parse user specified fields to be returned.
 If any private fields are to be returned we need to limit the query to documents
 owner by the API user to prevent exposing private data publicly.
 
-          req.db.query.tilbyder = req.user.provider if field.substr(0,6) is 'privat'
+          if field.substr(0, 6) is 'privat'
+            req.db.query.tilbyder = req.user.provider
 
 ### Sort
 
 Limit sort to ascending or descending on `\_id`, `endret`, and `navn` since they
 are indexed. Non-indexed fields will be slower. Also, don't allow ordering of
 geospatial queries to prevent performance bottlenecks. From the [MongoDB
-refference](http://docs.mongodb.org/manual/reference/operator/query/near/#behavior):
+refference](http://docs.mongodb.org/manual/reference/operator/query/near):
 
 > $near always returns the documents sorted by distance. Any other sort order
 > requires to sort the documents in memory, which can be inefficient.
@@ -148,8 +149,11 @@ Stream matching documents in order to prevent loading them into memory.
 ## POST /{collection}
 
     exports.post = (req, res, next) ->
-      return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
-      return res.status(422).json message: 'Body should be a JSON Hash' if req.body instanceof Array
+      if Object.keys(req.body).length is 0
+        return res.status(400).json message: 'Body is missing'
+
+      if req.body instanceof Array
+        return res.status(422).json message: 'Body should be a JSON Hash'
 
       req.body.tilbyder = req.user.provider
 

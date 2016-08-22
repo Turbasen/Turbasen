@@ -12,17 +12,17 @@ Returns an `object` with `field` and filter status (`boolean`).
 
     exports.getFilter = (type) ->
       {
-        _id       : false
-        tilbyder  : true
-        endret    : true
-        checksum  : true
-        status    : true
-        lisens    : true
-        navn      : true
-        områder   : true
-        steder    : true
-        bilder    : true
-        grupper   : true
+        _id: false
+        tilbyder: true
+        endret: true
+        checksum: true
+        status: true
+        lisens: true
+        navn: true
+        områder: true
+        steder: true
+        bilder: true
+        grupper: true
       }
 
 
@@ -41,7 +41,10 @@ Returns an `object` with correct data fields.
 
     exports.filterData = (type, data) ->
       ret = {}
-      ret[key] = data[key] for key, val of exports.getFilter(type) when val and data[key]
+
+      for key, val of exports.getFilter(type) when val and data[key]
+        ret[key] = data[key]
+
       ret
 
 

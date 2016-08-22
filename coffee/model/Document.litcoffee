@@ -28,9 +28,11 @@ Import data storage modules.
 
     module.exports = Doc = (type, id) ->
       throw new Error('Missing Doc type param') if not type
-      throw new Error('Missing or invalid ID param') if typeof id isnt 'string' and id isnt null
 
-      EventEmitter.call @
+      if typeof id isnt 'string' and id isnt null
+        throw new Error('Missing or invalid ID param')
+
+      EventEmitter.call this
 
 ### doc.db
 
@@ -83,7 +85,7 @@ Cache hit indicator. Accessed through `doc.wasCacheHit()`.
       else
         process.nextTick => @emit 'ready'
 
-      return @
+      return this
 
     inherits Doc, EventEmitter
 
@@ -217,7 +219,7 @@ stream if `cb` is undefined.
 ### doc.getExpanded(opts, cb)
 
 * **object** `opts`
-  * **object** `filter` - document and sub-document projection (**default** `{}`)
+  * **object** `filter` - document & sub-document projection (**default** `{}`)
   * **number** `limit` - sub-document max expanded (**default** `10`)
   * **array** `expand` - sub-document collections to expand (**default** `[]`)
   * **object** `query` - sub-document select query (**default** `{}`)
@@ -294,7 +296,7 @@ the easy part. The tricky part is to prevent information leakage of private
 documents. This the second part is a `query` limiting the results to public
 documents or those owned by the current API user.
 
-          .find Object.assign {_id: $in: x.ids}, query
+          .find Object.assign { _id: $in: x.ids }, query
 
 We reuse the projection fields from the original document, but since we do not
 know in advanced who owns a given sub-document we remove the `private` property
@@ -310,7 +312,8 @@ Bundle all the sub-documents in one array and pass it to the `next` function.
 ### doc.insert(data, cb)
 
 * **object** `data` - data to insert for document.
-* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
 
 Inserts a new document into database.
 
@@ -337,7 +340,8 @@ Inserts a new document into database.
 ### doc.replace(data, cb)
 
 * **object** `data` - replacement data for document.
-* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
 
 Replaces all document data in database.
 
@@ -365,10 +369,11 @@ Replaces all document data in database.
 ### doc.update(data, cb)
 
 * **object** `data` - replacement object for document.
-* **function** `cb` - callback function (**Error** `err`, **Array** `warn`, **object** `data`).
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
 
-Partially update the document-data in database. This is some times referred to as
-PATCH in a HTTP / REST context.
+Partially update the document-data in database. This is some times referred to
+as PATCH in a HTTP / REST context.
 
 ---
 

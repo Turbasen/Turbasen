@@ -1,21 +1,21 @@
     require 'newrelic' if process.env.NODE_ENV is 'production'
 
-    raven       = require 'raven'
-    sentry      = require './db/sentry'
-    mongo       = require '@turbasen/db-mongo'
-    redis       = require '@turbasen/db-redis'
-    express     = require 'express'
+    raven         = require 'raven'
+    sentry        = require './db/sentry'
+    mongo         = require '@turbasen/db-mongo'
+    redis         = require '@turbasen/db-redis'
+    express       = require 'express'
 
-    compression = require 'compression'
-    bodyParser  = require 'body-parser'
-    responseTime= require 'response-time'
+    compression   = require 'compression'
+    bodyParser    = require 'body-parser'
+    responseTime  = require 'response-time'
 
-    auth        = require '@turbasen/auth'
-    collections = require('./helper/schema').types
+    auth          = require '@turbasen/auth'
+    collections   = require('./helper/schema').types
 
-    system      = require './system'
-    collection  = require './collection'
-    document    = require './document'
+    system        = require './system'
+    collection    = require './collection'
+    document      = require './document'
 
 ## Init
 
@@ -67,7 +67,8 @@ the rquest.
       switch req.method
         when 'HEAD', 'GET' then collection.get req, res, next
         when 'POST' then collection.post req, res, next
-        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+        else res.status(405).json
+          message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## ALL /{collection}/{objectid}
 
@@ -78,7 +79,8 @@ the rquest.
         when 'PUT' then document.put req, res, next
         when 'PATCH' then document.patch req, res, next
         when 'DELETE' then document.delete req, res, next
-        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+        else res.status(405).json
+          message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## 404 handling
 
@@ -86,7 +88,7 @@ This the fmous 404 Not Found handler. If no route configuration for the request
 is found, it ends up here. We don't do much fancy about it – just a standard
 error message and HTTP status code.
 
-    app.use (req, res) -> res.status(404).json message: "Resurs ikke funnet"
+    app.use (req, res) -> res.status(404).json message: 'Resurs ikke funnet'
 
 ### Error handling
 
@@ -119,8 +121,10 @@ requests shall not contain any body – this applies for errors as well.
           extra: sentry.parseRequest req, user: req.user
 
       if res.statusCode >= 500
+        # coffeelint: disable=no_debugger
         console.error err.message
         console.error err.stack
+        # coffeelint: enable=no_debugger
 
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'
@@ -137,7 +141,11 @@ Wait for Redis and MongoDB to become aviable before accepting connections on the
 server port.
 
       mongo.once 'ready', ->
+        # coffeelint: disable=no_debugger
         console.log 'Database is open...'
 
-        app.listen process.env.VIRTUAL_PORT || 8080, ->
-          console.log "Server is listening on port #{process.env.VIRTUAL_PORT || 8080}"
+        port = process.env.VIRTUAL_PORT || 8080
+
+        app.listen port, ->
+          console.log "Server is listening on port #{port}"
+        # coffeelint: enable=no_debugger
