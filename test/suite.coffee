@@ -93,10 +93,10 @@ before (done) ->
 
 # Flush cache- and persistand data from Redis and MongoDB.
 
-beforeEach (done) ->
+afterEach (done) ->
   mongo.steder.drop(null, done)
 
-beforeEach (done) ->
+afterEach (done) ->
   mongo.turer.drop(null, done)
 
 beforeEach (done) ->
