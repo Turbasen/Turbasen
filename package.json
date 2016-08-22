@@ -40,7 +40,7 @@
     "mocha": "^3.0.0",
     "nsp": "^2.5.0",
     "semantic-release": "^4.3.5",
-    "supertest": "~1",
+    "supertest": "^2.0.0",
     "supervisor": "0.11.0"
   },
   "scripts": {
