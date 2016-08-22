@@ -111,7 +111,8 @@ skip, and sort).
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
 
-Count number of matching documents in MongoDB database.
+Count number of matching documents in MongoDB database. Ignore limit and skip
+settings by passing `false` as the first argument to `cursor.count()`.
 
       cursor.count false, (err, total) ->
         return next err if err
