@@ -47,7 +47,7 @@
     "codacy-coverage": "codacy-coverage",
     "cover": "istanbul cover --report lcovonly ./node_modules/.bin/_mocha -- test/suite.coffee -R spec --compilers coffee:coffee-script/register --require coffee-coverage/register-istanbul",
     "greenkeeper-postpublish": "greenkeeper-postpublish",
-    "lint": "coffeelint coffee/ test/",
+    "lint": "coffeelint coffee/ coffee/*.litcoffee coffee/**/*.litcoffee test/",
     "nsp": "nsp check",
     "postinstall": "rm -rf src/* && coffee --bare -o src/ -c coffee/",
     "semantic-release": "semantic-release",
