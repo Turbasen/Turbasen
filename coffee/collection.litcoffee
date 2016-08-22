@@ -18,6 +18,7 @@
         limit       : true # other use
         skip        : true # other use
         fields      : true # other use
+        expand      : true # other use
         _id         : true # use API endpoint
       custom:
         bbox: 'geojson'
