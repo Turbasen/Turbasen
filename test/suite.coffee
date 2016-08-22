@@ -94,10 +94,13 @@ before (done) ->
 # Flush cache- and persistand data from Redis and MongoDB.
 
 beforeEach (done) ->
-  redis.flushall()
+  mongo.steder.drop(null, done)
 
-  mongo.steder.drop()
-  mongo.turer.drop()
+beforeEach (done) ->
+  mongo.turer.drop(null, done)
+
+beforeEach (done) ->
+  redis.flushall()
 
   async.series [
     mongo.steder.ensureIndex.bind(mongo.steder, { geojson: '2dsphere' })
