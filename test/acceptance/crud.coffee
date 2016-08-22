@@ -11,7 +11,7 @@ delete doc.endret
 delete doc.checksum
 
 beforeEach ->
-  req.post "/turer?api_key=dnt"
+  req.post '/turer?api_key=dnt'
     .send doc
     .expect 201
     .expect (res) ->
