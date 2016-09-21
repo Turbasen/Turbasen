@@ -42,19 +42,14 @@ it 'should reindex all documents in collection', (done) ->
     assert.equal visited.length, 120
     done()
 
-it 'should get documents updated since', (done) ->
-  req.get "/steder?tag=Hytte&skip=0&after=1387204002123&api_key=dnt"
+it 'should get documents updated since', ->
+  req.get '/steder?tag=Hytte&skip=0&after=1387204002123&api_key=dnt'
     .expect 200
-    .end (err, res) ->
-      assert.ifError err
+    .expect (res) ->
       assert.equal res.body.total, 29
-      done()
 
-it 'should get no documents updated since', (done) ->
-  req.get "/steder?tag=Hytte&skip=0&after=1488404002123&api_key=dnt"
+it 'should get no documents updated since', ->
+  req.get '/steder?tag=Hytte&skip=0&after=1488404002123&api_key=dnt'
     .expect 200
-    .end (err, res) ->
-      assert.ifError err
+    .expect (res) ->
       assert.equal res.body.total, 0
-      done()
-

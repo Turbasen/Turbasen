@@ -3,8 +3,9 @@ ConcatStream  = require 'concat-stream'
 
 assert    = require 'assert'
 
-mongo     = require '../../coffee/db/mongo'
-redis     = require '../../coffee/db/redis'
+mongo     = require '@turbasen/db-mongo'
+redis     = require '@turbasen/db-redis'
+AuthUser  = require('@turbasen/auth').AuthUser
 
 document  = require '../../coffee/document'
 Document  = require '../../coffee/model/Document'
@@ -23,13 +24,18 @@ beforeEach (done) ->
     headers: {}
     set: (header, value) ->
       @headers[header] = value
-      @
+      return this
 
   req =
     method: 'GET'
     headers: {}
     get: (header) -> @headers[header]
-    user: tilbyder: 'DNT'
+    user: new AuthUser 'dnt',
+      provider: 'DNT'
+      app: 'dnt_app1'
+      limit: 1000
+      remaining: 1000
+      reset: 9999999999
     type: 'steder'
     isOwner: true
 
@@ -43,20 +49,12 @@ describe '#param()', ->
     delete req.isOwner
 
   it 'should return 400 error for invalid ObjectId', (done) ->
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Invalid ObjectId'
       done()
 
     document.param req, res, assert.false, 'foobar'
-
-  it 'should return early if request method is OPTIONS', (done) ->
-    req.method = 'OPTIONS'
-    next = (err) ->
-      assert.ifError err
-      done()
-
-    document.param req, res, next, '53b86e20970e053231a591aa'
 
   it 'should set document object to request', (done) ->
     delete req.doc
@@ -78,7 +76,7 @@ describe '#param()', ->
 
   it 'should set isOwner to false if current user isnt owner', (done) ->
     delete req.isOwner
-    req.user.tilbyder = 'OTHER'
+    req.user.provider = 'OTHER'
     next = (err) ->
       assert.ifError err
       assert.equal req.isOwner, false
@@ -87,7 +85,7 @@ describe '#param()', ->
     document.param req, res, next, '52407fb375049e5615000008'
 
   it 'should return 404 if document does not exist', (done) ->
-    res.status = (code) -> assert.equal code, 404; @
+    res.status = (code) -> assert.equal code, 404; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Not Found'
       done()
@@ -95,8 +93,8 @@ describe '#param()', ->
     document.param req, res, assert.fail, '53b86e20970e053231a591aa'
 
   it 'should return 404 if document is not accessible for user', (done) ->
-    req.user.tilbyder = 'OTHER'
-    res.status = (code) -> assert.equal code, 404; @
+    req.user.provider = 'OTHER'
+    res.status = (code) -> assert.equal code, 404; return this
     res.json = (body) ->
       assert.equal req.doc.exists(), true
       assert.deepEqual body, message: 'Not Found'
@@ -106,7 +104,7 @@ describe '#param()', ->
 
   it 'should return 404 with no body for HEAD requests', (done) ->
     req.method = 'HEAD'
-    res.status = (code) -> assert.equal code, 404; @
+    res.status = (code) -> assert.equal code, 404; return this
     res.end = done
 
     document.param req, res, assert.fail, '53b86e20970e053231a591aa'
@@ -148,7 +146,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'PUT'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -159,7 +157,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'PATCH'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -170,7 +168,7 @@ describe '#all()', ->
     req.isOwner = false
     req.method = 'DELETE'
 
-    res.status = (code) -> assert.equal code, 403; @
+    res.status = (code) -> assert.equal code, 403; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Request Denied'
       done()
@@ -179,28 +177,28 @@ describe '#all()', ->
 
   it 'should return 412 when If-Match != doc checksum', (done) ->
     req.headers['If-Match'] = '"6fa48eca48702c171c4bb6ef5e95dbbe"'
-    res.status = (code) -> spy = true; assert.equal code, 412; @
+    res.status = (code) -> spy = true; assert.equal code, 412; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 304 when If-None-Match == doc checksum', (done) ->
     req.headers['If-None-Match'] = "\"#{req.doc.data.checksum}\""
-    res.status = (code) -> spy = true; assert.equal code, 304; @
+    res.status = (code) -> spy = true; assert.equal code, 304; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 304 when If-Modified-Since >= doc last change', (done) ->
     req.headers['If-Modified-Since'] = 'Sun, 12 Jan 2014 08:49:37 GMT'
-    res.status = (code) -> spy = true; assert.equal code, 304; @
+    res.status = (code) -> spy = true; assert.equal code, 304; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
 
   it 'should return 412 when If-Unmodified-Since < doc last cahnge', (done) ->
     req.headers['If-Unmodified-Since'] = 'Sun, 10 Nov 2013 08:49:37 GMT'
-    res.status = (code) -> spy = true; assert.equal code, 412; @
+    res.status = (code) -> spy = true; assert.equal code, 412; return this
     res.end = (err) -> assert.equal err, undefined; assert spy; done()
 
     document.all req, res, -> assert false, 'next called'
@@ -221,36 +219,6 @@ describe '#all()', ->
 
     document.all req, res, done
 
-describe '#options()', ->
-  it 'should set Access-Control-Allow-Headers', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal res.headers['Access-Control-Allow-Methods'], [
-        'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
-      ].join ', '
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
-
-  it 'should set Access-Control-Allow-Methods', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal res.headers['Access-Control-Allow-Headers'], [
-        'Content-Type'
-        'If-Match'
-        'If-Modified-Since'
-        'If-None-Match'
-        'If-Unmodified-Since'
-      ].join ', '
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
-
-  it 'should return 204 status code', (done) ->
-    res.sendStatus = (code) ->
-      assert.equal code, 204
-      done()
-
-    document.options req, res, -> assert false, 'next() called'
-
 describe '#get()', ->
   it 'should return no body for HEAD', (done) ->
     req.method = 'HEAD'
@@ -268,11 +236,9 @@ describe '#get()', ->
       done()
 
   it 'should return doc data with private data for owner', (done) ->
-    res = new ConcatStream (data) ->
-      json = JSON.parse data
-
-      assert.equal typeof json, 'object'
-      assert.equal typeof json.privat, 'object'
+    res.json = (data) ->
+      assert.equal typeof data, 'object'
+      assert.equal typeof data.privat, 'object'
 
       done()
 
@@ -285,11 +251,9 @@ describe '#get()', ->
   it 'should return doc data with no privat data for non owner', (done) ->
     req.isOwner = false
 
-    res = new ConcatStream (data) ->
-      json = JSON.parse data
-
-      assert.equal typeof json, 'object'
-      assert.equal typeof json.privat, 'undefined'
+    res.json = (data) ->
+      assert.equal typeof data, 'object'
+      assert.equal typeof data.privat, 'undefined'
 
       done()
 
@@ -301,7 +265,7 @@ describe '#get()', ->
 
 describe '#put()', ->
   beforeEach ->
-    res.status = -> @
+    res.status = -> return this
     req.method = 'PUT'
     req.body = foo: 'bar'
     req.doc.replace = (body, cb) ->
@@ -312,7 +276,7 @@ describe '#put()', ->
   it 'should return 400 if body is missing', (done) ->
     req.body = {}
 
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Body is missing'
       done()
@@ -322,7 +286,7 @@ describe '#put()', ->
   it 'should return 400 if body is not object', (done) ->
     req.body = [{}]
 
-    res.status = (code) -> assert.equal code, 400; @
+    res.status = (code) -> assert.equal code, 400; return this
     res.json = (body) ->
       assert.deepEqual body, message: 'Body should be a JSON Hash'
       done()
@@ -350,7 +314,7 @@ describe '#put()', ->
   it 'should override data.tilbyder', (done) ->
     res.json = -> done()
     req.doc.replace = (body, cb) ->
-      assert.equal body.tilbyder, req.user.tilbyder
+      assert.equal body.tilbyder, req.user.provider
       cb null, [], checksum: 'foo', endret: '2013-01-01T01:01:01.010Z'
 
     document.put req, res, assert.ifError
@@ -358,7 +322,7 @@ describe '#put()', ->
   it 'should return 422 if data schema fails', (done) ->
     req.body = navn: 123
 
-    res.status = (code) -> assert.equal code, 422; @
+    res.status = (code) -> assert.equal code, 422; return this
     res.json = (body) ->
       assert.equal body.message, 'Validation Failed'
       assert.deepEqual body.errors, [foo: 'bar']
@@ -387,12 +351,12 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return 200 with body', (done) ->
-    res.status = (code) -> assert.equal code, 200; @
+    res.status = (code) -> assert.equal code, 200; return this
     res.json = (body) ->
       assert.deepEqual body,
         document:
           foo: 'bar'
-          tilbyder: req.user.tilbyder
+          tilbyder: req.user.provider
           checksum: 'foo'
           endret: '2013-01-01T01:01:01.010Z'
         message: undefined
@@ -402,7 +366,7 @@ describe '#put()', ->
     document.put req, res, assert.ifError
 
   it 'should return warnings if any', (done) ->
-    res.status = (code) -> assert.equal code, 200; @
+    res.status = (code) -> assert.equal code, 200; return this
     res.json = (body) ->
       assert.deepEqual body.message, 'Validation Warnings'
       assert.deepEqual body.warnings, [foo: 'bar']

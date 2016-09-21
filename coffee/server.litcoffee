@@ -1,20 +1,45 @@
     require 'newrelic' if process.env.NODE_ENV is 'production'
 
-    raven       = require 'raven'
-    sentry      = require './db/sentry'
-    express     = require 'express'
-    compression = require 'compression'
-    bodyParser  = require 'body-parser'
+    raven         = require 'raven'
+    sentry        = require './db/sentry'
+    mongo         = require '@turbasen/db-mongo'
+    redis         = require '@turbasen/db-redis'
+    express       = require 'express'
 
-    auth        = require './helper/auth'
+    compression   = require 'compression'
+    bodyParser    = require 'body-parser'
+    responseTime  = require 'response-time'
 
-    system      = require './system'
-    collection  = require './collection'
-    document    = require './document'
+    auth          = require '@turbasen/auth'
+    collections   = require('./helper/schema').types
+
+    system        = require './system'
+    collection    = require './collection'
+    document      = require './document'
 
 ## Init
 
-    app = express()
+    app = module.exports = express()
+
+### Configuration
+
+    app.disable 'x-powered-by'
+    app.disable 'etag'
+
+    app.use compression()
+    app.use responseTime()
+
+    app.use bodyParser.json extended: true, limit: '10mb'
+
+## GET /favicon.ico
+
+    app.get '/favicon.ico', (req, res) ->
+      res.set 'Content-Type': 'image/x-icon'
+      res.status(200).end()
+
+## GET /CloudHealthCheck
+
+    app.all '/CloudHealthCheck', system.check
 
 ### Authentication
 
@@ -23,76 +48,39 @@ authenticating the user by validating the `api\_key`. It then sets some request
 session variables so they become accessible throughout the entire system during
 the rquest.
 
-    app.use '/', (req, res, next) ->
-      return next() if req.originalUrl.substr(0, 17) is '/CloudHealthCheck'
-
-      auth.check req.query.api_key, (err, user) ->
-        if user
-          res.set 'X-RateLimit-Limit', user.limit
-          res.set 'X-RateLimit-Remaining', user.remaining
-          res.set 'X-RateLimit-Reset', user.reset
-
-        req.user = user
-
-        return next err if err
-
-        next()
-
-### Configuration
-
-    app.use(compression())
-    app.use bodyParser.json extended: true, limit: '10mb'
-    app.disable('x-powered-by')
-    app.disable('etag')
-    app.set 'port', process.env.APP_PORT or 8080
+    app.use auth.middleware
 
 ## GET /
 
     app.get '/', (req, res) ->
       res.json message: 'Here be dragons'
 
-## GET /favicon
-
-    app.get '/favicon.ico', (req, res) ->
-      res.set 'Content-Type': 'image/x-icon'
-      res.status(200).end()
-
-## GET /CloudHealthCheck
-
-> So...You’re seeing the dotCloud active health check looking to make sure that
-> your service is up. There is no way for you to disable it, but you can prevent
-> it and you can handle it [1]!
-
-[1] [dotCloud](http://docs.dotcloud.com/tutorials/more/cloud-health-check/)
-
-    app.all '/CloudHealthCheck', system.check
-
 ## GET /objekttyper
 
     app.get '/objekttyper', (req, res, next) ->
-      res.json ['turer', 'steder', 'områder', 'grupper', 'arrangementer', 'bilder']
+      res.json collections
 
 ## ALL /{collection}
 
     app.param 'collection', collection.param
     app.all '/:collection', (req, res, next) ->
       switch req.method
-        when 'OPTIONS' then collection.options req, res, next
         when 'HEAD', 'GET' then collection.get req, res, next
         when 'POST' then collection.post req, res, next
-        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+        else res.status(405).json
+          message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## ALL /{collection}/{objectid}
 
     app.param 'objectid', document.param
-    app.options '/:collection/:ojectid', document.options
     app.all '/:collection/:objectid', document.all, (req, res, next) ->
       switch req.method
         when 'HEAD', 'GET' then document.get req, res, next
         when 'PUT' then document.put req, res, next
         when 'PATCH' then document.patch req, res, next
         when 'DELETE' then document.delete req, res, next
-        else res.status(405).json message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
+        else res.status(405).json
+          message: "HTTP Method #{req.method.toUpperCase()} Not Allowed"
 
 ## 404 handling
 
@@ -100,7 +88,7 @@ This the fmous 404 Not Found handler. If no route configuration for the request
 is found, it ends up here. We don't do much fancy about it – just a standard
 error message and HTTP status code.
 
-    app.use (req, res) -> res.status(404).json message: "Resurs ikke funnet"
+    app.use (req, res) -> res.status(404).json message: 'Resurs ikke funnet'
 
 ### Error handling
 
@@ -120,7 +108,7 @@ Before returning a response to the user the request method is check. HEAD
 requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
-      res.status err.status or 500
+      res.status err.code or err.status or 500
 
       if res.statusCode is 401
         sentry.captureMessage "Invalid API-key #{req.query.api_key}",
@@ -128,34 +116,36 @@ requests shall not contain any body – this applies for errors as well.
           extra: sentry.parseRequest req, user: req.user
 
       if res.statusCode is 403
-        sentry.captureMessage "Rate limit exceeded for #{req.user.tilbyder}",
+        sentry.captureMessage "Rate limit exceeded for #{req.user.provider}",
           level: 'notice'
           extra: sentry.parseRequest req, user: req.user
 
       if res.statusCode >= 500
+        # coffeelint: disable=no_debugger
         console.error err.message
         console.error err.stack
+        # coffeelint: enable=no_debugger
 
       return res.end() if req.method is 'HEAD'
       return res.json message: err.message or 'Ukjent feil'
 
 ## Start
 
-Ok, so if the server is running in stand-alone mode i.e. there is not
-`module.parent` then continue with starting the databse and listening to a port.
+Start the server listening on the port defined in the `VIRTUAL_PORT` environment
+variable or the default port `8080` if the server is running in stand alone
+mode.
 
     if not module.parent
-      require('./db/redis')
-      require('./db/mongo').once 'ready', ->
+
+Wait for Redis and MongoDB to become aviable before accepting connections on the
+server port.
+
+      mongo.once 'ready', ->
+        # coffeelint: disable=no_debugger
         console.log 'Database is open...'
 
-        app.listen app.get('port'), ->
-          console.log "Server is listening on port #{app.get('port')}"
+        port = process.env.VIRTUAL_PORT || 8080
 
-However, if there is a `module.parent` don't do all the stuff above. This means
-that there is some program that is including the server from it, e.g a test, and
-hence it should not listen to a port for incomming connections and rather just
-return the application instance so that we can do some testing on it.
-
-    else
-      module.exports = app
+        app.listen port, ->
+          console.log "Server is listening on port #{port}"
+        # coffeelint: enable=no_debugger

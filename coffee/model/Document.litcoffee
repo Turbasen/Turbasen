@@ -7,34 +7,65 @@ Import event emitter stuff.
 
 Import data storage modules.
 
-    mongo   = require '../db/mongo'
-    redis   = require '../db/redis'
+    mongo   = require '@turbasen/db-mongo'
+    redis   = require '@turbasen/db-redis'
 
     parse   = require '../helper/parse'
     cache   = require '../helper/cache'
 
+    collections = require('../helper/schema').types
+
+---
+
 ## Class: Doc
 
-### Params
+### new Doc(type, id)
 
-* `string` type - document type
-* `string` id - document id
+* **string** `type` - document type (collection name)
+* **string** `id` - document id
 
-### Return
-
-New `Doc`.
+---
 
     module.exports = Doc = (type, id) ->
       throw new Error('Missing Doc type param') if not type
-      throw new Error('Missing or invalid ID param') if typeof id isnt 'string' and id isnt null
 
-      EventEmitter.call @
+      if typeof id isnt 'string' and id isnt null
+        throw new Error('Missing or invalid ID param')
+
+      EventEmitter.call this
+
+### doc.db
+
+MongoDB collection instance where the document is stored.
 
       @db   = mongo[type]
+
+### doc.id
+
+Unique `ObjectID` for the document. Access through `doc.getId()`.
+
       @id   = if typeof id is 'string' then new ObjectID(id) else null
+
+### doc.type
+
+Document collection name (object type).
+
       @type = type
+
+### doc.data
+
+Cached document data from Redis. This gets poppulated automaticly when the
+a new document is instanciated.
+
       @data = {}
+
+### doc.chit
+
+Cache hit indicator. Accessed through `doc.wasCacheHit()`.
+
       @chit = false
+
+---
 
       if @id
         redis.hgetall "#{@type}:#{@id.toString()}", (err, data) =>
@@ -54,58 +85,50 @@ New `Doc`.
       else
         process.nextTick => @emit 'ready'
 
-      return @
+      return this
 
     inherits Doc, EventEmitter
 
-## Doc.exists
+### doc.exists()
 
-Check if document exists.
+Check if document exists. Returns `true` if document exists; otherwise `false`.
 
-### Return
-
-Returns `true` if document exists; otherwise `false`.
+---
 
     Doc.prototype.exists = ->
       return @data.status? and @data.status isnt 'Slettet'
 
 
-## Doc.getId
+### doc.getId()
 
-Get document id (ObjectID) for current document.
+Get the unique id for current document. Returns an `ObjectID` if the document
+exists; otherwise `null`.
 
-### Return
-
-Returns an `ObjectID` if the document has an id; otherwise `null`.
+---
 
     Doc.prototype.getId = ->
       @id
 
 
-## Doc.wasCacheHit
+### doc.wasCacheHit()
 
-Check if document request was a cache hit.
+Check if document request was a cache hit. Returns `true` if document request
+was a cache hit; otherwise `false`.
 
-### Return
-
-Returns `true` if document request was a cache hit; otherwise `false`.
+---
 
     Doc.prototype.wasCacheHit = ->
       @chit
 
 
-## Doc.isNotModifiedSince
+### doc.isNotModifiedSince(time)
 
-Check if document has not been modified since a given timestamp.
+* **string** `time` - timestamp to check against.
 
-### Params
+Check if document has not been modified since a given timestamp. Returns `true`
+if document has not been modified since given timestamp; otherwise `false`.
 
-* `string` time - timestamp to check against.
-
-### Return
-
-Returns `true` if document has not been modified since given tmestamp; otherwise
-`false`.
+---
 
     Doc.prototype.isModifiedSince = (time) -> @modifiedSince time, false
     Doc.prototype.isNotModifiedSince = (time) -> @modifiedSince time, true
@@ -114,7 +137,7 @@ Returns `true` if document has not been modified since given tmestamp; otherwise
       return false if not time or not @data.endret
 
       if not isNaN time
-        # Make unix timestamp into milliseconds
+        # Make UNIX timestamp into milliseconds
         time = time + '000' if (time + '').length is 10
         time = parseInt time
 
@@ -130,69 +153,59 @@ Returns `true` if document has not been modified since given tmestamp; otherwise
       return chk <  org
 
 
-## doc.isMatch
+### doc.isMatch(checksum)
 
-Check if checksum, or Etag, matche current document checksum.
+* **string** `checksum` - checksum to check against.
 
-### Params
+Check if checksum, or Etag, matches current document checksum. Returns `true`
+if checksum matches the current checksum; otherwise `false`.
 
-* `string` checksum - checksum to check against.
-
-### Return
-
-Returns `true` if checksum matches the current checksum; otherwise `false`.
+---
 
     Doc.prototype.isMatch = (checksum) ->
       return false if not checksum or not @data.checksum
       return (checksum is "\"#{@data.checksum}\"" or checksum is '*')
 
 
-## doc.isNoneMatch
+### doc.isNoneMatch(checksum)
 
-Check if checksum, or Etag, doesnt match current document checksum.
+* **string** `checksum` - checksum to check against.
 
-### Params
-
-* `string` checksum - checksum to check against.
-
-### Return
-
-Return `true` if checksum does not match or document has no checksum; otherwise
+Check if checksum, or Etag, doesn't match current document checksum. Return
+`true` if checksum does not match or document has no checksum; otherwise
 `false`.
+
+---
 
     Doc.prototype.isNoneMatch = (checksum) ->
       return false if not checksum
       return true if not @data.checksum
       return checksum isnt "\"#{@data.checksum}\""
 
-## Doc.get
+### doc.get([key])
 
-Get cached data for current document.
+* **string** `key` - get specific object property
 
-### Params
+Get cached data for the current document. Returns an `object` if `key` is
+`undefined`; otherwise `string`. Will return `undefined` if the given key does
+not exist.
 
-* `string` key - get specific object property
-
-### Return
-
-Returns an `object` if `key` is `undefined`; otherwise `string`. Will retur
-`undefined` if the given key does not exist.
+---
 
     Doc.prototype.get = (key) ->
       return @data if not key
       return @data[key]
 
 
-## doc.getFull
+### doc.getFull(filter[, cb])
 
-### Params
+* **object** `filter` - control which object properties are returned
+* **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
-* `object` filter - control which object properties are returned
-* `function` cb - callback function (`Error` err, `object` data)
+Get the full document data from the database asynchronously. Returns a cursor
+stream if `cb` is undefined.
 
-### Return
-
-Returns `undefined`.
+---
 
     Doc.prototype.getFull = (filter, cb) ->
       if not cb
@@ -203,18 +216,108 @@ Returns `undefined`.
         @db.findOne _id: @id, filter, cb
 
 
-## Doc.insert
+### doc.getExpanded(opts, cb)
 
-Inserts a document into databse.
+* **object** `opts`
+  * **object** `filter` - document & sub-document projection (**default** `{}`)
+  * **number** `limit` - sub-document max expanded (**default** `10`)
+  * **array** `expand` - sub-document collections to expand (**default** `[]`)
+  * **object** `query` - sub-document select query (**default** `{}`)
+* **function** `cb` - callback function (**Error** `err`, **object** `data`)
 
-### Params
+Get the full document with expanded sub-documents from the database
+asynchronously. To expand a given collection jsut pass the collection name to
+the `expand` parameter and it will be merged with the document data.
 
-* `object` data - data to insert for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
+---
 
-### Return
+    Doc.prototype.getExpanded = (opts, cb) ->
+      return cb new Error('Document doesnt exists') if not @exists()
 
-Returns `undefined`.
+      docFields = opts.fields or {}
+      subFields = Object.assign {}, docFields
+
+Prevent private fields from being included in sub-documents to prevent
+unauthorized information disclosure.
+
+      if Object.keys(subFields).length > 0
+        delete subFields.privat
+
+      if Object.keys(subFields).length is 0
+        subFields.privat = false
+
+      limit = Math.min opts.limit or 10, 10
+      query = opts.query or {}
+
+      count = 0
+      mapped = {}
+
+Since `expand` might be a user supplied input parameter we need to limit it to
+properties which are expandable (`collections`). We also remove properties which
+holds no value for this document.
+
+      expand = (opts.expand or [])
+        .filter (v) => @data[v] and v in collections
+
+Next we map the string array into an object array on the following format:
+`{ type: String, ids: Array }` where `ids` are ObjectIDs to an document of the
+collection `type`.
+
+        .map (v) => type: v, ids: @data[v].slice(0, limit).map (d) -> new ObjectID d
+
+Set up a `final` function which is called when expanded data is ready to be
+mapped to the original document.
+
+      final = () =>
+        @db.findOne _id: @id, docFields, (err, doc) ->
+          cb err, Object.assign doc or {}, mapped
+
+If there are no fields to expand, we just call the `final` function instantly
+and no fields will get expanded.
+
+      return final() if expand.length is 0
+
+Set up a `next` function which is called for each expanded data returned from
+the database. Expanded data is stored in the `mapped` object which is merged
+with the main document in `final`. When all expanded fields are mapped `final`
+is called.
+
+      next = (type, _, docs) ->
+        mapped[type] = docs or []
+        return final() if Object.keys(mapped).length == expand.length
+
+Get the expanded sub-documents from the database.
+
+      expand.forEach (x) ->
+        mongo[x.type]
+
+We find the sub-documents using the ObjectIDs in the expanded fields, that is
+the easy part. The tricky part is to prevent information leakage of private
+documents. This the second part is a `query` limiting the results to public
+documents or those owned by the current API user.
+
+          .find Object.assign { _id: $in: x.ids }, query
+
+We reuse the projection fields from the original document, but since we do not
+know in advanced who owns a given sub-document we remove the `private` property
+to prevent information leakage.
+
+          .project subFields
+
+Bundle all the sub-documents in one array and pass it to the `next` function.
+
+          .toArray next.bind null, x.type
+
+
+### doc.insert(data, cb)
+
+* **object** `data` - data to insert for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
+
+Inserts a new document into database.
+
+---
 
     Doc.prototype.insert = (data, cb) ->
       return cb new Error('Document already exists') if @exists()
@@ -234,18 +337,16 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## Doc.replace
+### doc.replace(data, cb)
+
+* **object** `data` - replacement data for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
 
 Replaces all document data in database.
 
-### Params
 
-* `object` data - replacement data for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
-
-### Return
-
-Returns `undefined`.
+---
 
     Doc.prototype.replace = (data, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
@@ -265,19 +366,16 @@ Returns `undefined`.
           cb err, warn, data
 
 
-## Doc.update
+### doc.update(data, cb)
 
-Partially update the document-data in database. This is some times refered to as
-PATCH in a HTTP / REST context.
+* **object** `data` - replacement object for document.
+* **function** `cb` - callback function (**Error** `err`, **Array** `warn`,
+**object** `data`).
 
-### Params
+Partially update the document-data in database. This is some times referred to
+as PATCH in a HTTP / REST context.
 
-* `object` data - replacement object for document.
-* `function` cb - callback function (`Error` err, `Array` warn, `object` data).
-
-### Return
-
-Returns `undefined`.
+---
 
     Doc.prototype.update = (query, cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
@@ -297,18 +395,14 @@ Returns `undefined`.
             cb err, warn, doc
 
 
-## Doc.delete
+### doc.delete(cb)
+
+* **function** `cb` - callback function (**Error** `err`).
 
 Delete a document from the database by removing all document properties and
 setting the `status` property to `Slettet`.
 
-### Params
-
-* `function`  cb - callback function (`Error` err).
-
-### Return
-
-Returns `undefined`.
+---
 
     Doc.prototype.delete = (cb) ->
       return cb new Error('Document doesnt exists') if not @exists()
@@ -321,4 +415,3 @@ Returns `undefined`.
         redis.hmset "#{@type}:#{@id.toString()}", @data
 
         cb null
-

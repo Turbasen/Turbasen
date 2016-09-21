@@ -18,8 +18,11 @@ module.exports.parseRequest = (req, kwargs = {}) ->
 
 if process.env.NODE_ENV isnt 'development'
   module.exports.patchGlobal (id, err) ->
+    # coffeelint: disable=no_debugger
     console.error 'Uncaught Exception'
     console.error err.message
     console.error err.stack
+    # coffeelint: enable=no_debugger
+
     process.exit 1
 

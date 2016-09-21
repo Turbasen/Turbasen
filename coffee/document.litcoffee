@@ -1,16 +1,17 @@
+    schema   = require './helper/schema'
     sentry   = require './db/sentry'
     Document = require './model/Document'
 
-    stringify= require('JSONStream').stringify
+    JSONStream = require 'JSONStream'
 
 ## param()
 
     exports.param = (req, res, next, id) ->
-      return res.status(400).json message: 'Invalid ObjectId' if not /^[a-f0-9]{24}$/.test id
-      return next() if req.method is 'OPTIONS'
+      if not /^[a-f0-9]{24}$/.test id
+        return res.status(400).json message: 'Invalid ObjectId'
 
       req.doc = new Document(req.type, id).once('error', next).once 'ready', ->
-        req.isOwner = @exists() and req.user.tilbyder is @get 'tilbyder'
+        req.isOwner = req.user.isOwner @get()
 
         if not @exists() or (@get('status') isnt 'Offentlig' and not req.isOwner)
           return res.status(404).json message: 'Not Found' if req.method isnt 'HEAD'
@@ -45,43 +46,116 @@
       next()
 
 
-## options()
+## HEAD and GET
 
-    exports.options = (req, res, next) ->
-      res.set 'Access-Control-Allow-Methods', [
-        'HEAD', 'GET', 'PUT', 'PATCH', 'DELETE'
-      ].join ', '
-      res.set 'Access-Control-Allow-Headers', [
-        'Content-Type'
-        'If-Match'
-        'If-Modified-Since'
-        'If-None-Match'
-        'If-Unmodified-Since'
-      ].join ', '
-      res.sendStatus 204
-
-
-## head()
-## get()
+```http
+HEAD /{type}/{id}
+GET /{type}/{id}
+```
 
     exports.head = exports.get = (req, res, next) ->
       return res.sendStatus 200 if req.method is 'HEAD'
 
-      res.set 'Content-Type', 'application/json; charset=utf-8'
-      req.doc.getFull if req.isOwner then {} else privat: false
-        .stream()
-        .pipe stringify '', '', ''
-        .pipe res
+      opts =
+        query: req.user.query {}
+        fields: {}
+
+### Fields Projection
+
+```none
+&fields=field1[,field2[,..]]
+```
+
+Private (`privat.`) fields are hidden unless the current API user is the owner
+of the document. This is to prevent unauthorized information disclosure.
+
+      opts.fields.privat = false if not req.isOwner
+
+If you only want some of the document properties returned you can use the
+`fields` query parameter to control the projection of document properties.
+Multiple fields must be comma separated without any additional spacing.
+
+This projection also applies to expanded sub-documents when using the `&expand=`
+query parameter below.
+
+      if req.query?.fields
+        opts.fields[field] = true for field in req.query.fields.split ','
+        delete opts.fields.privat if not req.isOwner
+
+The list of default fields below will always be returned for compliance reasons.
+
+        opts.fields = Object.assign opts.fields,
+          endret: true
+          lisens: true
+          status: true
+          navn: true
+          tilbyder: true
+          navngiving: true
+
+### Sub-document Expansion
+
+```none
+&expand=field1[,field2[..]]
+```
+
+Sub-document expansion is an easy and convenient way to get connected documents
+such as `grupper`, `bilder`, and `områder` as their full objects instead of a
+list of `ObjectIDs`. It works by setting the `expand` query parameter to the
+fields to expand.
+
+**Rate limit**
+
+Sub-document expansion will decrease your remaining API rate limit with `1` per
+collection expanded in addition to the request itself. Thus, if you request a
+document (1) with two collection expanded (2) your remaining API rate limit will
+be decremented with 3. This is to encurrage resonable expansion of relevant
+collections only.
+
+**Order and limit**
+
+Sub-document expansion will return at most 10 first sub-documents for each
+collection expanded and out of order. Only sub-documents avaiable to the current
+API user will be return as sub-documents my not be published or may have been
+deleted.
+
+      if req.query?.expand
+        opts.expand = req.query.expand.split ','
+
+### Sub-document Limit
+
+```none
+&limit={n}
+```
+
+If you wisth to return less sub-documents in order to increase response time and
+body size you may do so by using the `limit` query parameter. This will affect
+all sub-documents expanded by the `expand` query parameter.
+
+      if req.query?.limit and parseInt req.query.limit, 10
+        opts.limit = parseInt req.query.limit, 10
+
+---
+
+      req.doc.getExpanded opts, (err, doc) ->
+        return next err if err
+        res.json doc
 
 
-## patch()
-## put()
+## PUT and PATCH
+
+```http
+PUT /{type}/{id}
+PATCH /{type}/{id}
+```
 
     exports.patch = exports.put = (req, res, next) ->
-      return res.status(400).json message: 'Body is missing' if Object.keys(req.body).length is 0
-      return res.status(400).json message: 'Body should be a JSON Hash' if req.body instanceof Array
+      if Object.keys(req.body).length is 0
+        return res.status(400).json message: 'Body is missing'
 
-      req.body.tilbyder = req.user.tilbyder
+      if req.body instanceof Array
+        return res.status(400).json message: 'Body should be a JSON Hash'
+
+      req.body.tilbyder = req.user.provider
 
       method = (if req.method is 'PUT' then 'replace' else 'update')
       req.doc[method] req.body, (err, warn, data) ->
@@ -104,7 +178,11 @@
           warnings: warn if warn.length > 0
 
 
-## delete()
+## DELETE
+
+```http
+DELETE /{type}/{id}
+```
 
     exports.delete = (req, res, next) ->
       req.doc.delete (err) ->

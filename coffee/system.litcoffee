@@ -1,5 +1,5 @@
-    redis = require './db/redis'
-    mongo = require './db/mongo'
+    redis = require '@turbasen/db-redis'
+    mongo = require '@turbasen/db-mongo'
 
 ## check()
 
@@ -26,4 +26,3 @@ OK` message if everything is fine. Errors are logged.
 
       mongo.db.command dbStats: true, ret
       redis.info ret
-
