@@ -4,7 +4,10 @@
   "description": "API for Nasjonal Turbase",
   "homepage": "http://www.nasjonalturbase.no/",
   "bugs": "https://github.com/Turbasen/Turbasen/issues",
-  "repository": "git@github.com:Turbasen/Turbasen.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Turbasen/Turbasen.git"
+  },
   "main": "src/server.js",
   "files": [
     "src"
