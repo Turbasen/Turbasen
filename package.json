@@ -44,7 +44,7 @@
     "raven": "^0.12.0",
     "semantic-release": "^4.3.5",
     "supertest": "^2.0.0",
-    "supervisor": "0.11.0"
+    "supervisor": "0.12.0"
   },
   "scripts": {
     "codacy-coverage": "codacy-coverage",
