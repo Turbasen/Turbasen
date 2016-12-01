@@ -24,7 +24,7 @@
     "coffee-script": "^1.10.0",
     "compression": "^1.6.2",
     "express": "^4.13.3",
-    "joi": "^5.1.0",
+    "joi": "^10.0.2",
     "mongo-querystring": "^4.0.0",
     "mongodb": "^2.1.18",
     "newrelic": "<=1.30.0",
