@@ -28,7 +28,7 @@
     "mongo-querystring": "^4.0.0",
     "mongodb": "^2.1.18",
     "newrelic": "<=1.30.0",
-    "raven": "^0.11.0",
+    "raven": "^1.1.0",
     "response-time": "^2.3.1"
   },
   "devDependencies": {
