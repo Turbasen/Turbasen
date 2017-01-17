@@ -1,25 +1,32 @@
-mongo:
-  image: mongo:3.0
+version: '2'
 
-redis:
-  image: redis:3
+services:
+  mongo:
+    image: mongo:3.0
+    network_mode: 'bridge'
 
-node:
-  image: node:argon
-  ports:
-    - "8080"
-  links:
-    - mongo
-    - redis
-  working_dir: /usr/src/app
-  volumes:
-    - .:/usr/src/app
-  environment:
-    - NODE_ENV=development
-    - VIRTUAL_PORT=8080
-    - VIRTUAL_HOST=api.ntb.privat
-    - NPM_CONFIG_LOGLEVEL=silent
-    - NPM_CONFIG_PROGRESS=false
-    - NPM_CONFIG_SPIN=false
-    - NTB_API_ENV=test
-  command: npm start
+  redis:
+    image: redis:3
+    network_mode: 'bridge'
+
+  node:
+    image: node:argon
+    network_mode: 'bridge'
+    ports:
+      - "8080"
+    links:
+      - mongo
+      - redis
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+      - VIRTUAL_PORT=8080
+      - VIRTUAL_HOST=dev.nasjonalturbase.local
+      - NPM_CONFIG_LOGLEVEL=silent
+      - NPM_CONFIG_PROGRESS=false
+      - NPM_CONFIG_SPIN=false
+      - NTB_API_ENV=test
+    command: npm start
