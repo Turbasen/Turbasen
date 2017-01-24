@@ -32,6 +32,7 @@ services:
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
       - NTB_API_ENV=test
+      - DATABASE_TIMEOUT_MS=20000
     command: npm start
 
 networks:
