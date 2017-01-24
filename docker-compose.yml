@@ -3,15 +3,18 @@ version: '2'
 services:
   mongo:
     image: mongo:3.0
-    network_mode: 'bridge'
+    networks:
+      - dockerproxy_default
 
   redis:
     image: redis:3
-    network_mode: 'bridge'
+    networks:
+      - dockerproxy_default
 
   node:
     image: node:argon
-    network_mode: 'bridge'
+    networks:
+      - dockerproxy_default
     ports:
       - "8080"
     links:
@@ -30,3 +33,7 @@ services:
       - NPM_CONFIG_SPIN=false
       - NTB_API_ENV=test
     command: npm start
+
+networks:
+  dockerproxy_default:
+    external: true
