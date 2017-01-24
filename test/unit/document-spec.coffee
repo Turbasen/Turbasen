@@ -397,4 +397,3 @@ describe '#delete()', ->
       done()
 
     document.delete req, res, assert.ifError
-
