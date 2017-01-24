@@ -11,6 +11,10 @@ data.områder  = require './data/områder.json'
 data.steder   = require './data/steder.json'
 data.turer    = require './data/turer.json'
 
+# Unset environment variable MONGO_URI to use test values for DB connection
+
+process.env.MONGO_URI = undefined
+
 # For some reason NodeJS or Mocha caches the object array but still tries to run
 # the Object to ObjectID convertion. This results in new ObjectIDs for every run
 # > 0. new ObjectID(ObjectID) => new ObjectId()
