@@ -112,12 +112,16 @@ skip, and sort).
         limit: Math.min (parseInt(req.query.limit, 10) or 20), 50
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
+      .maxTimeMS parseInt(process.env.DATABASE_TIMEOUT_MS, 10)
 
 Count number of matching documents in MongoDB database. Ignore limit and skip
 settings by passing `false` as the first argument to `cursor.count()`.
 
       cursor.count false, (err, total) ->
-        return next err if err
+        if err?.code == 50
+          return next code: 503, message: 'Database timeout'
+        else if err
+          return next err
 
 Calculate the total number of documents that will eventually be returned (not
 the total number of matching documents) since we don't know that in advanced
