@@ -18,6 +18,7 @@
     "@turbasen/auth": "^3.0.0",
     "@turbasen/db-mongo": "^1.0.0",
     "@turbasen/db-redis": "^1.0.0",
+    "@turbasen/stats": "^1.0.0",
     "JSONStream": "^1.1.1",
     "async": "^2.0.0",
     "body-parser": "^1.15.1",
