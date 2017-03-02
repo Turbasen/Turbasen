@@ -34,7 +34,7 @@ services:
       - NPM_CONFIG_LOGLEVEL=silent
       - NPM_CONFIG_PROGRESS=false
       - NPM_CONFIG_SPIN=false
-      - NTB_API_ENV=test
+      - NTB_API_ENV=dev
       - DATABASE_TIMEOUT_MS=20000
     logging:
       options:
