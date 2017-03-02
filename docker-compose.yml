@@ -2,25 +2,22 @@ version: '2'
 
 services:
   mongo:
-    image: mongo:3.0
-    networks:
-      - dockerproxy_default
+    image: mongo:3
+    network_mode: 'bridge'
     logging:
       options:
         max-size: "500k"
 
   redis:
     image: redis:3
-    networks:
-      - dockerproxy_default
+    network_mode: 'bridge'
     logging:
       options:
         max-size: "500k"
 
   node:
     image: node:argon
-    networks:
-      - dockerproxy_default
+    network_mode: 'bridge'
     ports:
       - "8080"
     links:
@@ -43,7 +40,3 @@ services:
       options:
         max-size: "500k"
     command: npm start
-
-networks:
-  dockerproxy_default:
-    external: true
