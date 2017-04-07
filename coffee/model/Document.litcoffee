@@ -246,7 +246,7 @@ unauthorized information disclosure.
       if Object.keys(subFields).length is 0
         subFields.privat = false
 
-      limit = Math.min opts.limit or 10, 10
+      limit = Math.min opts.limit or 20, 50
       query = opts.query or {}
 
       count = 0
