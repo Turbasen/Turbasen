@@ -11,6 +11,7 @@
     responseTime  = require 'response-time'
 
     auth          = require '@turbasen/auth'
+    stats         = require '@turbasen/stats'
     collections   = require('./helper/schema').types
 
     system        = require './system'
@@ -49,6 +50,12 @@ session variables so they become accessible throughout the entire system during
 the rquest.
 
     app.use auth.middleware
+
+### Stats
+
+Log the request to Google Analytics using @turbasen/stats middleware.
+
+    app.use stats.middleware
 
 ## GET /
 
