@@ -49,11 +49,11 @@ describe 'GET', ->
         .expect (res) ->
           assert.equal res.body.count, 10
 
-    it 'should prevent limit higher then 50', ->
-      req.get '/steder?limit=100&api_key=dnt'
+    it 'should prevent limit higher then 100', ->
+      req.get '/steder?limit=200&api_key=dnt'
         .expect 200
         .expect (res) ->
-          assert.equal res.body.count, 50
+          assert.equal res.body.count, 100
 
   describe '?skip', ->
     it 'should skip the 9 first documents', (done) ->
