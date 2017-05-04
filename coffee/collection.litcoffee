@@ -109,7 +109,7 @@ Make new cursor object with the correct query, fields, and other options (limit,
 skip, and sort).
 
       cursor = req.db.col.find req.db.query, fields,
-        limit: Math.min (parseInt(req.query.limit, 10) or 20), 50
+        limit: Math.min (parseInt(req.query.limit, 10) or 20), 100
         skip: parseInt(req.query.skip, 10) or 0
         sort: sort
       .maxTimeMS parseInt(process.env.DATABASE_TIMEOUT_MS, 10)
