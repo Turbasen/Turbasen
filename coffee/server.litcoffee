@@ -117,6 +117,9 @@ requests shall not contain any body – this applies for errors as well.
     app.use (err, req, res, next) ->
       res.status err.code or err.status or 500
 
+      if res.statusCode >= 600
+        res.status 500
+
       if res.statusCode is 401
         sentry.captureMessage "Invalid API-key #{req.query.api_key}",
           level: 'warning'
