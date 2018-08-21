@@ -165,18 +165,12 @@ workflows:
     jobs:
       - build-code:
           context: dnt-k8s-dev-beta
-          filters:
-            branches:
-              only:
-                - circleci
+
       - build-image:
           requires:
             - build-code
           context: dnt-k8s-dev-beta
-          filters:
-            branches:
-              only:
-                - circleci
+
       - deploy-to-dev:
           requires:
             - build-image
@@ -184,8 +178,8 @@ workflows:
           filters:
             branches:
               only:
-                - master
-                - circleci
+                - develop
+
       # - deploy-to-beta:
       #     context: dnt-k8s-dev-beta
       #     filters:
