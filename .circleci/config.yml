@@ -4,7 +4,9 @@ jobs:
     docker:
       - image: node:argon
       - image: mongo:3.0
+        name: 'mongo'
       - image: redis:3
+        name: 'redis'
     steps:
       - checkout
       - run:
