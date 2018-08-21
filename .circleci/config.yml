@@ -149,6 +149,7 @@ workflows:
             branches:
               only:
                 - master
+                - circleci
       # - deploy-to-beta:
       #     context: dnt-k8s-dev-beta
       #     filters:
