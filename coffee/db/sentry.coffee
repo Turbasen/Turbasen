@@ -5,7 +5,7 @@ Client.prototype.captureDocumentError = (req, err) ->
     level: 'warning'
     extra: req: req, err: err
 
-module.exports = new Client process.env.SENTRY_DNS
+module.exports = new Client process.env.SENTRY_DSN
 module.exports.parseRequest = (req, kwargs = {}) ->
   kwargs.http =
     method: req.method

@@ -48,5 +48,4 @@ dnt = "gs://dnt-helm-repo"
     [apps.turbasen-dev.set]
     "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
     "containers[1].environment.SENTRY_DSN" = "$TURBASEN_SENTRY_DSN"
-    "containers[1].environment.SENTRY_DNS" = "$TURBASEN_SENTRY_DNS"
     "containers[1].environment.MONGO_URI" = "$TURBASEN_MONGO_URI"
