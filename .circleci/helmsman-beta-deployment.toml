@@ -1,0 +1,53 @@
+# metadata -- add as many key/value pairs as you want
+[metadata]
+org = "DNT"
+maintainer = "Roar Skår  & Sami Alajrami (sami@praqma.com)"
+
+# paths to the certificate for connecting to the cluster
+# You can skip this if you use Helmsman on a machine with kubectl already connected to your k8s cluster.
+[certificates]
+caCrt    = "$DEV_CLUSTER_CERT"
+caKey    = "$DEV_CLUSTER_CLIENT_KEY"
+caClient = "$DEV_CLUSTER_CLIENT_CERT"
+
+[settings]
+kubeContext = "dnt" # will try connect to this context first, if it does not exist, it will be created using the details below
+username = "admin"
+password = "$DEV_CLUSTER_PASSWORD" # admin user password
+clusterURI = "$DEV_CLUSTER_URI" # cluster API
+slackWebhook = "$SLACK_WEBHOOK_HELMSMAN"
+
+
+
+# define your environments and thier k8s namespaces
+# syntax: (whitespaces don't matter)
+# [namespaces]
+# [namespaces.<your namespace>]
+#  protected = <true/false> # default is false
+[namespaces]
+[namespaces.beta]
+
+# define any private/public helm charts repos you would like to get charts from
+# syntax: repo_name = "repo_url"
+[helmRepos]
+dnt = "gs://dnt-helm-repo"
+
+# define the desired state of your applications helm charts
+# each contains the following:
+
+[apps]
+
+[apps.turbasen]
+    name = "turbasen"
+    description = "Turbasen Beta App."
+    namespace = "beta"
+    enabled = true
+    chart = "dnt/web-app"
+    version = "0.7.0"
+    valuesFile = "turbasen-beta-values.yaml"
+    protected = true
+    [apps.turbasen.set]
+    "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
+    "containers[1].environment.SENTRY_DSN" = "$TURBASEN_SENTRY_DSN"
+    "containers[1].environment.SENTRY_DNS" = "$TURBASEN_SENTRY_DNS"
+    "containers[1].environment.MONGO_URI" = "$TURBASEN_MONGO_URI"
