@@ -18,11 +18,9 @@ jobs:
       - run:
           name: install
           command: npm install
-
       - run:
           name: lint
           command: npm run lint
-
       - run:
           name: test
           command: npm test
@@ -104,6 +102,19 @@ jobs:
           name: run helmsman
           command: |
             helmsman -debug -apply -f .circleci/helmsman-dev-deployment.toml
+      - run:
+           name: notify slack on failure
+           when: on_fail
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+      - run:
+           name: notify slack on sucess
+           when: on_success
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
   deploy-to-beta:
     docker:
       - image: praqma/helmsman:v1.3.0-helm-v2.8.1
@@ -113,6 +124,18 @@ jobs:
           name: run helmsman
           command: |
             helmsman -debug -apply -f .circleci/helmsman-beta-deployment.toml
+      - run:
+           name: notify slack on failure
+           when: on_fail
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+      - run:
+           name: notify slack on sucess
+           when: on_success
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
 
   # deploy-to-prod:
   #   docker:
@@ -123,6 +146,19 @@ jobs:
   #         name: run helmsman
   #         command: |
   #           helmsman -debug -apply -f .circleci/helmsman-prod-deployment.toml
+  #     - run:
+  #          name: notify slack on failure
+  #          when: on_fail
+  #          command: |
+  #            chmod +x .circleci/notify-slack.sh
+  #            ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+  #     - run:
+  #          name: notify slack on sucess
+  #          when: on_success
+  #          command: |
+  #            chmod +x .circleci/notify-slack.sh
+  #            ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
 workflows:
   version: 2
   build-publish-deploy:
