@@ -141,14 +141,14 @@ workflows:
             branches:
               only:
                 - circleci
-      # - deploy-to-dev:
-      #     requires:
-      #       - build-image
-      #     context: dnt-k8s-dev-beta
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
+      - deploy-to-dev:
+          requires:
+            - build-image
+          context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              only:
+                - master
       # - deploy-to-beta:
       #     context: dnt-k8s-dev-beta
       #     filters:
