@@ -45,7 +45,7 @@ dnt = "gs://dnt-helm-repo"
     version = "0.7.0"
     valuesFile = ".circleci/turbasen-dev-values.yaml"
     protected = false
-    [apps.turbasen.set]
+    [apps.turbasen-dev.set]
     "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
     "containers[1].environment.SENTRY_DSN" = "$TURBASEN_SENTRY_DSN"
     "containers[1].environment.SENTRY_DNS" = "$TURBASEN_SENTRY_DNS"
