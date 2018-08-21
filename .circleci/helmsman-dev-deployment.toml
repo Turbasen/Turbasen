@@ -36,15 +36,15 @@ dnt = "gs://dnt-helm-repo"
 
 [apps]
 
-[apps.turbasen]
-    name = "turbasen"
+[apps.turbasen-dev]
+    name = "turbasen-dev"
     description = "Turbasen Dev App."
     namespace = "dev"
     enabled = true
     chart = "dnt/web-app"
     version = "0.7.0"
     valuesFile = ".circleci/turbasen-dev-values.yaml"
-    protected = true
+    protected = false
     [apps.turbasen.set]
     "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
     "containers[1].environment.SENTRY_DSN" = "$TURBASEN_SENTRY_DSN"

@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # app name
-fullnameOverride: "turbasen"
+fullnameOverride: "turbasen-dev"
 
 # deployment spec
 replicaCount: 2
