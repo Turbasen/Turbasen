@@ -43,7 +43,7 @@ dnt = "gs://dnt-helm-repo"
     enabled = true
     chart = "dnt/web-app"
     version = "0.7.0"
-    valuesFile = "turbasen-dev-values.yaml"
+    valuesFile = ".circleci/turbasen-dev-values.yaml"
     protected = true
     [apps.turbasen.set]
     "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
