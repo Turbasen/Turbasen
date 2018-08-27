@@ -40,26 +40,22 @@ containers:
     tag: ""
     pullPolicy: IfNotPresent
     environment:
-      APP_URL: "https://turbasen.beta.dnt.org/"
+      APP_URL: "https://dev.nasjonalturbase.no/"
       FORCE_SSL: false
       DATABASE_TIMEOUT_MS: 20000
-      GA_ID: UA-45821478-4
+      GA_ID: UA-45821478-5
       MONGO_URI: ""
-      NTB_API_ENV: prod
-      NEW_RELIC_APP_NAME: ntb-prod
+      NTB_API_ENV: dev
+      NEW_RELIC_APP_NAME: ntb-dev
       NEW_RELIC_LICENSE_KEY: ""
       NEW_RELIC_LOG: stdout
       NEW_RELIC_NO_CONFIG_FILE: true
       NODE_ENV: production
       NPM_CONFIG_LOGLEVEL: warn
-      SENTRY_DNS: ""
       SENTRY_DSN: ""
       STATSD_HOST: statsd
       STATSD_PORT: 8125
-      STATSD_PREFIX: turbasen.prod.
-      VIRTUAL_HOST: "http://admin.nasjonalturbase.no*,https://admin.nasjonalturbase.no*"
-      VIRTUAL_HOST_WEIGHT: 20
-      VIRTUAL_PORT: 8080
+      STATSD_PREFIX: turbasen.dev.
       REDIS_PORT_6379_TCP_ADDR: localhost
 
     ports:
@@ -91,7 +87,7 @@ ingress:
   # Used to create an Ingress record.
   enabled: true
   hosts:
-    - host: turbasen.beta.dnt.org
+    - host: dev.nasjonalturbase.no
       paths:
         - path: /
           serviceName: turbasen
@@ -101,9 +97,9 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
   tls:
-    - secretName: beta-dnt-org-tls
+    - secretName: turbasen-tls
       hosts:
-        - turbasen.beta.dnt.org
+        - dev.nasjonalturbase.no
 cert:
-  enabled: false
+  enabled: true
   issuer: "letsencrypt-production"
