@@ -91,11 +91,11 @@ Log the request to Google Analytics using @turbasen/stats middleware.
 
 ## 404 handling
 
-This the fmous 404 Not Found handler. If no route configuration for the request
+This the famous 404 Not Found handler. If no route configuration for the request
 is found, it ends up here. We don't do much fancy about it – just a standard
 error message and HTTP status code.
 
-    app.use (req, res) -> res.status(404).json message: 'Resurs ikke funnet'
+    app.use (req, res) -> res.status(404).json message: 'Ressurs ikke funnet'
 
 ### Error handling
 
@@ -116,6 +116,9 @@ requests shall not contain any body – this applies for errors as well.
 
     app.use (err, req, res, next) ->
       res.status err.code or err.status or 500
+
+      if res.statusCode >= 600
+        res.status 500
 
       if res.statusCode is 401
         sentry.captureMessage "Invalid API-key #{req.query.api_key}",

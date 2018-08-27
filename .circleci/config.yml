@@ -1,0 +1,195 @@
+version: 2
+jobs:
+  build-code:
+    docker:
+      - image: node:argon
+      - image: mongo:3.0
+        name: 'mongo'
+      - image: redis:3
+        name: 'redis'
+    steps:
+      - checkout
+      - run:
+           name: echo nodejs information
+           command: |
+             echo "node version $(node -v) running"
+             echo "npm version $(npm -v) running"
+             echo "npm registry $(npm config get registry)"
+      - run:
+          name: install
+          command: npm install
+      - run:
+          name: lint
+          command: npm run lint
+      - run:
+          name: test
+          command: npm test
+
+      - run:
+          name: test coverage
+          command: |
+            npm run cover
+            cat ./coverage/lcov.info | npm run codacy-coverage
+
+      - run:
+          name: node security project
+          command: npm run nsp
+
+      - run:
+           name: notify slack on failure
+           when: on_fail
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+
+      - run:
+           name: notify slack on sucess
+           when: on_success
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
+
+  build-image:
+    docker:
+      - image: google/cloud-sdk:latest
+
+    working_directory: ~/repo
+
+    steps:
+      - run:
+          name: authenticate with gcloud
+          command: |
+            echo $GCLOUD_DOCKER_CREDENTIALS > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+      # if authentication succeeded - checkout code
+      - checkout
+
+      # starts a remote docker environment to run docker commands
+      - setup_remote_docker
+
+      - run:
+          name: build Turbasen docker image and push image to GCR
+          command: |
+            gcloud auth configure-docker --quiet
+            TAG=${CIRCLE_SHA1:0:9}
+            docker build -t turbasen .
+            docker tag turbasen eu.gcr.io/dnt-docker-registry-public/turbasen:latest
+            docker tag turbasen eu.gcr.io/dnt-docker-registry-public/turbasen:$TAG
+            docker push eu.gcr.io/dnt-docker-registry-public/turbasen:latest
+            docker push eu.gcr.io/dnt-docker-registry-public/turbasen:$TAG
+
+      - run:
+          name: notify slack on sucess
+          when: on_success
+          command: |
+            chmod +x .circleci/notify-slack.sh
+            ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
+      - run:
+          name: notify slack on failure
+          when: on_fail
+          command: |
+            chmod +x .circleci/notify-slack.sh
+            ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+
+  deploy-to-dev:
+    docker:
+      - image: praqma/helmsman:v1.3.0-helm-v2.8.1
+    steps:
+      - checkout
+      - run:
+          name: run helmsman
+          command: |
+            helmsman -debug -apply -f .circleci/helmsman-dev-deployment.toml
+      - run:
+           name: notify slack on failure
+           when: on_fail
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+      - run:
+           name: notify slack on sucess
+           when: on_success
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
+  deploy-to-beta:
+    docker:
+      - image: praqma/helmsman:v1.3.0-helm-v2.8.1
+    steps:
+      - checkout
+      - run:
+          name: run helmsman
+          command: |
+            helmsman -debug -apply -f .circleci/helmsman-beta-deployment.toml
+      - run:
+           name: notify slack on failure
+           when: on_fail
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+      - run:
+           name: notify slack on sucess
+           when: on_success
+           command: |
+             chmod +x .circleci/notify-slack.sh
+             ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
+  # deploy-to-prod:
+  #   docker:
+  #     - image: praqma/helmsman:v1.3.0-helm-v2.8.1
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: run helmsman
+  #         command: |
+  #           helmsman -debug -apply -f .circleci/helmsman-prod-deployment.toml
+  #     - run:
+  #          name: notify slack on failure
+  #          when: on_fail
+  #          command: |
+  #            chmod +x .circleci/notify-slack.sh
+  #            ./.circleci/notify-slack.sh Turbasen build-publish-deploy false
+  #     - run:
+  #          name: notify slack on sucess
+  #          when: on_success
+  #          command: |
+  #            chmod +x .circleci/notify-slack.sh
+  #            ./.circleci/notify-slack.sh Turbasen build-publish-deploy true
+
+workflows:
+  version: 2
+  build-publish-deploy:
+    jobs:
+      - build-code:
+          context: dnt-k8s-dev-beta
+
+      - build-image:
+          requires:
+            - build-code
+          context: dnt-k8s-dev-beta
+
+      - deploy-to-dev:
+          requires:
+            - build-image
+          context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              only:
+                - develop
+
+      - deploy-to-beta:
+          context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              only:
+                - deploy-beta
+
+      # - deploy-to-prod:
+      #     context: dnt-k8s-prod
+      #     filters:
+      #       branches:
+      #         only:
+      #           - deploy-prod
