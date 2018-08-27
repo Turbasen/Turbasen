@@ -37,7 +37,7 @@ containers:
         protocol: TCP
   - name: turbasen
     image: eu.gcr.io/dnt-docker-registry-public/turbasen
-    tag: ""
+    tag: "461cf5204"
     pullPolicy: IfNotPresent
     environment:
       APP_URL: "https://dev.nasjonalturbase.no/"
