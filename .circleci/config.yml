@@ -180,12 +180,12 @@ workflows:
               only:
                 - develop
 
-      # - deploy-to-beta:
-      #     context: dnt-k8s-dev-beta
-      #     filters:
-      #       branches:
-      #         only:
-      #           - deploy-beta
+      - deploy-to-beta:
+          context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              only:
+                - deploy-beta
 
       # - deploy-to-prod:
       #     context: dnt-k8s-prod
