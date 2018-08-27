@@ -181,8 +181,6 @@ workflows:
                 - develop
 
       - deploy-to-beta:
-          requires:
-            - build-image
           context: dnt-k8s-dev-beta
           filters:
             branches:
