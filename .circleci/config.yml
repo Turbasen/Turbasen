@@ -165,11 +165,21 @@ workflows:
     jobs:
       - build-code:
           context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              ignore:
+                - deploy-beta
+                - deploy-prod
 
       - build-image:
           requires:
             - build-code
           context: dnt-k8s-dev-beta
+          filters:
+            branches:
+              ignore:
+                - deploy-beta
+                - deploy-prod
 
       - deploy-to-dev:
           requires:

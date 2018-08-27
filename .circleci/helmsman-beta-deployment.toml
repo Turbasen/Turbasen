@@ -1,7 +1,7 @@
 # metadata -- add as many key/value pairs as you want
 [metadata]
 org = "DNT"
-maintainer = "Roar Skår  & Sami Alajrami (sami@praqma.com)"
+maintainer = "Roar Skår & Sami Alajrami (sami@praqma.com)"
 
 # paths to the certificate for connecting to the cluster
 # You can skip this if you use Helmsman on a machine with kubectl already connected to your k8s cluster.
@@ -49,5 +49,4 @@ dnt = "gs://dnt-helm-repo"
     [apps.turbasen.set]
     "containers[1].environment.NEW_RELIC_LICENSE_KEY" = "$TURBASEN_NEW_RELIC_LICENSE_KEY"
     "containers[1].environment.SENTRY_DSN" = "$TURBASEN_SENTRY_DSN"
-    "containers[1].environment.SENTRY_DNS" = "$TURBASEN_SENTRY_DNS"
     "containers[1].environment.MONGO_URI" = "$TURBASEN_MONGO_URI"
