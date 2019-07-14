@@ -14,9 +14,9 @@ data from all participants who facilitate outdoor recreation.
 
 | Website         | http://www.nasjonalturbase.no                     |
 | --------------- | ------------------------------------------------- |
-| Data liceses    | http://www.nasjonalturbase.no/lisenser.html       |
-| Attribution     | http://www.nasjonalturbase.no/navngiving.html     |
-| API docs        | http://www.nasjonalturbase.no/api.html            |
+| Data liceses    | http://www.nasjonalturbase.no/lisenser            |
+| Attribution     | http://www.nasjonalturbase.no/navngiving          |
+| API docs        | http://www.nasjonalturbase.no/api                 |
 | Technical docs  | https://github.com/Turistforeningen/Turbasen/wiki |
 
 ## Technology
